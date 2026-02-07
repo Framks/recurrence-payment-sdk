@@ -1,4 +1,4 @@
-package org.example.pagbank.request.payload;
+package com.recurrence.pagbank.request.payload;
 
 import java.time.OffsetDateTime;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.example;
+package com.recurrence.infrastructure;
 
 import java.net.URI;
 import java.net.http.HttpClient;

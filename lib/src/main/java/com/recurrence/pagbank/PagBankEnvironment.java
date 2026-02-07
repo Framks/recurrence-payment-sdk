@@ -1,4 +1,4 @@
-package org.example.pagbank;
+package com.recurrence.pagbank;
 
 public enum PagBankEnvironment {
 

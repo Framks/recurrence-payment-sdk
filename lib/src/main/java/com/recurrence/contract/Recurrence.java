@@ -1,6 +1,7 @@
-package org.example;
+package com.recurrence.contract;
 
-import org.example.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagBankProvider;
 
 public class Recurrence {
 
@@ -14,7 +15,6 @@ public class Recurrence {
         return provider.planService();
     }
 
-    // Entry points por provider
     public static class PagBank {
         public static Recurrence config(PagBankEnvironment environment, String token) {
             return new Recurrence(

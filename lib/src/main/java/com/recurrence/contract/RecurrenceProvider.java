@@ -1,4 +1,4 @@
-package org.example;
+package com.recurrence.contract;
 
 public interface RecurrenceProvider {
     PlanService planService();

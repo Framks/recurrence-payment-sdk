@@ -1,4 +1,4 @@
-package org.example.pagbank.request.payload;
+package com.recurrence.pagbank.request.payload;
 
 public class Trial {
 

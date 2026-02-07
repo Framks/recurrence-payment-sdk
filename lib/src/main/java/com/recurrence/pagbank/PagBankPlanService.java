@@ -1,7 +1,8 @@
-package org.example;
+package com.recurrence.pagbank;
 
-import org.example.pagbank.PagBankEnvironment;
-import org.example.pagbank.request.payload.Plan;
+import com.recurrence.contract.PlanService;
+import com.recurrence.infrastructure.HttpClientAdapter;
+import com.recurrence.pagbank.request.payload.Plan;
 
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -12,7 +13,6 @@ public class PagBankPlanService implements PlanService {
     private PagBankEnvironment environment;
     private String token;
     private HttpClientAdapter httpClient = new HttpClientAdapter();
-    ;
 
     public PagBankPlanService(String token) {
         this.token = token;

@@ -1,6 +1,7 @@
-package org.example;
+package com.recurrence.pagbank;
 
-import org.example.pagbank.PagBankEnvironment;
+import com.recurrence.contract.PlanService;
+import com.recurrence.contract.RecurrenceProvider;
 
 public class PagBankProvider implements RecurrenceProvider {
 
