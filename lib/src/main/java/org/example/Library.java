@@ -3,8 +3,33 @@
  */
 package org.example;
 
+import org.example.pagbank.PagBankEnvironment;
+import org.example.pagbank.request.payload.Amount;
+import org.example.pagbank.request.payload.Interval;
+import org.example.pagbank.request.payload.Plan;
+
+import java.util.List;
+import java.util.UUID;
+
 public class Library {
-    public boolean someLibraryMethod() {
-        return true;
+
+    public static void main(String[] args) {
+        var plan = Recurrence.PagBank.config(
+                PagBankEnvironment.SANDBOX,
+                "seu_token_aqui"
+        ).plan().create(
+                Plan.builder()
+                        .name("Nome do plano sdk")
+                        .referenceId(UUID.randomUUID().toString())
+                        .amount(new Amount(500))
+                        .description("Descrição do plano")
+                        .interval(new Interval(1))
+                        .paymentMethod(List.of("BOLETO"))
+                        .billingCycles(2)
+                        .limitSubscriptions(5)
+                        .setupFee(100)
+                        .build()
+        );
+
     }
 }
