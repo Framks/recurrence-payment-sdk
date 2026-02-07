@@ -2,7 +2,7 @@ package com.recurrence.pagbank;
 
 import com.recurrence.contract.PlanService;
 import com.recurrence.infrastructure.HttpClientAdapter;
-import com.recurrence.pagbank.request.payload.Plan;
+import com.recurrence.pagbank.domain.plan.PagBankPlan;
 
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -10,27 +10,22 @@ import java.util.Map;
 
 public class PagBankPlanService implements PlanService {
 
-    private PagBankEnvironment environment;
-    private String token;
-    private HttpClientAdapter httpClient = new HttpClientAdapter();
-
-    public PagBankPlanService(String token) {
-        this.token = token;
-        this.httpClient = new HttpClientAdapter();
-    }
+    private final PagBankEnvironment environment;
+    private final String token;
+    private final HttpClientAdapter httpClient = new HttpClientAdapter();
 
     public PagBankPlanService(
-            PagBankEnvironment environment,
-            String token
+            final PagBankEnvironment environment,
+            final String token
     ) {
         this.environment = environment;
         this.token = token;
     }
 
     @Override
-    public Plan create(Plan plan) {
+    public PagBankPlan create(final PagBankPlan pagBankPlan) {
 
-        String endpoint = environment.getHost() + "/plans";
+        final String endpoint = environment.getHost() + "/plans";
 
         String payload = """
                 {
@@ -43,33 +38,33 @@ public class PagBankPlanService implements PlanService {
                   },
                   "setup_fee": %d,
                   "limit_subscriptions": %d,
-                  "interval": {
+                  "pagBankPlanInterval": {
                     "length": %d,
                     "unit": "%s"
                   },
                   "billing_cycles": %d,
                   "payment_method": [%s],
-                  "trial": {
+                  "pagBankPlanTrial": {
                     "days": %d,
                     "enabled": %s,
                     "hold_setup_fee": %s
                   }
                 }
                 """.formatted(
-                plan.getReferenceId(),
-                plan.getName(),
-                plan.getDescription(),
-                plan.getAmount().getValue(),
-                plan.getAmount().getCurrency(),
-                plan.getSetupFee(),
-                plan.getLimitSubscriptions(),
-                plan.getInterval().getLength(),
-                plan.getInterval().getUnit(),
-                plan.getBillingCycles(),
-                formatPaymentMethods(plan.getPaymentMethod()),
-                (plan.getTrial() != null) ? plan.getTrial().getDays() : 0,
-                (plan.getTrial() != null) && Boolean.TRUE.equals(plan.getTrial().getEnabled()),
-                (plan.getTrial() != null) && Boolean.TRUE.equals(plan.getTrial().getHold_setup_fee())
+                pagBankPlan.getReferenceId(),
+                pagBankPlan.getName(),
+                pagBankPlan.getDescription(),
+                pagBankPlan.getAmount().getValue(),
+                pagBankPlan.getAmount().getCurrency(),
+                pagBankPlan.getSetupFee(),
+                pagBankPlan.getLimitSubscriptions(),
+                pagBankPlan.getInterval().getLength(),
+                pagBankPlan.getInterval().getUnit(),
+                pagBankPlan.getBillingCycles(),
+                formatPaymentMethods(pagBankPlan.getPaymentMethod()),
+                (pagBankPlan.getTrial() != null) ? pagBankPlan.getTrial().days() : 0,
+                (pagBankPlan.getTrial() != null) && Boolean.TRUE.equals(pagBankPlan.getTrial().enabled()),
+                (pagBankPlan.getTrial() != null) && Boolean.TRUE.equals(pagBankPlan.getTrial().hold_setup_fee())
         );
 
         Map<String, String> headers = Map.of(
@@ -87,14 +82,13 @@ public class PagBankPlanService implements PlanService {
                 );
             }
 
-            return plan;
+            return pagBankPlan;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
-    private String formatPaymentMethods(List<String> methods) {
+    private String formatPaymentMethods(final List<String> methods) {
         if (methods == null || methods.isEmpty()) {
             return "";
         }

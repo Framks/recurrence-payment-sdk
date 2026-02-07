@@ -6,7 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-public class HttpClientAdapter {
+final public class HttpClientAdapter {
 
     private final HttpClient httpClient;
 
@@ -15,9 +15,9 @@ public class HttpClientAdapter {
     }
 
     public HttpResponse<String> post(
-            String url,
-            String body,
-            Map<String, String> headers
+            final String url,
+            final String body,
+            final Map<String, String> headers
     ) {
         try {
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
@@ -26,7 +26,7 @@ public class HttpClientAdapter {
 
             headers.forEach(requestBuilder::header);
 
-            HttpRequest request = requestBuilder.build();
+            var request = requestBuilder.build();
 
             return httpClient.send(
                     request,
@@ -38,4 +38,3 @@ public class HttpClientAdapter {
         }
     }
 }
-

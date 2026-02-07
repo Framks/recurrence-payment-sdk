@@ -8,8 +8,8 @@ public class PagBankProvider implements RecurrenceProvider {
     private final PagBankPlanService planService;
 
     public PagBankProvider(
-            PagBankEnvironment environment,
-            String token
+            final PagBankEnvironment environment,
+            final String token
     ) {
         this.planService = new PagBankPlanService(
                 environment,

@@ -3,11 +3,11 @@ package com.recurrence.contract;
 import com.recurrence.pagbank.PagBankEnvironment;
 import com.recurrence.pagbank.PagBankProvider;
 
-public class Recurrence {
+final public class Recurrence {
 
     private final RecurrenceProvider provider;
 
-    private Recurrence(RecurrenceProvider provider) {
+    private Recurrence(final RecurrenceProvider provider) {
         this.provider = provider;
     }
 
@@ -16,7 +16,7 @@ public class Recurrence {
     }
 
     public static class PagBank {
-        public static Recurrence config(PagBankEnvironment environment, String token) {
+        public static Recurrence config(final PagBankEnvironment environment, final String token) {
             return new Recurrence(
                     new PagBankProvider(environment, token)
             );
