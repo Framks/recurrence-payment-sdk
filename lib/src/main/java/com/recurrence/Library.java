@@ -16,6 +16,10 @@ public class Library {
                         PagBankEnvironment.SANDBOX,
                         "seu_token_aqui")
                 .plan().create(createPlan());
+
+
+        Recurrence.Stripe.config()
+
     }
 
     private static PagBankPlan createPlan() {

@@ -2,6 +2,7 @@ package com.recurrence.contract;
 
 import com.recurrence.pagbank.PagBankEnvironment;
 import com.recurrence.pagbank.PagBankProvider;
+import com.recurrence.stripe.StripeProvider;
 
 final public class Recurrence {
 
@@ -22,5 +23,12 @@ final public class Recurrence {
             );
         }
     }
-}
 
+    public static class Stripe {
+        public static Recurrence config() {
+            return new Recurrence(
+                    new StripeProvider()
+            );
+        }
+    }
+}
