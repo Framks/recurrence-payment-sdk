@@ -1,10 +1,8 @@
 package com.recurrence;
 
 import com.recurrence.contract.Recurrence;
+import com.recurrence.contract.domain.Plan;
 import com.recurrence.pagbank.PagBankEnvironment;
-import com.recurrence.pagbank.domain.commons.Amount;
-import com.recurrence.pagbank.domain.plan.PagBankPlan;
-import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,24 +10,28 @@ import java.util.UUID;
 public class Library {
 
     static void main(String[] args) {
-        Recurrence.PagBank.config(
+        var pagBankPlan = Recurrence.PagBank.config(
                         PagBankEnvironment.SANDBOX,
                         "seu_token_aqui")
-                .plan().create(createPlan());
+                .plan().create(createPagBankPlan());
 
+        var stripePlan = Recurrence.Stripe.config()
+                .plan()
+                .create(createPagBankPlan());
 
-        Recurrence.Stripe.config()
+        System.out.println(pagBankPlan);
 
     }
 
-    private static PagBankPlan createPlan() {
-        return PagBankPlan.builder()
+    private static Plan createPagBankPlan() {
+
+        return Plan.builder()
                 .name("Nome do plano sdk")
                 .referenceId(UUID.randomUUID().toString())
-                .amount(new Amount(500))
+                .amount(500, "BRL")
                 .description("Descrição do plano")
-                .interval(new PagBankPlanInterval(1, "MONTH"))
-                .paymentMethod(List.of("BOLETO"))
+                .interval(1, "MONTH")
+                .paymentMethods(List.of("BOLETO", "CREDIT_CARD"))
                 .billingCycles(2)
                 .limitSubscriptions(5)
                 .setupFee(100)

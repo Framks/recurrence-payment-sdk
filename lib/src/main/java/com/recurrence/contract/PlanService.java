@@ -1,7 +1,7 @@
 package com.recurrence.contract;
 
-import com.recurrence.pagbank.domain.plan.PagBankPlan;
+import com.recurrence.contract.domain.Plan;
 
 public interface PlanService {
-    PagBankPlan create(PagBankPlan pagBankPlan);
+    Plan create(Plan plan);
 }

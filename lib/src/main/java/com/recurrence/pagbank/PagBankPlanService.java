@@ -1,6 +1,7 @@
 package com.recurrence.pagbank;
 
 import com.recurrence.contract.PlanService;
+import com.recurrence.contract.domain.Plan;
 import com.recurrence.infrastructure.HttpClientAdapter;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
 
@@ -24,7 +25,9 @@ public class PagBankPlanService implements PlanService {
     }
 
     @Override
-    public PagBankPlan create(final PagBankPlan pagBankPlan) {
+    public Plan create(Plan plan) {
+
+        PagBankPlan pagBankPlan = PagBankPlanMapper.from(plan);
 
         final String endpoint = environment.getHost() + "/plans";
 
@@ -82,8 +85,8 @@ public class PagBankPlanService implements PlanService {
                                 + " Body: " + response.body()
                 );
             }
-
-            return pagBankPlan;
+            plan.setId("UUID"); // TODO informar o ID
+            return plan;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
