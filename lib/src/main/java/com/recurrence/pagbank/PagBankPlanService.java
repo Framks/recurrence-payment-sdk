@@ -7,6 +7,7 @@ import com.recurrence.pagbank.domain.plan.PagBankPlan;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class PagBankPlanService implements PlanService {
 
@@ -18,8 +19,8 @@ public class PagBankPlanService implements PlanService {
             final PagBankEnvironment environment,
             final String token
     ) {
-        this.environment = environment;
-        this.token = token;
+        this.environment = Objects.requireNonNull(environment, "Environment must be a valid value");
+        this.token = Objects.requireNonNull(token, "Token must be a valid value");
     }
 
     @Override
@@ -54,12 +55,12 @@ public class PagBankPlanService implements PlanService {
                 pagBankPlan.getReferenceId(),
                 pagBankPlan.getName(),
                 pagBankPlan.getDescription(),
-                pagBankPlan.getAmount().getValue(),
-                pagBankPlan.getAmount().getCurrency(),
+                pagBankPlan.getAmount().value(),
+                pagBankPlan.getAmount().currency(),
                 pagBankPlan.getSetupFee(),
                 pagBankPlan.getLimitSubscriptions(),
-                pagBankPlan.getInterval().getLength(),
-                pagBankPlan.getInterval().getUnit(),
+                pagBankPlan.getInterval().length(),
+                pagBankPlan.getInterval().unit(),
                 pagBankPlan.getBillingCycles(),
                 formatPaymentMethods(pagBankPlan.getPaymentMethod()),
                 (pagBankPlan.getTrial() != null) ? pagBankPlan.getTrial().days() : 0,

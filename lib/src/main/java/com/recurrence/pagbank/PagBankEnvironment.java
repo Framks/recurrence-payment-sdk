@@ -7,7 +7,7 @@ public enum PagBankEnvironment {
 
     private final String host;
 
-    PagBankEnvironment(String host) {
+    PagBankEnvironment(final String host) {
         this.host = host;
     }
 

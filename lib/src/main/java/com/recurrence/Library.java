@@ -3,8 +3,8 @@ package com.recurrence;
 import com.recurrence.contract.Recurrence;
 import com.recurrence.pagbank.PagBankEnvironment;
 import com.recurrence.pagbank.domain.commons.Amount;
-import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
+import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +12,9 @@ import java.util.UUID;
 public class Library {
 
     static void main(String[] args) {
-        Recurrence.PagBank.config(PagBankEnvironment.SANDBOX, "seu_token_aqui")
+        Recurrence.PagBank.config(
+                        PagBankEnvironment.SANDBOX,
+                        "seu_token_aqui")
                 .plan().create(createPlan());
     }
 
@@ -22,7 +24,7 @@ public class Library {
                 .referenceId(UUID.randomUUID().toString())
                 .amount(new Amount(500))
                 .description("Descrição do plano")
-                .interval(new PagBankPlanInterval(1))
+                .interval(new PagBankPlanInterval(1, "MONTH"))
                 .paymentMethod(List.of("BOLETO"))
                 .billingCycles(2)
                 .limitSubscriptions(5)
