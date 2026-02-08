@@ -39,13 +39,13 @@ public class PagBankPlanService implements PlanService {
                   },
                   "setup_fee": %d,
                   "limit_subscriptions": %d,
-                  "pagBankPlanInterval": {
+                  "interval": {
                     "length": %d,
                     "unit": "%s"
                   },
                   "billing_cycles": %d,
                   "payment_method": [%s],
-                  "pagBankPlanTrial": {
+                  "trial": {
                     "days": %d,
                     "enabled": %s,
                     "hold_setup_fee": %s
