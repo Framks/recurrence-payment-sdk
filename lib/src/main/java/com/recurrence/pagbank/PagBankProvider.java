@@ -1,11 +1,13 @@
 package com.recurrence.pagbank;
 
+import com.recurrence.contract.CouponService;
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.RecurrenceProvider;
 
 public class PagBankProvider implements RecurrenceProvider {
 
     private final PagBankPlanService planService;
+    private final PagBankCouponService couponService;
 
     public PagBankProvider(
             final PagBankEnvironment environment,
@@ -15,10 +17,19 @@ public class PagBankProvider implements RecurrenceProvider {
                 environment,
                 token
         );
+        this.couponService = new PagBankCouponService(
+                environment,
+                token
+        );
     }
 
     @Override
     public PlanService planService() {
         return planService;
+    }
+
+    @Override
+    public CouponService couponService() {
+        return couponService;
     }
 }

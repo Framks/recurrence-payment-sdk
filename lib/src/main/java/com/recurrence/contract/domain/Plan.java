@@ -136,9 +136,7 @@ final public class Plan {
         private PlanTrial trial;
         private List<String> paymentMethods;
 
-        private Builder(String name) {
-            this.name = Objects.requireNonNull(name, "Plan name must not be null");
-        }
+        private Builder() {}
 
         public Builder name(String name) {
             this.name = name;

@@ -16,6 +16,10 @@ final public class Recurrence {
         return provider.planService();
     }
 
+    public CouponService coupon() {
+        return provider.couponService();
+    }
+
     public static class PagBank {
         public static Recurrence config(final PagBankEnvironment environment, final String token) {
             return new Recurrence(
