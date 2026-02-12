@@ -28,15 +28,24 @@ public class PagBankCouponService implements CouponService {
 
         final String endpoint = environment.getHost() + "/coupons";
 
-        String payload = ""; // ToDo montar o payload JSON com os dados do pagBankCoupon usando o jackson
-
         Map<String, String> headers = Map.of(
                 "Content-Type", "application/json",
                 "Authorization", "Bearer " + token
         );
 
-        // ToDo implementar a chamada para criação
+        PagBankCoupon response = httpClient.post(
+                endpoint,
+                pagBankCoupon,
+                headers,
+                PagBankCoupon.class
+        );
+        
+        if (response == null) {
+            throw new RuntimeException("Failed to create coupon: response is null");
+        }
 
-        return null;
+        coupon.setId(response.getId());
+
+        return coupon;
     }
 }

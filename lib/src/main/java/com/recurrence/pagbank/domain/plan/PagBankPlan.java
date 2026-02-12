@@ -7,17 +7,17 @@ import java.util.List;
 
 final public class PagBankPlan {
     private String id;
-    private final String referenceId;
+    private String referenceId;
     private String status;
-    private final String name;
-    private final String description;
-    private final Amount amount;
-    private final int setupFee;
-    private final int limitSubscriptions;
-    private final PagBankPlanInterval pagBankPlanInterval;
-    private final int billingCycles;
-    private final PagBankPlanTrial pagBankPlanTrial;
-    private final List<String> paymentMethod;
+    private String name;
+    private String description;
+    private Amount amount;
+    private int setupFee;
+    private int limitSubscriptions;
+    private PagBankPlanInterval pagBankPlanInterval;
+    private int billingCycles;
+    private PagBankPlanTrial pagBankPlanTrial;
+    private List<String> paymentMethod;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private Boolean editable;
@@ -33,6 +33,10 @@ final public class PagBankPlan {
         this.billingCycles = builder.billingCycles;
         this.pagBankPlanTrial = builder.pagBankPlanTrial;
         this.paymentMethod = builder.paymentMethod;
+    }
+
+    public PagBankPlan(){
+
     }
 
     public static Builder builder() {
@@ -51,52 +55,52 @@ final public class PagBankPlan {
         private PagBankPlanTrial pagBankPlanTrial;
         private List<String> paymentMethod;
 
-        public Builder name(final String name) {
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public Builder referenceId(final String referenceId) {
+        public Builder referenceId(String referenceId) {
             this.referenceId = referenceId;
             return this;
         }
 
-        public Builder description(final String description) {
+        public Builder description(String description) {
             this.description = description;
             return this;
         }
 
-        public Builder amount(final Amount amount) {
+        public Builder amount(Amount amount) {
             this.amount = amount;
             return this;
         }
 
-        public Builder setupFee(final int setupFee) {
+        public Builder setupFee(int setupFee) {
             this.setupFee = setupFee;
             return this;
         }
 
-        public Builder limitSubscriptions(final int limitSubscriptions) {
+        public Builder limitSubscriptions(int limitSubscriptions) {
             this.limitSubscriptions = limitSubscriptions;
             return this;
         }
 
-        public Builder interval(final PagBankPlanInterval pagBankPlanInterval) {
+        public Builder interval(PagBankPlanInterval pagBankPlanInterval) {
             this.pagBankPlanInterval = pagBankPlanInterval;
             return this;
         }
 
-        public Builder billingCycles(final int billingCycles) {
+        public Builder billingCycles(int billingCycles) {
             this.billingCycles = billingCycles;
             return this;
         }
 
-        public Builder trial(final PagBankPlanTrial pagBankPlanTrial) {
+        public Builder trial(PagBankPlanTrial pagBankPlanTrial) {
             this.pagBankPlanTrial = pagBankPlanTrial;
             return this;
         }
 
-        public Builder paymentMethod(final List<String> paymentMethod) {
+        public Builder paymentMethod(List<String> paymentMethod) {
             this.paymentMethod = paymentMethod;
             return this;
         }
@@ -123,59 +127,119 @@ final public class PagBankPlan {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getReferenceId() {
         return referenceId;
+    }
+
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
     }
 
     public String getStatus() {
         return status;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Amount getAmount() {
         return amount;
+    }
+
+    public void setAmount(Amount amount) {
+        this.amount = amount;
     }
 
     public int getSetupFee() {
         return setupFee;
     }
 
+    public void setSetupFee(int setupFee) {
+        this.setupFee = setupFee;
+    }
+
     public int getLimitSubscriptions() {
         return limitSubscriptions;
+    }
+
+    public void setLimitSubscriptions(int limitSubscriptions) {
+        this.limitSubscriptions = limitSubscriptions;
     }
 
     public PagBankPlanInterval getInterval() {
         return pagBankPlanInterval;
     }
 
+    public void setInterval(PagBankPlanInterval pagBankPlanInterval) {
+        this.pagBankPlanInterval = pagBankPlanInterval;
+    }
+
     public int getBillingCycles() {
         return billingCycles;
+    }
+
+    public void setBillingCycles(int billingCycles) {
+        this.billingCycles = billingCycles;
     }
 
     public PagBankPlanTrial getTrial() {
         return pagBankPlanTrial;
     }
 
+    public void setTrial(PagBankPlanTrial pagBankPlanTrial) {
+        this.pagBankPlanTrial = pagBankPlanTrial;
+    }
+
     public List<String> getPaymentMethod() {
         return paymentMethod;
+    }
+
+    public void setPaymentMethod(List<String> paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
 
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public OffsetDateTime getUpdatedAt() {
         return updatedAt;
     }
 
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public Boolean getEditable() {
         return editable;
+    }
+
+    public void setEditable(Boolean editable) {
+        this.editable = editable;
     }
 }

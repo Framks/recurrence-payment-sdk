@@ -11,7 +11,7 @@ public final class PagBankPlanMapper {
     private PagBankPlanMapper() {
     }
 
-    public static PagBankPlan from(final Plan plan) {
+    public static PagBankPlan from(Plan plan) {
         return PagBankPlan.builder()
                 .name(plan.getName())
                 .referenceId(plan.getReferenceId())

@@ -122,13 +122,13 @@ final public class Coupon {
             return this;
         }
 
-        public Builder discount(CouponDiscount couponDiscount) {
-            this.discount = couponDiscount;
+        public Builder discount(String type, int value) {
+            this.discount = new CouponDiscount(value, type);
             return this;
         }
 
-        public Builder duration(CouponDuration couponDuration) {
-            this.duration = couponDuration;
+        public Builder duration(String type, int occurrences) {
+            this.duration = new CouponDuration(type, occurrences);
             return this;
         }
 

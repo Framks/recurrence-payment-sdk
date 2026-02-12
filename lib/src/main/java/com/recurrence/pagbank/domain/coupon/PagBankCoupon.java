@@ -4,14 +4,14 @@ import java.time.OffsetDateTime;
 
 public class PagBankCoupon {
     private String id;
-    private final String referenceId;
-    private final String name;
-    private final String description;
-    private final PagBankCouponDiscount discount;
+    private String referenceId;
+    private String name;
+    private String description;
+    private PagBankCouponDiscount discount;
     private String status;
-    private final PagBankCouponDuration duration;
-    private final int redemptionLimit;
-    private final OffsetDateTime expiresAt;
+    private PagBankCouponDuration duration;
+    private int redemptionLimit;
+    private OffsetDateTime expiresAt;
     private Boolean inUse;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
@@ -25,6 +25,9 @@ public class PagBankCoupon {
         this.redemptionLimit = builder.redemptionLimit;
         this.expiresAt = builder.expiresAt;
         this.status = builder.status;
+    }
+
+    public PagBankCoupon() {
     }
 
     public void setId(String id) {
@@ -47,8 +50,24 @@ public class PagBankCoupon {
         return description;
     }
 
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public PagBankCouponDiscount getDiscount() {
         return discount;
+    }
+
+    public void setDiscount(PagBankCouponDiscount discount) {
+        this.discount = discount;
     }
 
     public void setStatus(String status) {
@@ -63,12 +82,24 @@ public class PagBankCoupon {
         return duration;
     }
 
+    public void setDuration(PagBankCouponDuration duration) {
+        this.duration = duration;
+    }
+
     public int getRedemptionLimit() {
         return redemptionLimit;
     }
 
+    public void setRedemptionLimit(int redemptionLimit) {
+        this.redemptionLimit = redemptionLimit;
+    }
+
     public OffsetDateTime getExpiresAt() {
         return expiresAt;
+    }
+
+    public void setExpiresAt(OffsetDateTime expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public void setInUse(Boolean inUse) {
@@ -83,8 +114,16 @@ public class PagBankCoupon {
         return createdAt;
     }
 
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public OffsetDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public static Builder builder() {

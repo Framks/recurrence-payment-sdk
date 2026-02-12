@@ -31,64 +31,19 @@ public class PagBankPlanService implements PlanService {
 
         final String endpoint = environment.getHost() + "/plans";
 
-        String payload = """
-                {
-                  "reference_id": "%s",
-                  "name": "%s",
-                  "description": "%s",
-                  "amount": {
-                    "value": %d,
-                    "currency": "%s"
-                  },
-                  "setup_fee": %d,
-                  "limit_subscriptions": %d,
-                  "interval": {
-                    "length": %d,
-                    "unit": "%s"
-                  },
-                  "billing_cycles": %d,
-                  "payment_method": [%s],
-                  "trial": {
-                    "days": %d,
-                    "enabled": %s,
-                    "hold_setup_fee": %s
-                  }
-                }
-                """.formatted(
-                pagBankPlan.getReferenceId(),
-                pagBankPlan.getName(),
-                pagBankPlan.getDescription(),
-                pagBankPlan.getAmount().value(),
-                pagBankPlan.getAmount().currency(),
-                pagBankPlan.getSetupFee(),
-                pagBankPlan.getLimitSubscriptions(),
-                pagBankPlan.getInterval().length(),
-                pagBankPlan.getInterval().unit(),
-                pagBankPlan.getBillingCycles(),
-                formatPaymentMethods(pagBankPlan.getPaymentMethod()),
-                (pagBankPlan.getTrial() != null) ? pagBankPlan.getTrial().days() : 0,
-                (pagBankPlan.getTrial() != null) && Boolean.TRUE.equals(pagBankPlan.getTrial().enabled()),
-                (pagBankPlan.getTrial() != null) && Boolean.TRUE.equals(pagBankPlan.getTrial().hold_setup_fee())
-        );
-
         Map<String, String> headers = Map.of(
                 "Authorization", "Bearer " + token,
                 "Content-Type", "application/json"
         );
 
         try {
-            HttpResponse<String> response = httpClient.post(endpoint, payload, headers);
-            if (response.statusCode() != 201) {
-                throw new RuntimeException(
-                        "Erro ao criar plano no PagBank. Status: "
-                                + response.statusCode()
-                                + " Body: " + response.body()
-                );
-            }
-            plan.setId("UUID"); // TODO informar o ID
+            PagBankPlan response = httpClient.post(endpoint, pagBankPlan, headers, PagBankPlan.class);
+
+            plan.setId(response.getId());
+
             return plan;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Fail to create plan "+e);
         }
     }
 
