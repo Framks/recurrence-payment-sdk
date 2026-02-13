@@ -59,4 +59,88 @@ public final class HttpClientAdapter {
             throw new RuntimeException("Erro inesperado", e);
         }
     }
+
+    public <T> T get(
+            String url,
+            Map<String, String> headers,
+            Class<T> responseType
+    ) {
+        try {
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET();
+
+            headers.forEach(builder::header);
+
+            HttpResponse<String> response =
+                    httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 400) {
+                throw new HttpClientException(response.statusCode(), response.body());
+            }
+
+            return Json.MAPPER.readValue(response.body(), responseType);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro GET HTTP", e);
+        }
+    }
+
+    public <T> T put(
+            String url,
+            Object body, Map<String, String> headers,
+            Class<T> responseType
+    ) {
+        try {
+            String jsonBody = Json.MAPPER.writeValueAsString(body);
+
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody));
+
+            headers.forEach(builder::header);
+
+            HttpResponse<String> response =
+                    httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 400) {
+                throw new HttpClientException(response.statusCode(), response.body());
+            }
+
+            if (responseType == Void.class) {
+                return null;
+            }
+
+            return Json.MAPPER.readValue(response.body(), responseType);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro PUT HTTP", e);
+        }
+    }
+
+    public <T> T delete(
+            String url,
+            Map<String, String> headers,
+            Class<T> responseType
+    ) {
+        try {
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .DELETE();
+
+            headers.forEach(builder::header);
+
+            HttpResponse<String> response =
+                    httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 400) {
+                throw new HttpClientException(response.statusCode(), response.body());
+            }
+
+            return Json.MAPPER.readValue(response.body(), responseType);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro GET HTTP", e);
+        }
+    }
 }

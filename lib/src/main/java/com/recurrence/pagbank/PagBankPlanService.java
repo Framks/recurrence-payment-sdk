@@ -5,6 +5,7 @@ import com.recurrence.contract.domain.Plan;
 import com.recurrence.infrastructure.HttpClientAdapter;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
 
+import com.recurrence.pagbank.dto.PagBankListPlan;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
@@ -47,14 +48,23 @@ public class PagBankPlanService implements PlanService {
         }
     }
 
-    private String formatPaymentMethods(final List<String> methods) {
-        if (methods == null || methods.isEmpty()) {
-            return "";
-        }
+    @Override
+    public List<Plan> list(Long offset, Long limit) {
+        final String endpoint = environment.getHost() + "/plans?offset=" + offset + "&limit=" + limit;
 
-        return methods.stream()
-                .map(method -> "\"" + method + "\"")
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("");
+        Map<String, String> headers = Map.of(
+                "Authorization", "Bearer " + token,
+                "Content-Type", "application/json"
+        );
+
+        try{
+            PagBankListPlan result = httpClient.get(endpoint, headers, PagBankListPlan.class);
+            System.out.println(result.toString());
+            return  result.getPlans().stream()
+                    .map(PagBankPlanMapper::to)
+                    .toList();
+        } catch (Exception e) {
+            throw new RuntimeException("Fail to list plans "+e);
+        }
     }
 }

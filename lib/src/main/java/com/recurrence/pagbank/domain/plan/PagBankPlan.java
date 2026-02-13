@@ -242,4 +242,25 @@ final public class PagBankPlan {
     public void setEditable(Boolean editable) {
         this.editable = editable;
     }
+
+    @Override
+    public String toString() {
+        return "PagBankPlan{" +
+                "id='" + id + '\'' +
+                ", referenceId='" + referenceId + '\'' +
+                ", status='" + status + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", amount=" + amount +
+                ", setupFee=" + setupFee +
+                ", limitSubscriptions=" + limitSubscriptions +
+                ", pagBankPlanInterval=" + pagBankPlanInterval +
+                ", billingCycles=" + billingCycles +
+                ", pagBankPlanTrial=" + pagBankPlanTrial +
+                ", paymentMethod=" + paymentMethod +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", editable=" + editable +
+                '}';
+    }
 }

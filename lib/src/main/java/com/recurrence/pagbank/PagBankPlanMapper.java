@@ -51,4 +51,28 @@ public final class PagBankPlanMapper {
                 plan.getTrial().hold_setup_fee()
         );
     }
+
+    public static Plan to(PagBankPlan pagBankPlan) {
+        return Plan.builder()
+                .id(pagBankPlan.getId())
+                .referenceId(pagBankPlan.getReferenceId())
+                .name(pagBankPlan.getName())
+                .description(pagBankPlan.getDescription())
+                .status(pagBankPlan.getStatus())
+                .amount(pagBankPlan.getAmount().value(), pagBankPlan.getAmount().currency())
+                .setupFee(pagBankPlan.getSetupFee())
+                .limitSubscriptions(pagBankPlan.getLimitSubscriptions())
+                .interval(pagBankPlan.getInterval().length(), pagBankPlan.getInterval().unit())
+                .billingCycles(pagBankPlan.getBillingCycles())
+                .trial(
+                        pagBankPlan.getTrial().days(),
+                        pagBankPlan.getTrial().enabled(),
+                        pagBankPlan.getTrial().hold_setup_fee()
+                )
+                .paymentMethods(pagBankPlan.getPaymentMethod())
+                .createdAt(pagBankPlan.getCreatedAt())
+                .updatedAt(pagBankPlan.getUpdatedAt())
+                .editable(pagBankPlan.getEditable())
+                .build();
+    }
 }
