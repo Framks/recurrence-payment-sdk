@@ -1,10 +1,7 @@
-package com.recurrence.pagbank;
+package com.recurrence.pagbank.domain.plan;
 
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.pagbank.domain.commons.Amount;
-import com.recurrence.pagbank.domain.plan.PagBankPlan;
-import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
-import com.recurrence.pagbank.domain.plan.PagBankPlanTrial;
 
 public final class PagBankPlanMapper {
 
@@ -23,6 +20,22 @@ public final class PagBankPlanMapper {
                 .billingCycles(plan.getBillingCycles())
                 .trial(mapTrial(plan))
                 .paymentMethod(plan.getPaymentMethods())
+                .build();
+    }
+
+    public static Plan to(PagBankPlan plan) {
+        return Plan.builder()
+                .id(plan.getId())
+                .name(plan.getName())
+                .referenceId(plan.getReferenceId())
+                .description(plan.getDescription())
+                .amount(plan.getAmount().value(), plan.getAmount().currency())
+                .setupFee(plan.getSetupFee())
+                .limitSubscriptions(plan.getLimitSubscriptions())
+                .interval(plan.getInterval().length(), plan.getInterval().unit())
+                .billingCycles(plan.getBillingCycles())
+                .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().hold_setup_fee())
+                .paymentMethods(plan.getPaymentMethod())
                 .build();
     }
 

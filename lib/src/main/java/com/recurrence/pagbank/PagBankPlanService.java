@@ -1,11 +1,17 @@
 package com.recurrence.pagbank;
 
+import com.recurrence.core.Converter;
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.infrastructure.HttpClientAdapter;
+import com.recurrence.pagbank.domain.error.PagBankErrorList;
+import com.recurrence.pagbank.domain.error.PagBankErrorMapper;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
+import com.recurrence.pagbank.domain.plan.PagBankPlanMapper;
 
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,71 +31,50 @@ public class PagBankPlanService implements PlanService {
     }
 
     @Override
-    public Plan create(Plan plan) {
-
-        PagBankPlan pagBankPlan = PagBankPlanMapper.from(plan);
-
-        final String endpoint = environment.getHost() + "/plans";
-
-        String payload = """
-                {
-                  "reference_id": "%s",
-                  "name": "%s",
-                  "description": "%s",
-                  "amount": {
-                    "value": %d,
-                    "currency": "%s"
-                  },
-                  "setup_fee": %d,
-                  "limit_subscriptions": %d,
-                  "interval": {
-                    "length": %d,
-                    "unit": "%s"
-                  },
-                  "billing_cycles": %d,
-                  "payment_method": [%s],
-                  "trial": {
-                    "days": %d,
-                    "enabled": %s,
-                    "hold_setup_fee": %s
-                  }
-                }
-                """.formatted(
-                pagBankPlan.getReferenceId(),
-                pagBankPlan.getName(),
-                pagBankPlan.getDescription(),
-                pagBankPlan.getAmount().value(),
-                pagBankPlan.getAmount().currency(),
-                pagBankPlan.getSetupFee(),
-                pagBankPlan.getLimitSubscriptions(),
-                pagBankPlan.getInterval().length(),
-                pagBankPlan.getInterval().unit(),
-                pagBankPlan.getBillingCycles(),
-                formatPaymentMethods(pagBankPlan.getPaymentMethod()),
-                (pagBankPlan.getTrial() != null) ? pagBankPlan.getTrial().days() : 0,
-                (pagBankPlan.getTrial() != null) && Boolean.TRUE.equals(pagBankPlan.getTrial().enabled()),
-                (pagBankPlan.getTrial() != null) && Boolean.TRUE.equals(pagBankPlan.getTrial().hold_setup_fee())
-        );
-
-        Map<String, String> headers = Map.of(
-                "Authorization", "Bearer " + token,
-                "Content-Type", "application/json"
-        );
+    public RequestResponse<Plan> create(Plan plan) {
 
         try {
+
+            PagBankPlan pagBankPlan = PagBankPlanMapper.from(plan);
+
+            final String endpoint = environment.getHost() + "/plans";
+
+            String payload = Converter.mapper().writeValueAsString(pagBankPlan);
+
+
+            Map<String, String> headers = Map.of(
+                    "Authorization", "Bearer " + token,
+                    "Content-Type", "application/json"
+            );
+
             HttpResponse<String> response = httpClient.post(endpoint, payload, headers);
+            RequestResponse requestResponse = createRequestResponse(plan, response);
+
             if (response.statusCode() != 201) {
-                throw new RuntimeException(
-                        "Erro ao criar plano no PagBank. Status: "
-                                + response.statusCode()
-                                + " Body: " + response.body()
-                );
+
+                if (response.statusCode() == 400) {
+                    var pagBankError = Converter.mapper().readValue(response.body(), PagBankErrorList.class);
+                    var errorList = PagBankErrorMapper.to(pagBankError);
+                    requestResponse.setErrors(errorList);
+                }
             }
-            plan.setId("UUID"); // TODO informar o ID
-            return plan;
+
+            var pagBankPlanResponse = Converter.mapper().readValue(response.body(), PagBankPlan.class);
+            var planResponse = PagBankPlanMapper.to(pagBankPlanResponse);
+
+            requestResponse.setBody(planResponse);
+
+            return requestResponse;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private RequestResponse createRequestResponse(Plan plan, HttpResponse<String> response) {
+        return new RequestResponse<>(
+                response.statusCode(),
+                getHeaders(response)
+        );
     }
 
     private String formatPaymentMethods(final List<String> methods) {
@@ -101,5 +86,21 @@ public class PagBankPlanService implements PlanService {
                 .map(method -> "\"" + method + "\"")
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
+    }
+
+    private List<Map<String, String>> getHeaders(HttpResponse<String> response) {
+        return response.headers()
+                .map()
+                .entrySet()
+                .stream()
+                .flatMap(entry -> entry.getValue()
+                        .stream()
+                        .map(value -> {
+                            Map<String, String> headerMap = new HashMap<>();
+                            headerMap.put(entry.getKey(), value);
+                            return headerMap;
+                        })
+                )
+                .toList();
     }
 }

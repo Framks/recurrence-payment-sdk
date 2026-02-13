@@ -42,6 +42,7 @@ final public class Plan {
     }
 
     private Plan(Builder builder) {
+        this.id = builder.id;
         this.referenceId = builder.referenceId;
         this.name = builder.name;
         this.description = builder.description;
@@ -123,7 +124,7 @@ final public class Plan {
     }
 
     public static final class Builder {
-
+        private String id;
         private String name;
         private String referenceId;
         private PlanAmount amount;
@@ -138,6 +139,15 @@ final public class Plan {
 
         private Builder(String name) {
             this.name = Objects.requireNonNull(name, "Plan name must not be null");
+        }
+
+        private Builder() {
+
+        }
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
         }
 
         public Builder name(String name) {
