@@ -27,6 +27,10 @@ public class RequestResponse<T> {
         return body;
     }
 
+    public RequestErrorResponseList getErrors() {
+        return errors;
+    }
+
     public RequestResponse setBody(T body) {
         this.body = body;
         return this;

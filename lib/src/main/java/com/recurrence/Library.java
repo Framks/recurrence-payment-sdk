@@ -9,16 +9,24 @@ import java.util.UUID;
 
 public class Library {
 
+    private static final String TOKEN = "";
+
     public static void main(String[] args) {
 
         var recurrence = Recurrence.PagBank.config(
-                        PagBankEnvironment.SANDBOX,
-                        "token");
+                PagBankEnvironment.SANDBOX,
+                TOKEN
+        );
 
         var pagBankPlan = recurrence.plan().create(createPagBankPlan());
 
-        System.out.println(pagBankPlan);
-
+        if (pagBankPlan.getBody() != null) {
+            System.out.println(pagBankPlan.getBody().getId());
+        } else if (pagBankPlan.getErrors() != null) {
+            System.out.println(pagBankPlan.getErrors().errors().get(0).errorKey());
+            System.out.println(pagBankPlan.getErrors().errors().get(0).message());
+            System.out.println(pagBankPlan.getErrors().errors().get(0).description());
+        }
     }
 
     private static Plan createPagBankPlan() {
@@ -26,7 +34,7 @@ public class Library {
         return Plan.builder()
                 .name("Nome do plano sdk")
                 .referenceId(UUID.randomUUID().toString())
-                .amount(500, "BL")
+                .amount(500, "BR")
                 .description("Descrição do plano")
                 .interval(1, "MONTH")
                 .paymentMethods(List.of("BOLETO", "CREDIT_CARD"))

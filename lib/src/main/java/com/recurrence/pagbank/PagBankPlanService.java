@@ -1,10 +1,10 @@
 package com.recurrence.pagbank;
 
-import com.recurrence.core.Converter;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.domain.infra.RequestResponse;
-import com.recurrence.infrastructure.HttpClientAdapter;
+import com.recurrence.core.Converter;
 import com.recurrence.pagbank.domain.error.PagBankErrorList;
 import com.recurrence.pagbank.domain.error.PagBankErrorMapper;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
@@ -20,7 +20,7 @@ public class PagBankPlanService implements PlanService {
 
     private final PagBankEnvironment environment;
     private final String token;
-    private final HttpClientAdapter httpClient = new HttpClientAdapter();
+    private PagBankPlanClient pagBankPlanClient;
 
     public PagBankPlanService(
             final PagBankEnvironment environment,
@@ -34,36 +34,24 @@ public class PagBankPlanService implements PlanService {
     public RequestResponse<Plan> create(Plan plan) {
 
         try {
+            pagBankPlanClient = new PagBankPlanClient(environment);
 
-            PagBankPlan pagBankPlan = PagBankPlanMapper.from(plan);
+            String payload = createPayload(plan);
 
-            final String endpoint = environment.getHost() + "/plans";
+            var headers = createHeaders(token);
 
-            String payload = Converter.mapper().writeValueAsString(pagBankPlan);
+            HttpResponse<String> response = pagBankPlanClient.create(payload, headers);
 
+            RequestResponse requestResponse = createRequestResponse(response);
 
-            Map<String, String> headers = Map.of(
-                    "Authorization", "Bearer " + token,
-                    "Content-Type", "application/json"
-            );
-
-            HttpResponse<String> response = httpClient.post(endpoint, payload, headers);
-            RequestResponse requestResponse = createRequestResponse(plan, response);
-
-            if (response.statusCode() != 201) {
-
-                if (response.statusCode() == 400) {
-                    var pagBankError = Converter.mapper().readValue(response.body(), PagBankErrorList.class);
-                    var errorList = PagBankErrorMapper.to(pagBankError);
-                    requestResponse.setErrors(errorList);
-                    return requestResponse;
-                }
+            switch (requestResponse.getHttpResponse()) {
+                case 201:
+                    createSuccessResponse(requestResponse, response);
+                    break;
+                case 400:
+                    createErrorResponse(requestResponse, response);
+                    break;
             }
-
-            var pagBankPlanResponse = Converter.mapper().readValue(response.body(), PagBankPlan.class);
-            var planResponse = PagBankPlanMapper.to(pagBankPlanResponse);
-
-            requestResponse.setBody(planResponse);
 
             return requestResponse;
         } catch (Exception e) {
@@ -71,7 +59,26 @@ public class PagBankPlanService implements PlanService {
         }
     }
 
-    private RequestResponse createRequestResponse(Plan plan, HttpResponse<String> response) {
+    private static String createPayload(Plan plan) throws JsonProcessingException {
+        return Converter.mapper().writeValueAsString(PagBankPlanMapper.from(plan));
+    }
+
+    private RequestResponse createErrorResponse(RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
+        return requestResponse.setErrors(PagBankErrorMapper.to(Converter.mapper().readValue(response.body(), PagBankErrorList.class)));
+    }
+
+    private RequestResponse createSuccessResponse(RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
+        return requestResponse.setBody(PagBankPlanMapper.to(Converter.mapper().readValue(response.body(), PagBankPlan.class)));
+    }
+
+    private Map<String, String> createHeaders(final String token) {
+        return Map.of(
+                "Authorization", "Bearer " + token,
+                "Content-Type", "application/json"
+        );
+    }
+
+    private RequestResponse createRequestResponse(HttpResponse<String> response) {
         return new RequestResponse<>(
                 response.statusCode(),
                 getHeaders(response)

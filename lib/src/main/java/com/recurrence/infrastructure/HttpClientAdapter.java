@@ -34,7 +34,7 @@ final public class HttpClientAdapter {
             );
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao executar chamada HTTP", e);
+            throw new LibraryHttpClientError(url, e.getMessage(), e);
         }
     }
 }
