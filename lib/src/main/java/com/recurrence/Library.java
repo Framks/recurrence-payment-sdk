@@ -9,19 +9,15 @@ import java.util.UUID;
 
 public class Library {
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
 
-//        var pagBankRecurence = Recurrence.PagBank.config(
-//                PagBankEnvironment.SANDBOX,
-//                "50b2e630-a102-46f9-9650-f9152da588bf6d0aeca44496af93c486dcf03e81dd393a81-c41b-4d86-b6cc-708ea2c202b7");
-//
-//
-//        var pagBankPlan = Recurrence.PagBank.config(
-//                        PagBankEnvironment.SANDBOX,
-//                        "seu_token_aqui")
-//                .plan().create(createPagBankPlan());
-//
-//        System.out.println(pagBankPlan);
+        var recurrence = Recurrence.PagBank.config(
+                        PagBankEnvironment.SANDBOX,
+                        "50b2e630-a102-46f9-9650-f9152da588bf6d0aeca44496af93c486dcf03e81dd393a81-c41b-4d86-b6cc-708ea2c202b7");
+
+        var pagBankPlan = recurrence.plan().create(createPagBankPlan());
+
+        System.out.println(pagBankPlan);
 
     }
 
@@ -30,7 +26,7 @@ public class Library {
         return Plan.builder()
                 .name("Nome do plano sdk")
                 .referenceId(UUID.randomUUID().toString())
-                .amount(500, "BRL")
+                .amount(500, "BL")
                 .description("Descrição do plano")
                 .interval(1, "MONTH")
                 .paymentMethods(List.of("BOLETO", "CREDIT_CARD"))

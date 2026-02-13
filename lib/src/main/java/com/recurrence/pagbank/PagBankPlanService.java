@@ -56,6 +56,7 @@ public class PagBankPlanService implements PlanService {
                     var pagBankError = Converter.mapper().readValue(response.body(), PagBankErrorList.class);
                     var errorList = PagBankErrorMapper.to(pagBankError);
                     requestResponse.setErrors(errorList);
+                    return requestResponse;
                 }
             }
 

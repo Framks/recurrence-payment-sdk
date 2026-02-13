@@ -7,7 +7,7 @@ public final class PagBankErrorMapper {
     public static RequestResponse.RequestErrorResponseList to(PagBankErrorList errorList) {
 
         return new RequestResponse.RequestErrorResponseList(
-                errorList.errors()
+                errorList.error_messages()
                         .stream()
                         .map(error -> new RequestResponse.RequestErrorResponseDetail(
                                 error.error(),

@@ -27,15 +27,15 @@ public final class PagBankPlanMapper {
         return Plan.builder()
                 .id(plan.getId())
                 .name(plan.getName())
-                .referenceId(plan.getReferenceId())
+                .referenceId(plan.getReference_id())
                 .description(plan.getDescription())
                 .amount(plan.getAmount().value(), plan.getAmount().currency())
-                .setupFee(plan.getSetupFee())
-                .limitSubscriptions(plan.getLimitSubscriptions())
+                .setupFee(plan.getSetup_fee())
+                .limitSubscriptions(plan.getLimit_subscriptions())
                 .interval(plan.getInterval().length(), plan.getInterval().unit())
-                .billingCycles(plan.getBillingCycles())
+                .billingCycles(plan.getBilling_cycles())
                 .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().hold_setup_fee())
-                .paymentMethods(plan.getPaymentMethod())
+                .paymentMethods(plan.getPayment_method())
                 .build();
     }
 
