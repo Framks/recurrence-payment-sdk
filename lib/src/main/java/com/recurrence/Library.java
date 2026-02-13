@@ -13,7 +13,7 @@ public class Library {
 
         var recurrence = Recurrence.PagBank.config(
                         PagBankEnvironment.SANDBOX,
-                        "50b2e630-a102-46f9-9650-f9152da588bf6d0aeca44496af93c486dcf03e81dd393a81-c41b-4d86-b6cc-708ea2c202b7");
+                        "token");
 
         var pagBankPlan = recurrence.plan().create(createPagBankPlan());
 
