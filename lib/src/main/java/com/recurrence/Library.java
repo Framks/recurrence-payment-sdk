@@ -9,18 +9,24 @@ import java.util.UUID;
 
 public class Library {
 
-    static void main(String[] args) {
-        var pagBankPlan = Recurrence.PagBank.config(
-                        PagBankEnvironment.SANDBOX,
-                        "seu_token_aqui")
-                .plan().create(createPagBankPlan());
+    private static final String TOKEN = "";
 
-        var stripePlan = Recurrence.Stripe.config()
-                .plan()
-                .create(createPagBankPlan());
+    public static void main(String[] args) {
 
-        System.out.println(pagBankPlan);
+        var recurrence = Recurrence.PagBank.config(
+                PagBankEnvironment.SANDBOX,
+                TOKEN
+        );
 
+        var pagBankPlan = recurrence.plan().create(createPagBankPlan());
+
+        if (pagBankPlan.getBody() != null) {
+            System.out.println(pagBankPlan.getBody().getId());
+        } else if (pagBankPlan.getErrors() != null) {
+            System.out.println(pagBankPlan.getErrors().errors().get(0).errorKey());
+            System.out.println(pagBankPlan.getErrors().errors().get(0).message());
+            System.out.println(pagBankPlan.getErrors().errors().get(0).description());
+        }
     }
 
     private static Plan createPagBankPlan() {
@@ -28,7 +34,7 @@ public class Library {
         return Plan.builder()
                 .name("Nome do plano sdk")
                 .referenceId(UUID.randomUUID().toString())
-                .amount(500, "BRL")
+                .amount(500, "BR")
                 .description("Descrição do plano")
                 .interval(1, "MONTH")
                 .paymentMethods(List.of("BOLETO", "CREDIT_CARD"))

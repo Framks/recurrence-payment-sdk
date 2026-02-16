@@ -1,10 +1,7 @@
-package com.recurrence.pagbank;
+package com.recurrence.pagbank.domain.plan;
 
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.pagbank.domain.commons.Amount;
-import com.recurrence.pagbank.domain.plan.PagBankPlan;
-import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
-import com.recurrence.pagbank.domain.plan.PagBankPlanTrial;
 
 public final class PagBankPlanMapper {
 
@@ -52,27 +49,20 @@ public final class PagBankPlanMapper {
         );
     }
 
-    public static Plan to(PagBankPlan pagBankPlan) {
+
+    public static Plan to(PagBankPlan plan) {
         return Plan.builder()
-                .id(pagBankPlan.getId())
-                .referenceId(pagBankPlan.getReferenceId())
-                .name(pagBankPlan.getName())
-                .description(pagBankPlan.getDescription())
-                .status(pagBankPlan.getStatus())
-                .amount(pagBankPlan.getAmount().value(), pagBankPlan.getAmount().currency())
-                .setupFee(pagBankPlan.getSetupFee())
-                .limitSubscriptions(pagBankPlan.getLimitSubscriptions())
-                .interval(pagBankPlan.getInterval().length(), pagBankPlan.getInterval().unit())
-                .billingCycles(pagBankPlan.getBillingCycles())
-                .trial(
-                        pagBankPlan.getTrial().days(),
-                        pagBankPlan.getTrial().enabled(),
-                        pagBankPlan.getTrial().hold_setup_fee()
-                )
-                .paymentMethods(pagBankPlan.getPaymentMethod())
-                .createdAt(pagBankPlan.getCreatedAt())
-                .updatedAt(pagBankPlan.getUpdatedAt())
-                .editable(pagBankPlan.getEditable())
+                .id(plan.getId())
+                .name(plan.getName())
+                .referenceId(plan.getReference_id())
+                .description(plan.getDescription())
+                .amount(plan.getAmount().value(), plan.getAmount().currency())
+                .setupFee(plan.getSetup_fee())
+                .limitSubscriptions(plan.getLimit_subscriptions())
+                .interval(plan.getInterval().length(), plan.getInterval().unit())
+                .billingCycles(plan.getBilling_cycles())
+                .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().hold_setup_fee())
+                .paymentMethods(plan.getPayment_method())
                 .build();
     }
 }

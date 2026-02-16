@@ -7,36 +7,35 @@ import java.util.List;
 
 final public class PagBankPlan {
     private String id;
-    private String referenceId;
+    private String reference_id;
     private String status;
     private String name;
     private String description;
     private Amount amount;
-    private int setupFee;
-    private int limitSubscriptions;
-    private PagBankPlanInterval pagBankPlanInterval;
-    private int billingCycles;
-    private PagBankPlanTrial pagBankPlanTrial;
-    private List<String> paymentMethod;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
+    private int setup_fee;
+    private int limit_subscriptions;
+    private PagBankPlanInterval interval;
+    private int billing_cycles;
+    private PagBankPlanTrial trial;
+    private List<String> payment_method;
+    private OffsetDateTime created_at;
+    private OffsetDateTime updated_at;
     private Boolean editable;
 
     private PagBankPlan(Builder builder) {
-        this.referenceId = builder.referenceId;
+        this.reference_id = builder.referenceId;
         this.name = builder.name;
         this.description = builder.description;
         this.amount = builder.amount;
-        this.setupFee = builder.setupFee;
-        this.limitSubscriptions = builder.limitSubscriptions;
-        this.pagBankPlanInterval = builder.pagBankPlanInterval;
-        this.billingCycles = builder.billingCycles;
-        this.pagBankPlanTrial = builder.pagBankPlanTrial;
-        this.paymentMethod = builder.paymentMethod;
+        this.setup_fee = builder.setupFee;
+        this.limit_subscriptions = builder.limitSubscriptions;
+        this.interval = builder.pagBankPlanInterval;
+        this.billing_cycles = builder.billingCycles;
+        this.trial = builder.pagBankPlanTrial;
+        this.payment_method = builder.paymentMethod;
     }
 
-    public PagBankPlan(){
-
+    public PagBankPlan() {
     }
 
     public static Builder builder() {
@@ -55,52 +54,52 @@ final public class PagBankPlan {
         private PagBankPlanTrial pagBankPlanTrial;
         private List<String> paymentMethod;
 
-        public Builder name(String name) {
+        public Builder name(final String name) {
             this.name = name;
             return this;
         }
 
-        public Builder referenceId(String referenceId) {
+        public Builder referenceId(final String referenceId) {
             this.referenceId = referenceId;
             return this;
         }
 
-        public Builder description(String description) {
+        public Builder description(final String description) {
             this.description = description;
             return this;
         }
 
-        public Builder amount(Amount amount) {
+        public Builder amount(final Amount amount) {
             this.amount = amount;
             return this;
         }
 
-        public Builder setupFee(int setupFee) {
+        public Builder setupFee(final int setupFee) {
             this.setupFee = setupFee;
             return this;
         }
 
-        public Builder limitSubscriptions(int limitSubscriptions) {
+        public Builder limitSubscriptions(final int limitSubscriptions) {
             this.limitSubscriptions = limitSubscriptions;
             return this;
         }
 
-        public Builder interval(PagBankPlanInterval pagBankPlanInterval) {
+        public Builder interval(final PagBankPlanInterval pagBankPlanInterval) {
             this.pagBankPlanInterval = pagBankPlanInterval;
             return this;
         }
 
-        public Builder billingCycles(int billingCycles) {
+        public Builder billingCycles(final int billingCycles) {
             this.billingCycles = billingCycles;
             return this;
         }
 
-        public Builder trial(PagBankPlanTrial pagBankPlanTrial) {
+        public Builder trial(final PagBankPlanTrial pagBankPlanTrial) {
             this.pagBankPlanTrial = pagBankPlanTrial;
             return this;
         }
 
-        public Builder paymentMethod(List<String> paymentMethod) {
+        public Builder paymentMethod(final List<String> paymentMethod) {
             this.paymentMethod = paymentMethod;
             return this;
         }
@@ -127,140 +126,59 @@ final public class PagBankPlan {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
+    public String getReference_id() {
+        return reference_id;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Amount getAmount() {
         return amount;
     }
 
-    public void setAmount(Amount amount) {
-        this.amount = amount;
+    public int getSetup_fee() {
+        return setup_fee;
     }
 
-    public int getSetupFee() {
-        return setupFee;
-    }
-
-    public void setSetupFee(int setupFee) {
-        this.setupFee = setupFee;
-    }
-
-    public int getLimitSubscriptions() {
-        return limitSubscriptions;
-    }
-
-    public void setLimitSubscriptions(int limitSubscriptions) {
-        this.limitSubscriptions = limitSubscriptions;
+    public int getLimit_subscriptions() {
+        return limit_subscriptions;
     }
 
     public PagBankPlanInterval getInterval() {
-        return pagBankPlanInterval;
+        return interval;
     }
 
-    public void setInterval(PagBankPlanInterval pagBankPlanInterval) {
-        this.pagBankPlanInterval = pagBankPlanInterval;
-    }
-
-    public int getBillingCycles() {
-        return billingCycles;
-    }
-
-    public void setBillingCycles(int billingCycles) {
-        this.billingCycles = billingCycles;
+    public int getBilling_cycles() {
+        return billing_cycles;
     }
 
     public PagBankPlanTrial getTrial() {
-        return pagBankPlanTrial;
+        return trial;
     }
 
-    public void setTrial(PagBankPlanTrial pagBankPlanTrial) {
-        this.pagBankPlanTrial = pagBankPlanTrial;
+    public List<String> getPayment_method() {
+        return payment_method;
     }
 
-    public List<String> getPaymentMethod() {
-        return paymentMethod;
+    public OffsetDateTime getCreated_at() {
+        return created_at;
     }
 
-    public void setPaymentMethod(List<String> paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public OffsetDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public OffsetDateTime getUpdated_at() {
+        return updated_at;
     }
 
     public Boolean getEditable() {
         return editable;
-    }
-
-    public void setEditable(Boolean editable) {
-        this.editable = editable;
-    }
-
-    @Override
-    public String toString() {
-        return "PagBankPlan{" +
-                "id='" + id + '\'' +
-                ", referenceId='" + referenceId + '\'' +
-                ", status='" + status + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", amount=" + amount +
-                ", setupFee=" + setupFee +
-                ", limitSubscriptions=" + limitSubscriptions +
-                ", pagBankPlanInterval=" + pagBankPlanInterval +
-                ", billingCycles=" + billingCycles +
-                ", pagBankPlanTrial=" + pagBankPlanTrial +
-                ", paymentMethod=" + paymentMethod +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", editable=" + editable +
-                '}';
     }
 }

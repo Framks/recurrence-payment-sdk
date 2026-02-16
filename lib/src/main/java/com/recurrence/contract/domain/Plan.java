@@ -124,31 +124,28 @@ final public class Plan {
 
     public static final class Builder {
 
-        private String id;
         private String name;
         private String referenceId;
-        private String status;
         private PlanAmount amount;
         private PlanInterval interval;
+
         private String description;
         private int setupFee;
         private int limitSubscriptions;
         private int billingCycles;
         private PlanTrial trial;
         private List<String> paymentMethods;
-        private OffsetDateTime createdAt;
-        private OffsetDateTime updatedAt;
-        private Boolean editable;
 
-        private Builder() {}
+        private Builder(String name) {
+            this.name = Objects.requireNonNull(name, "Plan name must not be null");
+        }
+
+        private Builder() {
+
+        }
 
         public Builder id(String id) {
             this.id = id;
-            return this;
-        }
-
-        public Builder status(String status) {
-            this.status = status;
             return this;
         }
 
@@ -202,21 +199,6 @@ final public class Plan {
             return this;
         }
 
-        public Builder createdAt(OffsetDateTime createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public Builder updatedAt(OffsetDateTime updatedAt) {
-            this.updatedAt = updatedAt;
-            return this;
-        }
-
-        public Builder editable(Boolean editable) {
-            this.editable = editable;
-            return this;
-        }
-
         public Plan build() {
             validate();
             return new Plan(this);
@@ -233,34 +215,5 @@ final public class Plan {
                 throw new IllegalArgumentException("Plan interval is required");
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Plan{" +
-                "id='" + id + '\'' +
-                ", referenceId='" + referenceId + '\'' +
-                ", status='" + status + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", amount=" + amount +
-                ", setupFee=" + setupFee +
-                ", limitSubscriptions=" + limitSubscriptions +
-                ", interval=" + interval +
-                ", billingCycles=" + billingCycles +
-                ", trial=" + trial +
-                ", paymentMethods=" + paymentMethods +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", editable=" + editable +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Plan plan = (Plan) o;
-        return Objects.equals(id, plan.id);
     }
 }

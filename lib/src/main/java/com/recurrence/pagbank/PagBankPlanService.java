@@ -1,12 +1,17 @@
 package com.recurrence.pagbank;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.recurrence.contract.PlanService;
+import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
-import com.recurrence.infrastructure.HttpClientAdapter;
+import com.recurrence.contract.domain.infra.RequestResponse;
+import com.recurrence.core.Converter;
+import com.recurrence.pagbank.domain.error.PagBankErrorList;
+import com.recurrence.pagbank.domain.error.PagBankErrorMapper;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
-
-import com.recurrence.pagbank.dto.PagBankListPlan;
+import com.recurrence.pagbank.domain.plan.PagBankPlanMapper;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,7 +20,7 @@ public class PagBankPlanService implements PlanService {
 
     private final PagBankEnvironment environment;
     private final String token;
-    private final HttpClientAdapter httpClient = new HttpClientAdapter();
+    private final PagBankPlanClient pagBankPlanClient;
 
     public PagBankPlanService(
             final PagBankEnvironment environment,
@@ -23,48 +28,91 @@ public class PagBankPlanService implements PlanService {
     ) {
         this.environment = Objects.requireNonNull(environment, "Environment must be a valid value");
         this.token = Objects.requireNonNull(token, "Token must be a valid value");
+
+        pagBankPlanClient = new PagBankPlanClient(environment);
     }
 
     @Override
-    public Plan create(Plan plan) {
-
-        PagBankPlan pagBankPlan = PagBankPlanMapper.from(plan);
-
-        final String endpoint = environment.getHost() + "/plans";
-
-        Map<String, String> headers = Map.of(
-                "Authorization", "Bearer " + token,
-                "Content-Type", "application/json"
-        );
-
+    public RequestResponse<Plan> create(Plan plan) {
         try {
-            PagBankPlan response = httpClient.post(endpoint, pagBankPlan, headers, PagBankPlan.class);
+            String payload = createPayload(plan);
 
-            plan.setId(response.getId());
+            var headers = createHeaders(token);
 
-            return plan;
+            HttpResponse<String> response = pagBankPlanClient.create(payload, headers);
+
+            RequestResponse requestResponse = createRequestResponse(response);
+
+            switch (requestResponse.getHttpResponse()) {
+                case 201:
+                    createSuccessResponse(requestResponse, response);
+                    break;
+                case 400:
+                    createErrorResponse(requestResponse, response);
+                    break;
+            }
+
+            return requestResponse;
         } catch (Exception e) {
-            throw new RuntimeException("Fail to create plan "+e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public List<Plan> list(Long offset, Long limit) {
-        final String endpoint = environment.getHost() + "/plans?offset=" + offset + "&limit=" + limit;
+    public RequestResponse<ListPlan> list(Long offset, Long limit) {
+        return null;
+    }
 
-        Map<String, String> headers = Map.of(
+    private static String createPayload(Plan plan) throws JsonProcessingException {
+        return Converter.mapper().writeValueAsString(PagBankPlanMapper.from(plan));
+    }
+
+    private RequestResponse createErrorResponse(RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
+        return requestResponse.setErrors(PagBankErrorMapper.to(Converter.mapper().readValue(response.body(), PagBankErrorList.class)));
+    }
+
+    private RequestResponse createSuccessResponse(RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
+        return requestResponse.setBody(PagBankPlanMapper.to(Converter.mapper().readValue(response.body(), PagBankPlan.class)));
+    }
+
+    private Map<String, String> createHeaders(final String token) {
+        return Map.of(
                 "Authorization", "Bearer " + token,
                 "Content-Type", "application/json"
         );
+    }
 
-        try{
-            PagBankListPlan result = httpClient.get(endpoint, headers, PagBankListPlan.class);
-            System.out.println(result.toString());
-            return  result.getPlans().stream()
-                    .map(PagBankPlanMapper::to)
-                    .toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Fail to list plans "+e);
+    private RequestResponse createRequestResponse(HttpResponse<String> response) {
+        return new RequestResponse<>(
+                response.statusCode(),
+                getHeaders(response)
+        );
+    }
+
+    private String formatPaymentMethods(final List<String> methods) {
+        if (methods == null || methods.isEmpty()) {
+            return "";
         }
+
+        return methods.stream()
+                .map(method -> "\"" + method + "\"")
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("");
+    }
+
+    private List<Map<String, String>> getHeaders(HttpResponse<String> response) {
+        return response.headers()
+                .map()
+                .entrySet()
+                .stream()
+                .flatMap(entry -> entry.getValue()
+                        .stream()
+                        .map(value -> {
+                            Map<String, String> headerMap = new HashMap<>();
+                            headerMap.put(entry.getKey(), value);
+                            return headerMap;
+                        })
+                )
+                .toList();
     }
 }

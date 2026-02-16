@@ -1,9 +1,11 @@
 package com.recurrence.contract;
 
+import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
-import java.util.List;
+import com.recurrence.contract.domain.infra.RequestResponse;
 
 public interface PlanService {
-    Plan create(Plan plan);
-    List<Plan> list(Long offset, Long limit);
+    RequestResponse<Plan> create(Plan plan);
+
+    RequestResponse<ListPlan> list(Long offset, Long limit);
 }
