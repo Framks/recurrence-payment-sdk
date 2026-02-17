@@ -35,4 +35,9 @@ final public class Recurrence {
             );
         }
     }
+
+    // ToDo: implementar outros providers, como Vindi, PayPal e Iugu, com base na documentação de cada um:
+    // https://vindi.github.io/api-docs/dist/,
+    // https://developer.paypal.com/docs/api/subscriptions/v1/,
+    // https://dev.iugu.com/docs/realizar-cobran%C3%A7as-recorrentes-por-api
 }

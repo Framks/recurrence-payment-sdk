@@ -123,7 +123,7 @@ final public class Plan {
     }
 
     public static final class Builder {
-
+        private String id;
         private String name;
         private String referenceId;
         private PlanAmount amount;
@@ -140,9 +140,7 @@ final public class Plan {
             this.name = Objects.requireNonNull(name, "Plan name must not be null");
         }
 
-        private Builder() {
-
-        }
+        private Builder() { }
 
         public Builder id(String id) {
             this.id = id;

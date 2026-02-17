@@ -3,7 +3,7 @@ package com.recurrence.contract.domain;
 import java.time.OffsetDateTime;
 
 final public class Coupon {
-    private String id;
+    private final String id;
     private final String referenceId;
     private final String name;
     private final String description;
@@ -27,6 +27,7 @@ final public class Coupon {
     ) { }
 
     private Coupon(Builder builder){
+        this.id = builder.id;
         this.referenceId = builder.referenceId;
         this.name = builder.name;
         this.description = builder.description;
@@ -35,10 +36,6 @@ final public class Coupon {
         this.redemptionLimit = builder.redemptionLimit;
         this.expiresAt = builder.expiresAt;
         this.status = builder.status;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getId() {
@@ -98,6 +95,7 @@ final public class Coupon {
     }
 
     public static final class Builder{
+        private String id;
         private String name;
         private String referenceId;
         private String description;
@@ -106,6 +104,11 @@ final public class Coupon {
         private CouponDuration duration;
         private int redemptionLimit;
         private OffsetDateTime expiresAt;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder name(String name) {
             this.name = name;

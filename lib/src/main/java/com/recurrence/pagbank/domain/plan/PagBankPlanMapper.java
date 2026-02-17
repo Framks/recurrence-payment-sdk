@@ -1,7 +1,10 @@
 package com.recurrence.pagbank.domain.plan;
 
+import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.pagbank.domain.commons.Amount;
+import com.recurrence.pagbank.dto.PagBankListPlan;
+import java.util.List;
 
 public final class PagBankPlanMapper {
 
@@ -63,6 +66,15 @@ public final class PagBankPlanMapper {
                 .billingCycles(plan.getBilling_cycles())
                 .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().hold_setup_fee())
                 .paymentMethods(plan.getPayment_method())
+                .build();
+    }
+
+    public static ListPlan toListPlans(PagBankListPlan pagBankListPlan) {
+        return ListPlan.builder()
+                .setPlans(pagBankListPlan.getPlans().stream().map(PagBankPlanMapper::to).toList())
+                .setTotal(pagBankListPlan.getResultSet().total())
+                .setLimit(pagBankListPlan.getResultSet().limit())
+                .setOffset(pagBankListPlan.getResultSet().offset())
                 .build();
     }
 }

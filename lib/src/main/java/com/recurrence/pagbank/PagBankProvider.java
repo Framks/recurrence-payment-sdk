@@ -3,6 +3,8 @@ package com.recurrence.pagbank;
 import com.recurrence.contract.CouponService;
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.RecurrenceProvider;
+import com.recurrence.pagbank.coupon.PagBankCouponService;
+import com.recurrence.pagbank.plan.PagBankPlanService;
 
 public class PagBankProvider implements RecurrenceProvider {
 

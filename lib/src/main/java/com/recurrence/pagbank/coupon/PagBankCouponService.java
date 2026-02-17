@@ -1,45 +1,47 @@
-package com.recurrence.pagbank;
+package com.recurrence.pagbank.coupon;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.recurrence.contract.PlanService;
-import com.recurrence.contract.domain.ListPlan;
-import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.CouponService;
+import com.recurrence.contract.domain.Coupon;
+import com.recurrence.contract.domain.ListCoupon;
 import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.core.Converter;
+import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
+import com.recurrence.pagbank.domain.coupon.PagBankCouponMapper;
 import com.recurrence.pagbank.domain.error.PagBankErrorList;
 import com.recurrence.pagbank.domain.error.PagBankErrorMapper;
-import com.recurrence.pagbank.domain.plan.PagBankPlan;
-import com.recurrence.pagbank.domain.plan.PagBankPlanMapper;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class PagBankPlanService implements PlanService {
+public class PagBankCouponService implements CouponService {
 
     private final PagBankEnvironment environment;
     private final String token;
-    private final PagBankPlanClient pagBankPlanClient;
+    private final PagBankCouponClient pagBankCouponClient;
 
-    public PagBankPlanService(
+    public PagBankCouponService(
             final PagBankEnvironment environment,
             final String token
     ) {
         this.environment = Objects.requireNonNull(environment, "Environment must be a valid value");
         this.token = Objects.requireNonNull(token, "Token must be a valid value");
 
-        pagBankPlanClient = new PagBankPlanClient(environment);
+        pagBankCouponClient = new PagBankCouponClient(environment);
     }
 
     @Override
-    public RequestResponse<Plan> create(Plan plan) {
-        try {
-            String payload = createPayload(plan);
+    public RequestResponse<Coupon> create(Coupon coupon) {
+
+        try{
+            String payload = createPayload(coupon);
 
             var headers = createHeaders(token);
 
-            HttpResponse<String> response = pagBankPlanClient.create(payload, headers);
+            HttpResponse<String> response = pagBankCouponClient.create(payload, headers);
 
             RequestResponse requestResponse = createRequestResponse(response);
 
@@ -59,26 +61,39 @@ public class PagBankPlanService implements PlanService {
     }
 
     @Override
-    public RequestResponse<ListPlan> list(Long offset, Long limit) {
+    public RequestResponse<Coupon> get(String id) {
         return null;
     }
 
-    private static String createPayload(Plan plan) throws JsonProcessingException {
-        return Converter.mapper().writeValueAsString(PagBankPlanMapper.from(plan));
+    @Override
+    public RequestResponse<ListCoupon> list(Long offset, Long limit) {
+        return null;
     }
 
-    private RequestResponse createErrorResponse(RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
-        return requestResponse.setErrors(PagBankErrorMapper.to(Converter.mapper().readValue(response.body(), PagBankErrorList.class)));
+    @Override
+    public RequestResponse<Coupon> update(String id, Coupon coupon) {
+        return null;
     }
 
-    private RequestResponse createSuccessResponse(RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
-        return requestResponse.setBody(PagBankPlanMapper.to(Converter.mapper().readValue(response.body(), PagBankPlan.class)));
+    @Override
+    public RequestResponse<Void> activate(String id) {
+        return null;
+    }
+
+    @Override
+    public RequestResponse<Void> inactivate(String id) {
+        return null;
+    }
+
+    private static String createPayload(Coupon coupon) throws JsonProcessingException {
+        return Converter.mapper().writeValueAsString(PagBankCouponMapper.from(coupon));
     }
 
     private Map<String, String> createHeaders(final String token) {
         return Map.of(
                 "Authorization", "Bearer " + token,
-                "Content-Type", "application/json"
+                "Content-Type", "application/json",
+                "accept", "application/json"
         );
     }
 
@@ -87,17 +102,6 @@ public class PagBankPlanService implements PlanService {
                 response.statusCode(),
                 getHeaders(response)
         );
-    }
-
-    private String formatPaymentMethods(final List<String> methods) {
-        if (methods == null || methods.isEmpty()) {
-            return "";
-        }
-
-        return methods.stream()
-                .map(method -> "\"" + method + "\"")
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("");
     }
 
     private List<Map<String, String>> getHeaders(HttpResponse<String> response) {
@@ -114,5 +118,13 @@ public class PagBankPlanService implements PlanService {
                         })
                 )
                 .toList();
+    }
+
+    private RequestResponse createErrorResponse(RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
+        return requestResponse.setErrors(PagBankErrorMapper.to(Converter.mapper().readValue(response.body(), PagBankErrorList.class)));
+    }
+
+    private RequestResponse createSuccessResponse( RequestResponse requestResponse, HttpResponse<String> response) throws JsonProcessingException {
+        return requestResponse.setBody(PagBankCouponMapper.to(Converter.mapper().readValue(response.body(), PagBankCoupon.class)));
     }
 }

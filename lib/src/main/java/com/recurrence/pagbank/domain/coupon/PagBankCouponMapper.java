@@ -1,9 +1,6 @@
-package com.recurrence.pagbank;
+package com.recurrence.pagbank.domain.coupon;
 
 import com.recurrence.contract.domain.Coupon;
-import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
-import com.recurrence.pagbank.domain.coupon.PagBankCouponDiscount;
-import com.recurrence.pagbank.domain.coupon.PagBankCouponDuration;
 
 public final class PagBankCouponMapper {
 
@@ -41,5 +38,18 @@ public final class PagBankCouponMapper {
                 coupon.getDiscount().value(),
                 coupon.getDiscount().type()
         );
+    }
+
+    public static Coupon to(final PagBankCoupon pagBankCoupon) {
+        return new Coupon.Builder()
+                .id(pagBankCoupon.getId())
+                .referenceId(pagBankCoupon.getReferenceId())
+                .name(pagBankCoupon.getName())
+                .description(pagBankCoupon.getDescription())
+                .discount(pagBankCoupon.getDiscount().type(), pagBankCoupon.getDiscount().value())
+                .duration(pagBankCoupon.getDuration().type(), pagBankCoupon.getDuration().occurrences())
+                .redemptionLimit(pagBankCoupon.getRedemptionLimit())
+                .expiresAt(pagBankCoupon.getExpiresAt())
+                .build();
     }
 }

@@ -3,9 +3,17 @@ package com.recurrence.contract.domain;
 import java.util.List;
 
 public class ListPlan {
-    private Long offset;
-    private Long limit;
+    private ResultSet resultSet;
     private List<Plan> plans;
+
+    private ListPlan() {
+    }
+
+    public record ResultSet(
+            int offset,
+            int limit,
+            int total
+    ){}
 
     public List<Plan> getPlans() {
         return plans;
@@ -15,17 +23,62 @@ public class ListPlan {
         this.plans = plans;
     }
 
-    public Long getOffset() {
-        return offset;
-    }
-    public void setOffset(Long offset) {
-        this.offset = offset;
+    public ResultSet getResultSet() {
+        return resultSet;
     }
 
-    public Long getLimit() {
-        return limit;
+    public void setResultSet(ResultSet resultSet) {
+        this.resultSet = resultSet;
     }
-    public void setLimit(Long limit) {
-        this.limit = limit;
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private int offset;
+        private int limit;
+        private int total;
+        private List<Plan> plans;
+
+        public Builder setOffset(int offset) {
+            this.offset = offset;
+            return this;
+        }
+
+        public Builder setLimit(int limit) {
+            this.limit = limit;
+            return this;
+        }
+
+        public Builder setTotal(int total) {
+            this.total = total;
+            return this;
+        }
+
+        public Builder setPlans(List<Plan> plans) {
+            this.plans = plans;
+            return this;
+        }
+
+        public ListPlan build() {
+            validate();
+            ListPlan listPlan = new ListPlan();
+            listPlan.setResultSet(new ResultSet(offset, limit, total));
+            listPlan.setPlans(plans);
+            return listPlan;
+        }
+
+        private void validate() {
+            if (offset < 0) {
+                throw new IllegalArgumentException("Offset cannot be negative");
+            }
+            if (limit <= 0) {
+                throw new IllegalArgumentException("Limit must be greater than zero");
+            }
+            if (total < 0) {
+                throw new IllegalArgumentException("Total cannot be negative");
+            }
+        }
     }
 }
