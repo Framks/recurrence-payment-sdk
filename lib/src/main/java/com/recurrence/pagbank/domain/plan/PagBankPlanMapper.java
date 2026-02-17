@@ -4,7 +4,6 @@ import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.pagbank.domain.commons.Amount;
 import com.recurrence.pagbank.dto.PagBankListPlan;
-import java.util.List;
 
 public final class PagBankPlanMapper {
 
