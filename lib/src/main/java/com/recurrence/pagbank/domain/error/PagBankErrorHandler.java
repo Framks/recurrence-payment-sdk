@@ -6,8 +6,8 @@ import com.recurrence.core.Converter;
 
 public class PagBankErrorHandler {
 
-    public static RequestResponse<?> handle(
-            RequestResponse<?> response,
+    public static <T> RequestResponse<T> handle(
+            RequestResponse<T> response,
             String body
     ) throws JsonProcessingException {
 

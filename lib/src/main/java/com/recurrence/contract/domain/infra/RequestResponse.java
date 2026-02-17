@@ -31,12 +31,12 @@ public class RequestResponse<T> {
         return errors;
     }
 
-    public RequestResponse setBody(T body) {
+    public RequestResponse<T> setBody(T body) {
         this.body = body;
         return this;
     }
 
-    public RequestResponse setErrors(RequestErrorResponseList errors) {
+    public RequestResponse<T> setErrors(RequestErrorResponseList errors) {
         this.body = null;
         this.errors = errors;
         return this;

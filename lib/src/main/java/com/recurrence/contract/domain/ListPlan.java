@@ -62,23 +62,10 @@ public class ListPlan {
         }
 
         public ListPlan build() {
-            validate();
             ListPlan listPlan = new ListPlan();
             listPlan.setResultSet(new ResultSet(offset, limit, total));
             listPlan.setPlans(plans);
             return listPlan;
-        }
-
-        private void validate() {
-            if (offset < 0) {
-                throw new IllegalArgumentException("Offset cannot be negative");
-            }
-            if (limit <= 0) {
-                throw new IllegalArgumentException("Limit must be greater than zero");
-            }
-            if (total < 0) {
-                throw new IllegalArgumentException("Total cannot be negative");
-            }
         }
     }
 }

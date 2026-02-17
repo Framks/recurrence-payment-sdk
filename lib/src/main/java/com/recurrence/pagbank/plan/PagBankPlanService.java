@@ -48,7 +48,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                                     fromJson(response.body(), PagBankPlan.class)
                             )
                     );
-                case 400 -> (RequestResponse<Plan>)
+                case 400 ->
                     PagBankErrorHandler.handle(requestResponse, response.body());
 
                 default -> requestResponse;
@@ -73,8 +73,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                                 fromJson(response.body(), PagBankListPlan.class)
                         )
                 );
-                case 400 -> (RequestResponse<ListPlan>)
-                        PagBankErrorHandler.handle(requestResponse, response.body());
+                case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
 
                 default -> requestResponse;
             };
@@ -95,7 +94,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                                 fromJson(response.body(), PagBankPlan.class)
                         )
                 );
-                case 400 -> (RequestResponse<Plan>)
+                case 400 ->
                         PagBankErrorHandler.handle(requestResponse, response.body());
 
                 default -> requestResponse;
@@ -123,7 +122,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                                         fromJson(response.body(), PagBankPlan.class)
                                 )
                         );
-                case 400 -> (RequestResponse<Plan>)
+                case 400 ->
                         PagBankErrorHandler.handle(requestResponse, response.body());
 
                 default -> requestResponse;
@@ -141,8 +140,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
                 case 200, 204 -> requestResponse; // ToDo: validar se o pagbank retorna 200 ou 204 para inactivate
-                case 400 -> (RequestResponse<Void>)
-                        PagBankErrorHandler.handle(requestResponse, response.body());
+                case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
             };
         } catch (Exception e) {
@@ -158,8 +156,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
                 case 200, 204 -> requestResponse; // ToDo: validar se o pagbank retorna 200 ou 204 para inactivate
-                case 400 -> (RequestResponse<Void>)
-                        PagBankErrorHandler.handle(requestResponse, response.body());
+                case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
             };
         } catch (Exception e) {

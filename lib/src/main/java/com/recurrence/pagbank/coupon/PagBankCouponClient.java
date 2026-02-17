@@ -19,16 +19,29 @@ public class PagBankCouponClient {
         return httpClient.post(uriCreate(), payload, headers);
     }
 
-    public HttpResponse<String> list(final Map<String, String> headers) {
-        return httpClient.get(uriList(), headers);
+    public HttpResponse<String> list(int offset, int limit, final Map<String, String> headers) {
+        return httpClient.get(uriList(offset, limit), headers);
     }
+
+    public HttpResponse<String> get(final String id, final Map<String, String> headers) {
+        return httpClient.get(uriGet(id), headers);
+    }
+
+    public HttpResponse<String> inactivate(final String id, final Map<String, String> headers) {
+        return httpClient.post(uriInactivate(id), "", headers);
+    }
+
+    public HttpResponse<String> activate(final String id, final Map<String, String> headers) {
+        return httpClient.post(uriActivate(id), "", headers);
+    }
+
 
     private String uriCreate() {
         return this.environment.getHost() + RESOURCE;
     }
 
-    private String uriList() {
-        return this.environment.getHost() + RESOURCE;
+    private String uriList(int offset, int limit) {
+        return this.environment.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
     }
 
     private String uriGet(String id) {

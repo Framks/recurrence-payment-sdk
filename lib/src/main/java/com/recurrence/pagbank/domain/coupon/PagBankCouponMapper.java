@@ -1,6 +1,8 @@
 package com.recurrence.pagbank.domain.coupon;
 
 import com.recurrence.contract.domain.Coupon;
+import com.recurrence.contract.domain.ListCoupon;
+import com.recurrence.pagbank.dto.PagBankListCoupon;
 
 public final class PagBankCouponMapper {
 
@@ -50,6 +52,15 @@ public final class PagBankCouponMapper {
                 .duration(pagBankCoupon.getDuration().type(), pagBankCoupon.getDuration().occurrences())
                 .redemptionLimit(pagBankCoupon.getRedemptionLimit())
                 .expiresAt(pagBankCoupon.getExpiresAt())
+                .build();
+    }
+
+    public static ListCoupon toListCoupons(final PagBankListCoupon pagBankListCoupon) {
+        return ListCoupon.builder()
+                .setOffset(pagBankListCoupon.getResultSet().offset())
+                .setLimit(pagBankListCoupon.getResultSet().limit())
+                .setTotal(pagBankListCoupon.getResultSet().offset())
+                .setCoupons(pagBankListCoupon.getCoupons().stream().map(PagBankCouponMapper::to).toList())
                 .build();
     }
 }
