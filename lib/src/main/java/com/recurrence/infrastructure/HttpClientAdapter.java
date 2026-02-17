@@ -37,4 +37,79 @@ final public class HttpClientAdapter {
             throw new LibraryHttpClientError(url, e.getMessage(), e);
         }
     }
+
+    public HttpResponse<String> get(
+            final String url,
+            final Map<String, String> headers
+    ) {
+        try {
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET();
+
+            headers.forEach(requestBuilder::header);
+
+            var request = requestBuilder.build();
+
+            return httpClient.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+        } catch (Exception e) {
+            throw new LibraryHttpClientError(url, e.getMessage(), e);
+        }
+    }
+
+    public HttpResponse<String> put(
+            final String url,
+            final String body,
+            final Map<String, String> headers
+    ){
+        try {
+            HttpRequest.BodyPublisher publisher =
+                    (body == null || body.isBlank())
+                            ? HttpRequest.BodyPublishers.noBody()
+                            : HttpRequest.BodyPublishers.ofString(body);
+
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .PUT(publisher);
+
+            headers.forEach(requestBuilder::header);
+
+            var request = requestBuilder.build();
+
+            return httpClient.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+        } catch (Exception e) {
+            throw new LibraryHttpClientError(url, e.getMessage(), e);
+        }
+    }
+
+    public HttpResponse<String> delete(
+            final String url,
+            final Map<String, String> headers
+    ){
+        try {
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .DELETE();
+
+            headers.forEach(requestBuilder::header);
+
+            var request = requestBuilder.build();
+
+            return httpClient.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+        } catch (Exception e) {
+            throw new LibraryHttpClientError(url, e.getMessage(), e);
+        }
+    }
 }
