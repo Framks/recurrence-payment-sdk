@@ -56,24 +56,28 @@ public final class PagBankPlanMapper {
         return Plan.builder()
                 .id(plan.getId())
                 .name(plan.getName())
-                .referenceId(plan.getReference_id())
+                .status(plan.getStatus())
+                .referenceId(plan.getReferenceId())
                 .description(plan.getDescription())
                 .amount(plan.getAmount().value(), plan.getAmount().currency())
-                .setupFee(plan.getSetup_fee())
-                .limitSubscriptions(plan.getLimit_subscriptions())
+                .setupFee(plan.getSetupFee())
+                .limitSubscriptions(plan.getLimitSubscriptions())
                 .interval(plan.getInterval().length(), plan.getInterval().unit())
-                .billingCycles(plan.getBilling_cycles())
+                .billingCycles(plan.getBillingCycles())
                 .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().hold_setup_fee())
-                .paymentMethods(plan.getPayment_method())
+                .paymentMethods(plan.getPaymentMethod())
+                .createdAt(plan.getCreatedAt())
+                .updatedAt(plan.getUpdatedAt())
+                .editable(plan.getEditable())
                 .build();
     }
 
     public static ListPlan toListPlans(PagBankListPlan pagBankListPlan) {
         return ListPlan.builder()
-                .setPlans(pagBankListPlan.getPlans().stream().map(PagBankPlanMapper::to).toList())
-                .setTotal(pagBankListPlan.getResultSet().total())
-                .setLimit(pagBankListPlan.getResultSet().limit())
-                .setOffset(pagBankListPlan.getResultSet().offset())
+                .plans(pagBankListPlan.getPlans().stream().map(PagBankPlanMapper::to).toList())
+                .total(pagBankListPlan.getResultSet().total())
+                .limit(pagBankListPlan.getResultSet().limit())
+                .offset(pagBankListPlan.getResultSet().offset())
                 .build();
     }
 }

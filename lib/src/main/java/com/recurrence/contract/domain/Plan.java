@@ -38,8 +38,10 @@ final public class Plan {
     ) { }
 
     private Plan(Builder builder) {
+        this.id = builder.id;
         this.referenceId = builder.referenceId;
         this.name = builder.name;
+        this.status = builder.status;
         this.description = builder.description;
         this.amount = builder.amount;
         this.setupFee = builder.setupFee;
@@ -48,6 +50,9 @@ final public class Plan {
         this.billingCycles = builder.billingCycles;
         this.trial = builder.trial;
         this.paymentMethods = builder.paymentMethods;
+        this.createdAt = builder.createdAt;
+        this.updatedAt = builder.updatedAt;
+        this.editable = builder.editable;
     }
 
     public void setId(String id) {
@@ -125,16 +130,19 @@ final public class Plan {
     public static final class Builder {
         private String id;
         private String name;
+        private String status;
         private String referenceId;
         private PlanAmount amount;
         private PlanInterval interval;
-
         private String description;
         private int setupFee;
         private int limitSubscriptions;
         private int billingCycles;
         private PlanTrial trial;
         private List<String> paymentMethods;
+        private OffsetDateTime createdAt;
+        private OffsetDateTime updatedAt;
+        private Boolean editable;
 
         private Builder(String name) {
             this.name = Objects.requireNonNull(name, "Plan name must not be null");
@@ -149,6 +157,11 @@ final public class Plan {
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder status(String status) {
+            this.status = status;
             return this;
         }
 
@@ -194,6 +207,21 @@ final public class Plan {
 
         public Builder paymentMethods(List<String> paymentMethods) {
             this.paymentMethods = paymentMethods;
+            return this;
+        }
+
+        public Builder createdAt(OffsetDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public Builder updatedAt(OffsetDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public Builder editable(Boolean editable) {
+            this.editable = editable;
             return this;
         }
 

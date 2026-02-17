@@ -31,11 +31,15 @@ final public class Coupon {
         this.referenceId = builder.referenceId;
         this.name = builder.name;
         this.description = builder.description;
+        this.status = builder.status;
+        this.inUse = builder.inUse;
         this.discount = builder.discount;
         this.duration = builder.duration;
         this.redemptionLimit = builder.redemptionLimit;
         this.expiresAt = builder.expiresAt;
-        this.status = builder.status;
+        this.createdAt = builder.createdAt;
+        this.updatedAt = builder.updatedAt;
+
     }
 
     public String getId() {
@@ -104,6 +108,24 @@ final public class Coupon {
         private CouponDuration duration;
         private int redemptionLimit;
         private OffsetDateTime expiresAt;
+        private Boolean inUse;
+        private OffsetDateTime createdAt;
+        private OffsetDateTime updatedAt;
+
+        public Builder createAt(OffsetDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public Builder updatedAt(OffsetDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public Builder inUse(Boolean inUse) {
+            this.inUse = inUse;
+            return this;
+        }
 
         public Builder id(String id) {
             this.id = id;
@@ -167,9 +189,6 @@ final public class Coupon {
             }
             if (redemptionLimit <= 0) {
                 throw new IllegalArgumentException("Redemption limit is required");
-            }
-            if (expiresAt == null || expiresAt.isBefore(OffsetDateTime.now())) {
-                throw new IllegalArgumentException("Expiration date is required and must be in the future");
             }
         }
     }

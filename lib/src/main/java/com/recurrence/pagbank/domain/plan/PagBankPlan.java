@@ -7,32 +7,37 @@ import java.util.List;
 
 final public class PagBankPlan {
     private String id;
-    private String reference_id;
+    private String referenceId;
     private String status;
     private String name;
     private String description;
     private Amount amount;
-    private int setup_fee;
-    private int limit_subscriptions;
+    private int setupFee;
+    private int limitSubscriptions;
     private PagBankPlanInterval interval;
-    private int billing_cycles;
+    private int billingCycles;
     private PagBankPlanTrial trial;
-    private List<String> payment_method;
-    private OffsetDateTime created_at;
-    private OffsetDateTime updated_at;
+    private List<String> paymentMethod;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
     private Boolean editable;
 
     private PagBankPlan(Builder builder) {
-        this.reference_id = builder.referenceId;
+        this.id = builder.id;
+        this.referenceId = builder.referenceId;
         this.name = builder.name;
+        this.status = builder.status;
         this.description = builder.description;
         this.amount = builder.amount;
-        this.setup_fee = builder.setupFee;
-        this.limit_subscriptions = builder.limitSubscriptions;
+        this.setupFee = builder.setupFee;
+        this.limitSubscriptions = builder.limitSubscriptions;
         this.interval = builder.pagBankPlanInterval;
-        this.billing_cycles = builder.billingCycles;
+        this.billingCycles = builder.billingCycles;
         this.trial = builder.pagBankPlanTrial;
-        this.payment_method = builder.paymentMethod;
+        this.paymentMethod = builder.paymentMethod;
+        this.createdAt = builder.created_at;
+        this.updatedAt = builder.updated_at;
+        this.editable = builder.editable;
     }
 
     public PagBankPlan() {
@@ -43,6 +48,8 @@ final public class PagBankPlan {
     }
 
     public static class Builder {
+        private String id;
+        private String status;
         private String name;
         private String referenceId;
         private String description;
@@ -53,9 +60,37 @@ final public class PagBankPlan {
         private int billingCycles;
         private PagBankPlanTrial pagBankPlanTrial;
         private List<String> paymentMethod;
+        private OffsetDateTime created_at;
+        private OffsetDateTime updated_at;
+        private Boolean editable;
+
+        public Builder id(final String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder status(final String status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder createdAt(final OffsetDateTime created_at) {
+            this.created_at = created_at;
+            return this;
+        }
+
+        public Builder updatedAt(final OffsetDateTime updated_at) {
+            this.updated_at = updated_at;
+            return this;
+        }
 
         public Builder name(final String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder editable(final Boolean editable) {
+            this.editable = editable;
             return this;
         }
 
@@ -126,12 +161,20 @@ final public class PagBankPlan {
         return id;
     }
 
-    public String getReference_id() {
-        return reference_id;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getReferenceId() {
+        return referenceId;
     }
 
     public String getStatus() {
         return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getName() {
@@ -146,39 +189,51 @@ final public class PagBankPlan {
         return amount;
     }
 
-    public int getSetup_fee() {
-        return setup_fee;
+    public int getSetupFee() {
+        return setupFee;
     }
 
-    public int getLimit_subscriptions() {
-        return limit_subscriptions;
+    public int getLimitSubscriptions() {
+        return limitSubscriptions;
     }
 
     public PagBankPlanInterval getInterval() {
         return interval;
     }
 
-    public int getBilling_cycles() {
-        return billing_cycles;
+    public int getBillingCycles() {
+        return billingCycles;
     }
 
     public PagBankPlanTrial getTrial() {
         return trial;
     }
 
-    public List<String> getPayment_method() {
-        return payment_method;
+    public List<String> getPaymentMethod() {
+        return paymentMethod;
     }
 
-    public OffsetDateTime getCreated_at() {
-        return created_at;
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public OffsetDateTime getUpdated_at() {
-        return updated_at;
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Boolean getEditable() {
         return editable;
+    }
+
+    public void setEditable(Boolean editable) {
+        this.editable = editable;
     }
 }

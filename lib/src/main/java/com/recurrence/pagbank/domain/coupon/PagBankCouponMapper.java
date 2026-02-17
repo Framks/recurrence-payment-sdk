@@ -47,11 +47,15 @@ public final class PagBankCouponMapper {
                 .id(pagBankCoupon.getId())
                 .referenceId(pagBankCoupon.getReferenceId())
                 .name(pagBankCoupon.getName())
+                .status(pagBankCoupon.getStatus())
+                .inUse(pagBankCoupon.getInUse())
                 .description(pagBankCoupon.getDescription())
                 .discount(pagBankCoupon.getDiscount().type(), pagBankCoupon.getDiscount().value())
                 .duration(pagBankCoupon.getDuration().type(), pagBankCoupon.getDuration().occurrences())
                 .redemptionLimit(pagBankCoupon.getRedemptionLimit())
                 .expiresAt(pagBankCoupon.getExpiresAt())
+                .createAt(pagBankCoupon.getCreatedAt())
+                .updatedAt(pagBankCoupon.getUpdatedAt())
                 .build();
     }
 

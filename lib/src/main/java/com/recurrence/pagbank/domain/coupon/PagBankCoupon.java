@@ -17,14 +17,18 @@ public class PagBankCoupon {
     private OffsetDateTime updatedAt;
 
     private PagBankCoupon(Builder builder){
+        this.id = builder.id;
         this.referenceId = builder.referenceId;
         this.name = builder.name;
         this.description = builder.description;
         this.discount = builder.discount;
+        this.status = builder.status;
         this.duration = builder.duration;
         this.redemptionLimit = builder.redemptionLimit;
         this.expiresAt = builder.expiresAt;
-        this.status = builder.status;
+        this.inUse = builder.inUse;
+        this.createdAt = builder.createAt;
+        this.updatedAt = builder.updatedAt;
     }
 
     public PagBankCoupon() {
@@ -131,6 +135,7 @@ public class PagBankCoupon {
     }
 
     public static final class Builder{
+        private String id;
         private String name;
         private String referenceId;
         private String description;
@@ -139,6 +144,29 @@ public class PagBankCoupon {
         private PagBankCouponDuration duration;
         private int redemptionLimit;
         private OffsetDateTime expiresAt;
+        private Boolean inUse;
+        private OffsetDateTime createAt;
+        private OffsetDateTime updatedAt;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder inUse(Boolean inUse) {
+            this.inUse = inUse;
+            return this;
+        }
+
+        public Builder createAt(OffsetDateTime createAt) {
+            this.createAt = createAt;
+            return this;
+        }
+
+        public Builder updatedAt(OffsetDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
 
         public Builder name(String name) {
             this.name = name;
@@ -197,9 +225,6 @@ public class PagBankCoupon {
             }
             if (redemptionLimit <= 0) {
                 throw new IllegalArgumentException("Redemption limit is required");
-            }
-            if (expiresAt == null || expiresAt.isBefore(OffsetDateTime.now())) {
-                throw new IllegalArgumentException("Expiration date is required and must be in the future");
             }
         }
     }

@@ -4,7 +4,6 @@ import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.domain.infra.RequestResponse;
-import java.util.List;
 
 public class StripePlanService implements PlanService {
 

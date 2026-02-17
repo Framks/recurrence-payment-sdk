@@ -6,7 +6,13 @@ public class ListPlan {
     private ResultSet resultSet;
     private List<Plan> plans;
 
-    private ListPlan() {
+    private ListPlan(Builder builder) {
+        this.plans = builder.plans;
+        this.resultSet = new ResultSet(
+                builder.offset,
+                builder.limit,
+                builder.total
+        );
     }
 
     public record ResultSet(
@@ -41,31 +47,28 @@ public class ListPlan {
         private int total;
         private List<Plan> plans;
 
-        public Builder setOffset(int offset) {
+        public Builder offset(int offset) {
             this.offset = offset;
             return this;
         }
 
-        public Builder setLimit(int limit) {
+        public Builder limit(int limit) {
             this.limit = limit;
             return this;
         }
 
-        public Builder setTotal(int total) {
+        public Builder total(int total) {
             this.total = total;
             return this;
         }
 
-        public Builder setPlans(List<Plan> plans) {
+        public Builder plans(List<Plan> plans) {
             this.plans = plans;
             return this;
         }
 
         public ListPlan build() {
-            ListPlan listPlan = new ListPlan();
-            listPlan.setResultSet(new ResultSet(offset, limit, total));
-            listPlan.setPlans(plans);
-            return listPlan;
+            return new ListPlan(this);
         }
     }
 }

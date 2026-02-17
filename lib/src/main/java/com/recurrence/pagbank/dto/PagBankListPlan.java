@@ -4,8 +4,8 @@ import com.recurrence.pagbank.domain.plan.PagBankPlan;
 import java.util.List;
 
 public class PagBankListPlan {
-    ResultSet ResultSet;
-    List<PagBankPlan> plans;
+    private ResultSet ResultSet;
+    private List<PagBankPlan> plans;
 
     public ResultSet getResultSet() {
         return ResultSet;
