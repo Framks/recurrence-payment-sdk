@@ -2,9 +2,8 @@ package com.recurrence;
 
 import com.recurrence.contract.Recurrence;
 import com.recurrence.contract.domain.Coupon;
-import com.recurrence.contract.domain.ListCoupon;
-import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.pagbank.PagBankEnvironment;
 import java.lang.reflect.Field;
@@ -19,12 +18,12 @@ public class Library {
 
     public static void main(String[] args) {
 
-        RequestResponse<ListCoupon> pagBankPlan = Recurrence.PagBank.config(
+        RequestResponse<PageResponse<Coupon>> pagBankResponse = Recurrence.PagBank.config(
                         PagBankEnvironment.SANDBOX,
                         TOKEN)
                 .coupon().list(0, 10);
 
-        ObjectPrinter.print(pagBankPlan.getBody(),2);
+        ObjectPrinter.print(pagBankResponse.getBody(),2);
     }
 
     private static Plan createPagBankPlan() {

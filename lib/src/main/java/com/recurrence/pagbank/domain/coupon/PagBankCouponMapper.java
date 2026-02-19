@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.domain.coupon;
 
 import com.recurrence.contract.domain.Coupon;
-import com.recurrence.contract.domain.ListCoupon;
+import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.pagbank.dto.PagBankListCoupon;
 
 public final class PagBankCouponMapper {
@@ -59,12 +59,14 @@ public final class PagBankCouponMapper {
                 .build();
     }
 
-    public static ListCoupon toListCoupons(final PagBankListCoupon pagBankListCoupon) {
-        return ListCoupon.builder()
-                .setOffset(pagBankListCoupon.getResultSet().offset())
-                .setLimit(pagBankListCoupon.getResultSet().limit())
-                .setTotal(pagBankListCoupon.getResultSet().offset())
-                .setCoupons(pagBankListCoupon.getCoupons().stream().map(PagBankCouponMapper::to).toList())
-                .build();
+    public static PageResponse<Coupon> toPageResponse(final PagBankListCoupon pagBankListCoupon) {
+        return new PageResponse<>(
+                new PageResponse.PageInfo(
+                        pagBankListCoupon.getResultSet().offset(),
+                        pagBankListCoupon.getResultSet().limit(),
+                        pagBankListCoupon.getResultSet().total()
+                ),
+                pagBankListCoupon.getCoupons().stream().map(PagBankCouponMapper::to).toList()
+        );
     }
 }

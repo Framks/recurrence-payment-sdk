@@ -1,8 +1,8 @@
 package com.recurrence.pagbank.plan;
 
 import com.recurrence.contract.PlanService;
-import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagBankEnvironment;
@@ -59,17 +59,17 @@ public class PagBankPlanService extends BaseService implements PlanService {
     }
 
     @Override
-    public RequestResponse<ListPlan> list(Long offset, Long limit) {
+    public RequestResponse<PageResponse<Plan>> list(Long offset, Long limit) {
         try{
             var headers = defaultHeaders(token);
 
             HttpResponse<String> response = pagBankPlanClient.list(offset.intValue(), limit.intValue(), headers);
 
-            RequestResponse<ListPlan> requestResponse = buildResponse(response);
+            RequestResponse<PageResponse<Plan>> requestResponse = buildResponse(response);
 
             return switch (requestResponse.getHttpResponse()) {
                 case 200 -> requestResponse.setBody(
-                        PagBankPlanMapper.toListPlans(
+                        PagBankPlanMapper.toPageResponse(
                                 fromJson(response.body(), PagBankListPlan.class)
                         )
                 );

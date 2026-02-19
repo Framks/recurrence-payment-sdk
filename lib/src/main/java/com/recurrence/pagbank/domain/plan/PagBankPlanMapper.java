@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.domain.plan;
 
-import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.pagbank.domain.commons.Amount;
 import com.recurrence.pagbank.dto.PagBankListPlan;
 
@@ -72,12 +72,13 @@ public final class PagBankPlanMapper {
                 .build();
     }
 
-    public static ListPlan toListPlans(PagBankListPlan pagBankListPlan) {
-        return ListPlan.builder()
-                .plans(pagBankListPlan.getPlans().stream().map(PagBankPlanMapper::to).toList())
-                .total(pagBankListPlan.getResultSet().total())
-                .limit(pagBankListPlan.getResultSet().limit())
-                .offset(pagBankListPlan.getResultSet().offset())
-                .build();
+    public static PageResponse<Plan> toPageResponse(PagBankListPlan pagBankListPlan) {
+        return new PageResponse<>(
+                new PageResponse.PageInfo(
+                        pagBankListPlan.getResultSet().offset(),
+                        pagBankListPlan.getResultSet().limit(),
+                        pagBankListPlan.getResultSet().total()),
+                pagBankListPlan.getPlans().stream().map(PagBankPlanMapper::to).toList()
+        );
     }
 }

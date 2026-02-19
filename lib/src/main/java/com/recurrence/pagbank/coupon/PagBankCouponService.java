@@ -2,7 +2,7 @@ package com.recurrence.pagbank.coupon;
 
 import com.recurrence.contract.CouponService;
 import com.recurrence.contract.domain.Coupon;
-import com.recurrence.contract.domain.ListCoupon;
+import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagBankEnvironment;
@@ -75,14 +75,14 @@ public class PagBankCouponService extends BaseService implements CouponService {
     }
 
     @Override
-    public RequestResponse<ListCoupon> list(int offset, int limit) {
+    public RequestResponse<PageResponse<Coupon>> list(int offset, int limit) {
         try {
             var headers = defaultHeaders(token);
             HttpResponse<String> response = pagBankCouponClient.list(offset, limit, headers);
-            RequestResponse<ListCoupon> requestResponse = buildResponse(response);
+            RequestResponse<PageResponse<Coupon>> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
                 case 200 -> requestResponse.setBody(
-                        PagBankCouponMapper.toListCoupons(fromJson(response.body(), PagBankListCoupon.class))
+                        PagBankCouponMapper.toPageResponse(fromJson(response.body(), PagBankListCoupon.class))
                 );
                 case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;

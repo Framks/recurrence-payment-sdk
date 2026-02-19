@@ -1,8 +1,8 @@
 package com.recurrence.stripe;
 
 import com.recurrence.contract.PlanService;
-import com.recurrence.contract.domain.ListPlan;
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.contract.domain.infra.RequestResponse;
 
 public class StripePlanService implements PlanService {
@@ -15,7 +15,7 @@ public class StripePlanService implements PlanService {
     }
 
     @Override
-    public RequestResponse<ListPlan> list(Long offset, Long limit) {
+    public RequestResponse<PageResponse<Plan>> list(Long offset, Long limit) {
 
         // ToDo: implementar com base na documentação da Stripe: https://docs.stripe.com/api/plans/list
         return null;
