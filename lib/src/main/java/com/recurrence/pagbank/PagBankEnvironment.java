@@ -8,6 +8,7 @@ public enum PagBankEnvironment {
     private final String host;
 
     PagBankEnvironment(final String host) {
+        // Sera interesante colocar uma validação de só permitir o sandbox ou o production a cima?
         this.host = host;
     }
 

@@ -1,6 +1,6 @@
-package com.recurrence.pagbank.dto;
+package com.recurrence.pagbank.domain.plan;
 
-import com.recurrence.pagbank.domain.plan.PagBankPlan;
+import com.recurrence.pagbank.domain.commons.ResultSet;
 import java.util.List;
 
 public class PagBankListPlan {

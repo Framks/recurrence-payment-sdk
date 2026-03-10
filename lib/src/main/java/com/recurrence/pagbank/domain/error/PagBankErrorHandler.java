@@ -3,6 +3,7 @@ package com.recurrence.pagbank.domain.error;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.core.Converter;
+import com.recurrence.pagbank.mapper.PagBankErrorMapper;
 
 public class PagBankErrorHandler {
 

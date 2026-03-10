@@ -1,7 +1,6 @@
 package com.recurrence.pagbank.domain.plan;
 
 import com.recurrence.pagbank.domain.commons.Amount;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 

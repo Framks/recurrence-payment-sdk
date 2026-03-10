@@ -1,4 +1,4 @@
-package com.recurrence.pagbank.plan;
+package com.recurrence.pagbank.service;
 
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.Plan;
@@ -6,16 +6,16 @@ import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.client.PagBankPlanClient;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
-import com.recurrence.pagbank.domain.plan.PagBankPlanMapper;
-import com.recurrence.pagbank.dto.PagBankListPlan;
+import com.recurrence.pagbank.mapper.PagBankPlanMapper;
+import com.recurrence.pagbank.domain.plan.PagBankListPlan;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 
 public class PagBankPlanService extends BaseService implements PlanService {
 
-    private final PagBankEnvironment environment;
     private final String token;
     private final PagBankPlanClient pagBankPlanClient;
 
@@ -23,10 +23,9 @@ public class PagBankPlanService extends BaseService implements PlanService {
             final PagBankEnvironment environment,
             final String token
     ) {
-        this.environment = Objects.requireNonNull(environment, "Environment must be a valid value");
         this.token = Objects.requireNonNull(token, "Token must be a valid value");
 
-        pagBankPlanClient = new PagBankPlanClient(environment);
+        pagBankPlanClient = new PagBankPlanClient(Objects.requireNonNull(environment, "Environment must be a valid value"));
     }
 
     @Override

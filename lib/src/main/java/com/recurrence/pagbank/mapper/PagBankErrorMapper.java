@@ -1,6 +1,7 @@
-package com.recurrence.pagbank.domain.error;
+package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.infra.RequestResponse;
+import com.recurrence.pagbank.domain.error.PagBankErrorList;
 
 public final class PagBankErrorMapper {
 

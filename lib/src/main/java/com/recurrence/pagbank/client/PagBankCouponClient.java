@@ -1,18 +1,17 @@
-package com.recurrence.pagbank.plan;
+package com.recurrence.pagbank.client;
 
 import com.recurrence.infrastructure.HttpClientAdapter;
-
 import com.recurrence.pagbank.PagBankEnvironment;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-public class PagBankPlanClient {
+public class PagBankCouponClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
     private final PagBankEnvironment environment;
-    private static final String RESOURCE = "/plans";
+    private static final String RESOURCE = "/coupons";
 
-    public PagBankPlanClient(PagBankEnvironment environment) {
+    public PagBankCouponClient(PagBankEnvironment environment) {
         this.environment = environment;
     }
 
@@ -21,16 +20,11 @@ public class PagBankPlanClient {
     }
 
     public HttpResponse<String> list(int offset, int limit, final Map<String, String> headers) {
-        // ToDo saber se nos outros providers tem alguma estrutura de query para fazera a filtragem, ou ordenação, etc..
         return httpClient.get(uriList(offset, limit), headers);
     }
 
     public HttpResponse<String> get(final String id, final Map<String, String> headers) {
         return httpClient.get(uriGet(id), headers);
-    }
-
-    public HttpResponse<String> update(final String id, final String payload, final Map<String, String> headers) {
-        return httpClient.put(uriUpdate(id), payload, headers);
     }
 
     public HttpResponse<String> inactivate(final String id, final Map<String, String> headers) {
@@ -51,10 +45,6 @@ public class PagBankPlanClient {
     }
 
     private String uriGet(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id;
-    }
-
-    private String uriUpdate(String id) {
         return this.environment.getHost() + RESOURCE + "/" + id;
     }
 

@@ -1,4 +1,4 @@
-package com.recurrence.pagbank.coupon;
+package com.recurrence.pagbank.service;
 
 import com.recurrence.contract.CouponService;
 import com.recurrence.contract.domain.Coupon;
@@ -6,16 +6,16 @@ import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.contract.domain.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.client.PagBankCouponClient;
 import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
-import com.recurrence.pagbank.domain.coupon.PagBankCouponMapper;
+import com.recurrence.pagbank.mapper.PagBankCouponMapper;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
-import com.recurrence.pagbank.dto.PagBankListCoupon;
+import com.recurrence.pagbank.domain.coupon.PagBankListCoupon;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 
 public class PagBankCouponService extends BaseService implements CouponService {
 
-    private final PagBankEnvironment environment;
     private final String token;
     private final PagBankCouponClient pagBankCouponClient;
 
@@ -23,10 +23,9 @@ public class PagBankCouponService extends BaseService implements CouponService {
             final PagBankEnvironment environment,
             final String token
     ) {
-        this.environment = Objects.requireNonNull(environment, "Environment must be a valid value");
         this.token = Objects.requireNonNull(token, "Token must be a valid value");
 
-        pagBankCouponClient = new PagBankCouponClient(environment);
+        pagBankCouponClient = new PagBankCouponClient(Objects.requireNonNull(environment, "Environment must be a valid value"));
     }
 
     @Override

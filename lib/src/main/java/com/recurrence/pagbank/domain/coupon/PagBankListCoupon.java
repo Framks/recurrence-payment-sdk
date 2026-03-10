@@ -1,6 +1,6 @@
-package com.recurrence.pagbank.dto;
+package com.recurrence.pagbank.domain.coupon;
 
-import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
+import com.recurrence.pagbank.domain.commons.ResultSet;
 import java.util.List;
 
 public class PagBankListCoupon {

@@ -1,4 +1,4 @@
-package com.recurrence.pagbank.dto;
+package com.recurrence.pagbank.domain.commons;
 
 public record ResultSet(
        int offset,

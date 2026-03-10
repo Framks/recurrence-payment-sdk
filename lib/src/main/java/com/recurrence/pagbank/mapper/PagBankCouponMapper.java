@@ -1,8 +1,11 @@
-package com.recurrence.pagbank.domain.coupon;
+package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Coupon;
 import com.recurrence.contract.domain.infra.PageResponse;
-import com.recurrence.pagbank.dto.PagBankListCoupon;
+import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
+import com.recurrence.pagbank.domain.coupon.PagBankCouponDiscount;
+import com.recurrence.pagbank.domain.coupon.PagBankCouponDuration;
+import com.recurrence.pagbank.domain.coupon.PagBankListCoupon;
 
 public final class PagBankCouponMapper {
 

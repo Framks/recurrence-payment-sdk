@@ -1,9 +1,12 @@
-package com.recurrence.pagbank.domain.plan;
+package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.pagbank.domain.commons.Amount;
-import com.recurrence.pagbank.dto.PagBankListPlan;
+import com.recurrence.pagbank.domain.plan.PagBankListPlan;
+import com.recurrence.pagbank.domain.plan.PagBankPlan;
+import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
+import com.recurrence.pagbank.domain.plan.PagBankPlanTrial;
 
 public final class PagBankPlanMapper {
 

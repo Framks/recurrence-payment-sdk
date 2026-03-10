@@ -20,6 +20,18 @@ final public class Recurrence {
         return provider.couponService();
     }
 
+    public CustomerService customer(){
+        return provider.customerService();
+    }
+
+    public SubscriptionService subscription() {
+        return provider.subscriptionService();
+    }
+
+    public InvoiceService invoice() {
+        return provider.invoiceService();
+    }
+
     public static class PagBank {
         public static Recurrence config(final PagBankEnvironment environment, final String token) {
             return new Recurrence(
