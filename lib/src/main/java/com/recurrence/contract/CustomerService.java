@@ -6,9 +6,9 @@ import com.recurrence.contract.domain.infra.PageResponse;
 import com.recurrence.contract.domain.infra.RequestResponse;
 
 public interface CustomerService {
-        RequestResponse<Customer> create(Customer subscriber);
+        RequestResponse<Customer> create(Customer customer);
         RequestResponse<Customer> get(String id);
-        RequestResponse<PageResponse<Customer>> list(Long offset, Long limit);
-        RequestResponse<Customer> update(String id, Customer subscriber);
+        RequestResponse<PageResponse<Customer>> list(int offset, int limit, String query);
+        RequestResponse<Customer> update(String id, Customer customer);
         RequestResponse<Customer> updateBillingInfo(String id, BillingInfo billingInfo);
 }

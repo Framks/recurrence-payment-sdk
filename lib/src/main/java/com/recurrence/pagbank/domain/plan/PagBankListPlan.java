@@ -4,15 +4,15 @@ import com.recurrence.pagbank.domain.commons.ResultSet;
 import java.util.List;
 
 public class PagBankListPlan {
-    private ResultSet ResultSet;
+    private ResultSet resultSet;
     private List<PagBankPlan> plans;
 
     public ResultSet getResultSet() {
-        return ResultSet;
+        return resultSet;
     }
 
     public void setResultSet(ResultSet resultSet) {
-        ResultSet = resultSet;
+        this.resultSet = resultSet;
     }
 
     public List<PagBankPlan> getPlans() {
@@ -26,7 +26,7 @@ public class PagBankListPlan {
     @Override
     public String toString() {
         return "PagBankListPlan{" +
-                "ResultSet=" + ResultSet +
+                "ResultSet=" + resultSet +
                 ", plans=" + plans +
                 '}';
     }
