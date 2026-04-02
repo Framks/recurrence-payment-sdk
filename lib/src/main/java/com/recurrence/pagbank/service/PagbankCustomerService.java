@@ -11,6 +11,7 @@ import com.recurrence.pagbank.client.PagBankCustomerClient;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.customer.PagBankListCustomer;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
+import com.recurrence.pagbank.mapper.CommonsMapper;
 import com.recurrence.pagbank.mapper.PagbankCustomerMapper;
 import java.net.http.HttpResponse;
 import java.util.Objects;
@@ -113,8 +114,11 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
 
     @Override
     public RequestResponse<Customer> updateBillingInfo(String id, BillingInfo billingInfo) {
+        if (billingInfo == null){
+            throw new IllegalArgumentException("BillingInfo must be a valid value");
+        }
         try {
-            String payload = toJson(PagbankCustomerMapper.billingInfoFrom(billingInfo));
+            String payload = toJson(CommonsMapper.toPagBankBillingInfo(billingInfo));
             var headers = defaultHeaders(token);
             HttpResponse<String> response = pagBankCustomerClient.putBillingInfo(id, payload, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);

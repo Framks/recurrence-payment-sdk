@@ -6,6 +6,9 @@ import com.recurrence.contract.domain.commons.Phone;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+// se no momento de fazer um update a gente for usar o mesmo objeto,
+// acredito que validar os campos obrigatórios é melhor ficar dentro de cada mapper,
+// ou a gente criar outro meio de fazer o update, e nessa abordagem a validação fica só no momento de criar o objeto,
 public class Customer {
 
     private String id;
@@ -133,7 +136,6 @@ public class Customer {
     }
 
     // Builder
-
     public static class Builder {
 
         private String id;
