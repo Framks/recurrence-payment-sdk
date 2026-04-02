@@ -18,7 +18,7 @@ public class PagBankCustomer {
     private OffsetDateTime updatedAt;
     private List<Phone> phone;
     private Address address;
-    private BillingInfo billingInfo;
+    private List<BillingInfo> billingInfo;
 
     public PagBankCustomer() {}
 
@@ -82,7 +82,7 @@ public class PagBankCustomer {
         return address;
     }
 
-    public BillingInfo getBillingInfo() {
+    public List<BillingInfo> getBillingInfo() {
         return billingInfo;
     }
 
@@ -128,7 +128,7 @@ public class PagBankCustomer {
         this.address = address;
     }
 
-    public void setBillingInfo(BillingInfo billingInfo) {
+    public void setBillingInfo(List<BillingInfo> billingInfo) {
         this.billingInfo = billingInfo;
     }
 
@@ -146,7 +146,7 @@ public class PagBankCustomer {
         private OffsetDateTime updatedAt;
         private List<Phone> phone;
         private Address address;
-        private BillingInfo billingInfo;
+        private List<BillingInfo> billingInfo;
 
         public PagBankCustomer.Builder id(String id) {
             this.id = id;
@@ -198,7 +198,7 @@ public class PagBankCustomer {
             return this;
         }
 
-        public PagBankCustomer.Builder billingInfo(BillingInfo billingInfo) {
+        public PagBankCustomer.Builder billingInfo(List<BillingInfo> billingInfo) {
             this.billingInfo = billingInfo;
             return this;
         }

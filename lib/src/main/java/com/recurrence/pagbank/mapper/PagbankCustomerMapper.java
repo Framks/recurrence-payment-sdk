@@ -10,6 +10,8 @@ import com.recurrence.pagbank.domain.commons.Phone;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.customer.PagBankListCustomer;
 import java.util.List;
+import java.util.Optional;
+import java.util.Collections;
 
 public class PagbankCustomerMapper {
 
@@ -28,7 +30,10 @@ public class PagbankCustomerMapper {
     }
 
     public static Customer to(PagBankCustomer customer){
-        var billingInfo = customer.getBillingInfo();
+        var billingInfoList = customer.getBillingInfo();
+        // pegar o primeiro billing info se existir
+        var billingInfoOpt = Optional.ofNullable(billingInfoList).filter(l -> !l.isEmpty()).map(l -> l.get(0));
+
         return Customer.builder()
             .id(customer.getId())
             .referenceId(customer.getReferenceId())
@@ -36,7 +41,11 @@ public class PagbankCustomerMapper {
             .email(customer.getEmail())
             .taxId(customer.getTaxId())
             //.phone()
-            .billingInfo(new com.recurrence.contract.domain.commons.BillingInfo(
+            // createat
+            // updateat
+            // address
+
+            .billingInfo(billingInfoOpt.map(billingInfo -> new com.recurrence.contract.domain.commons.BillingInfo(
                 billingInfo.type(),
                 new Card(
                     billingInfo.card().number(),
@@ -49,7 +58,7 @@ public class PagbankCustomerMapper {
                     billingInfo.card().firstDigits(),
                     billingInfo.card().lastDigits()
                 )
-            ))
+            )).orElse(null))
             .birthDate(customer.getBirthDate())
                     
             .build();
@@ -79,8 +88,9 @@ public class PagbankCustomerMapper {
             .build();
     }
 
-    public static BillingInfo billingInfoFrom(com.recurrence.contract.domain.commons.BillingInfo billingInfo){
-        return makeBillingInfo(billingInfo);
+    public static List<BillingInfo> billingInfoFrom(com.recurrence.contract.domain.commons.BillingInfo billingInfo){
+        var b = makeBillingInfo(billingInfo);
+        return b == null ? null : b;
     }
 
     private static List<Phone> makePhone(List<com.recurrence.contract.domain.commons.Phone> phones){
@@ -115,28 +125,34 @@ public class PagbankCustomerMapper {
         );
     }
 
-    private static BillingInfo makeBillingInfo(com.recurrence.contract.domain.commons.BillingInfo billingInfo){
+    private static List<BillingInfo> makeBillingInfo(com.recurrence.contract.domain.commons.BillingInfo billingInfo){
+        if (billingInfo == null) return null;
+
         // Todo validar billingInfo, os validates deveriam ficar mesmo aqui?
         //  ou deveriam ficar dentro de uma classe validation que é chamada no service? (essa segunda abordagem me parece melhor com relação a divisão de responsabilidade)
 
         // Todo ajustar para pegar os dados sem perigo de dar null pointer
-        return new BillingInfo(
-            billingInfo.type(),
-            new com.recurrence.pagbank.domain.commons.Card(
-                billingInfo.card().token(),
-                billingInfo.card().number(),
-                billingInfo.card().encrypted(),
-                billingInfo.card().brand(),
+        var pbCard = new com.recurrence.pagbank.domain.commons.Card(
+            billingInfo.card().token(),
+            billingInfo.card().number(),
+            billingInfo.card().encrypted(),
+            billingInfo.card().brand(),
+            null,
+            null,
+            billingInfo.card().expMonth(),
+            billingInfo.card().expYear(),
+            new com.recurrence.pagbank.domain.commons.Card.Holder(
+                billingInfo.card().holder().name(),
                 null,
-                null,
-                billingInfo.card().expMonth(),
-                billingInfo.card().expYear(),
-                new com.recurrence.pagbank.domain.commons.Card.Holder(
-                    billingInfo.card().holder().name(),
-                    null,
-                    null
-                )
+                null
             )
         );
+
+        var pbBilling = new BillingInfo(
+            billingInfo.type(),
+            pbCard
+        );
+
+        return Collections.singletonList(pbBilling);
     }
 }

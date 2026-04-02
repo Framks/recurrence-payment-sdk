@@ -74,7 +74,9 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
     public RequestResponse<PageResponse<Customer>> list(int offset, int limit, String query) {
         try {
             var headers = defaultHeaders(token);
-            headers.put("q",normalizeString(query));
+            if (query != null && !query.isBlank()){
+                headers.put("q",normalizeString(query));
+            }
             HttpResponse<String> response = pagBankCustomerClient.list(offset, limit, headers);
             RequestResponse<PageResponse<Customer>> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()){

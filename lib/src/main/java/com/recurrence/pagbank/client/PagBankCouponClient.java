@@ -28,11 +28,11 @@ public class PagBankCouponClient {
     }
 
     public HttpResponse<String> inactivate(final String id, final Map<String, String> headers) {
-        return httpClient.post(uriInactivate(id), "", headers);
+        return httpClient.put(uriInactivate(id), null, headers);
     }
 
     public HttpResponse<String> activate(final String id, final Map<String, String> headers) {
-        return httpClient.post(uriActivate(id), "", headers);
+        return httpClient.put(uriActivate(id), null, headers);
     }
 
 
