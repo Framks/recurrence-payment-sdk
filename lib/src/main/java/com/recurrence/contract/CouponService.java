@@ -1,8 +1,8 @@
 package com.recurrence.contract;
 
 import com.recurrence.contract.domain.Coupon;
-import com.recurrence.contract.domain.infra.PageResponse;
-import com.recurrence.contract.domain.infra.RequestResponse;
+import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestResponse;
 
 public interface CouponService {
     RequestResponse<Coupon> create(Coupon coupon);

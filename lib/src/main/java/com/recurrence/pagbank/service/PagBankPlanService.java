@@ -2,8 +2,8 @@ package com.recurrence.pagbank.service;
 
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.Plan;
-import com.recurrence.contract.domain.infra.PageResponse;
-import com.recurrence.contract.domain.infra.RequestResponse;
+import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagBankEnvironment;
 import com.recurrence.pagbank.client.PagBankPlanClient;

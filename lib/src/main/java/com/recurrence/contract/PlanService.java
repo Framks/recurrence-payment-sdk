@@ -1,8 +1,8 @@
 package com.recurrence.contract;
 
 import com.recurrence.contract.domain.Plan;
-import com.recurrence.contract.domain.infra.PageResponse;
-import com.recurrence.contract.domain.infra.RequestResponse;
+import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestResponse;
 
 public interface PlanService {
     RequestResponse<Plan> create(Plan plan);

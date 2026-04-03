@@ -41,7 +41,6 @@ public class PagBankPlanClient {
         return httpClient.post(uriActivate(id), "", headers);
     }
 
-
     private String uriCreate() {
         return this.environment.getHost() + RESOURCE;
     }

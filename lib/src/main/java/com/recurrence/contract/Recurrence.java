@@ -48,6 +48,10 @@ final public class Recurrence {
         }
     }
 
+
+    // Todo: configurar o timeout das requisiçẽos sabendo que algumas operações estavam durando 10s em alguns provedores.
+    //  isso pode ser um problema?
+
     // ToDo: implementar outros providers, como Vindi, PayPal e Iugu, com base na documentação de cada um:
     // https://vindi.github.io/api-docs/dist/,
     // https://developer.paypal.com/docs/api/subscriptions/v1/,

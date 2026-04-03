@@ -1,7 +1,7 @@
 package com.recurrence.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.recurrence.contract.domain.infra.RequestResponse;
+import com.recurrence.contract.infra.RequestResponse;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;

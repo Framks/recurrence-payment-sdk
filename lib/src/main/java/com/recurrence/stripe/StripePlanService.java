@@ -2,8 +2,8 @@ package com.recurrence.stripe;
 
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.Plan;
-import com.recurrence.contract.domain.infra.PageResponse;
-import com.recurrence.contract.domain.infra.RequestResponse;
+import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestResponse;
 
 public class StripePlanService implements PlanService {
 

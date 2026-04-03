@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Plan;
-import com.recurrence.contract.domain.infra.PageResponse;
+import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.pagbank.domain.commons.Amount;
 import com.recurrence.pagbank.domain.plan.PagBankListPlan;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;

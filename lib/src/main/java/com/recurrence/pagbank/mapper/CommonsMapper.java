@@ -25,6 +25,8 @@ public class CommonsMapper {
     }
 
     public static com.recurrence.pagbank.domain.commons.Address toPagBankAddress(Address address){
+        if (address == null) return null;
+
         return new com.recurrence.pagbank.domain.commons.Address(
                 address.street(),
                 address.number(),

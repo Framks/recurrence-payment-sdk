@@ -2,7 +2,7 @@ package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Customer;
 import com.recurrence.pagbank.domain.commons.BillingInfo;
-import com.recurrence.contract.domain.infra.PageResponse;
+import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.customer.PagBankListCustomer;
 import java.util.List;

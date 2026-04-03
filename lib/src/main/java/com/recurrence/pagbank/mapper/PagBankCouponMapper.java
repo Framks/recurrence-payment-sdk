@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Coupon;
-import com.recurrence.contract.domain.infra.PageResponse;
+import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
 import com.recurrence.pagbank.domain.coupon.PagBankCouponDiscount;
 import com.recurrence.pagbank.domain.coupon.PagBankCouponDuration;

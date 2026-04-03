@@ -1,4 +1,4 @@
-package com.recurrence.contract.domain.infra;
+package com.recurrence.contract.infra;
 
 import java.util.List;
 

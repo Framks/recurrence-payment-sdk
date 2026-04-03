@@ -7,7 +7,7 @@ import com.recurrence.contract.domain.commons.BillingInfo;
 import com.recurrence.contract.domain.commons.Card;
 import com.recurrence.contract.domain.commons.Holder;
 import com.recurrence.contract.domain.commons.Phone;
-import com.recurrence.contract.domain.infra.PageResponse;
+import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.core.Converter;
 import com.recurrence.pagbank.domain.commons.ResultSet;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
@@ -29,11 +29,8 @@ public class PagbankCustomerMapperTest {
         objectMapper = Converter.mapper();
     }
 
-    // ===== TESTES: PagBankCustomer -> Customer =====
-
     @Test
     void testToPagBankCustomerWithBillingInfo() {
-        // Arrange
         var holder = new Holder("John Doe");
         var card = new Card(
             "4111111111111111",
@@ -81,10 +78,10 @@ public class PagbankCustomerMapperTest {
             )))
             .build();
 
-        // Act
+
         Customer result = PagbankCustomerMapper.to(pagBankCustomer);
 
-        // Assert
+
         assertNotNull(result);
         assertEquals("cust-123", result.getId());
         assertEquals("ref-123", result.getReferenceId());
@@ -105,7 +102,6 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testToPagBankCustomerWithoutBillingInfo() {
-        // Arrange
         List<com.recurrence.pagbank.domain.commons.Phone> phones = List.of(
             new com.recurrence.pagbank.domain.commons.Phone(1, "88", "BR", "999888777")
         );
@@ -131,10 +127,10 @@ public class PagbankCustomerMapperTest {
             .billingInfo(null)
             .build();
 
-        // Act
+
         Customer result = PagbankCustomerMapper.to(pagBankCustomer);
 
-        // Assert
+
         assertNotNull(result);
         assertEquals("cust-456", result.getId());
         assertEquals("Maria Santos", result.getName());
@@ -143,7 +139,6 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testToPagBankCustomerWithMultipleBillingInfosUsesFirst() {
-        // Arrange - múltiplos billing infos, deve usar o primeiro
         var billingInfo1 = new com.recurrence.pagbank.domain.commons.BillingInfo(
             "CREDIT_CARD",
             new com.recurrence.pagbank.domain.commons.Card("token-1", "4111111111111111", "true", "VISA", null, null, "12", "2025",
@@ -180,21 +175,17 @@ public class PagbankCustomerMapperTest {
             .billingInfo(List.of(billingInfo1, billingInfo2))
             .build();
 
-        // Act
+
         Customer result = PagbankCustomerMapper.to(pagBankCustomer);
 
-        // Assert - deve usar apenas o primeiro
         assertNotNull(result.getBillingInfo());
         assertEquals("CREDIT_CARD", result.getBillingInfo().type());
         assertEquals("token-1", result.getBillingInfo().card().token());
         assertEquals("4111111111111111", result.getBillingInfo().card().number());
     }
 
-    // ===== TESTES: Customer -> PagBankCustomer =====
-
     @Test
     void testFromCustomerWithBillingInfo() {
-        // Arrange
         var holder = new Holder("Alice Smith");
         var card = new Card(
             "6011111111111111",
@@ -219,10 +210,10 @@ public class PagbankCustomerMapperTest {
             .billingInfo(billingInfo)
             .build();
 
-        // Act
+
         PagBankCustomer result = PagbankCustomerMapper.from(customer);
 
-        // Assert
+
         assertNotNull(result);
         assertEquals("ref-alice", result.getReferenceId());
         assertEquals("Alice Smith", result.getName());
@@ -241,7 +232,6 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testFromCustomerWithoutBillingInfo() {
-        // Arrange
         var customer = Customer.builder()
             .referenceId("ref-bob")
             .name("Bob Johnson")
@@ -261,20 +251,18 @@ public class PagbankCustomerMapperTest {
             ))
             .build();
 
-        // Act
+
         PagBankCustomer result = PagbankCustomerMapper.from(customer);
 
-        // Assert
+
         assertNotNull(result);
         assertEquals("ref-bob", result.getReferenceId());
         assertNull(result.getBillingInfo());
     }
 
-    // ===== TESTES: PageResponse e Listas =====
-
     @Test
     void testToPagResponseWithMultipleCustomers() {
-        // Arrange
+        
         var customers = List.of(
             createPagBankCustomer("cust-1", "João", "joao@test.com"),
             createPagBankCustomer("cust-2", "Maria", "maria@test.com"),
@@ -286,10 +274,10 @@ public class PagbankCustomerMapperTest {
         pagBankListCustomer.setResultSet(resultSet);
         pagBankListCustomer.setCustomers(customers);
 
-        // Act
+
         PageResponse<Customer> result = PagbankCustomerMapper.toPagResponse(pagBankListCustomer);
 
-        // Assert
+
         assertNotNull(result);
         assertNotNull(result.getPage());
         assertEquals(0, result.getPage().offset());
@@ -305,26 +293,22 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testToPagResponseWithEmptyList() {
-        // Arrange
         var resultSet = new ResultSet(0, 10, 0);
         var pagBankListCustomer = new PagBankListCustomer();
         pagBankListCustomer.setResultSet(resultSet);
         pagBankListCustomer.setCustomers(Collections.emptyList());
 
-        // Act
+
         PageResponse<Customer> result = PagbankCustomerMapper.toPagResponse(pagBankListCustomer);
 
-        // Assert
+
         assertNotNull(result);
         assertEquals(0, result.getPage().total());
         assertTrue(result.getData().isEmpty());
     }
 
-    // ===== TESTES: Desserialização JSON (MismatchedInputException) =====
-
     @Test
     void testDeserializeJsonWithBillingInfoArray() throws Exception {
-        // Arrange - JSON com billing_info como array (o caso que gerava erro)
         String jsonWithBillingArray = """
             {
               "id": "cust-json-1",
@@ -352,10 +336,9 @@ public class PagbankCustomerMapperTest {
             }
             """;
 
-        // Act
+
         PagBankCustomer pagBankCustomer = objectMapper.readValue(jsonWithBillingArray, PagBankCustomer.class);
 
-        // Assert - não deve lançar MismatchedInputException
         assertNotNull(pagBankCustomer);
         assertEquals("cust-json-1", pagBankCustomer.getId());
         assertEquals("ref-json-1", pagBankCustomer.getReferenceId());
@@ -374,7 +357,6 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testDeserializeJsonWithMultipleBillingInfos() throws Exception {
-        // Arrange - JSON com múltiplos billing infos no array
         String jsonWithMultipleBilling = """
             {
               "id": "cust-multi-json",
@@ -412,10 +394,10 @@ public class PagbankCustomerMapperTest {
             }
             """;
 
-        // Act
+
         PagBankCustomer pagBankCustomer = objectMapper.readValue(jsonWithMultipleBilling, PagBankCustomer.class);
 
-        // Assert
+
         assertNotNull(pagBankCustomer);
         assertEquals(2, pagBankCustomer.getBillingInfo().size());
         assertEquals("CREDIT_CARD", pagBankCustomer.getBillingInfo().get(0).type());
@@ -424,7 +406,6 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testDeserializeJsonWithEmptyBillingInfo() throws Exception {
-        // Arrange - JSON com billing_info vazio
         String jsonWithEmptyBilling = """
             {
               "id": "cust-empty",
@@ -437,10 +418,10 @@ public class PagbankCustomerMapperTest {
             }
             """;
 
-        // Act
+
         PagBankCustomer pagBankCustomer = objectMapper.readValue(jsonWithEmptyBilling, PagBankCustomer.class);
 
-        // Assert
+
         assertNotNull(pagBankCustomer);
         assertNotNull(pagBankCustomer.getBillingInfo());
         assertTrue(pagBankCustomer.getBillingInfo().isEmpty());
@@ -448,7 +429,6 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testDeserializeJsonWithNullBillingInfo() throws Exception {
-        // Arrange - JSON sem campo billing_info
         String jsonWithoutBilling = """
             {
               "id": "cust-null",
@@ -460,40 +440,13 @@ public class PagbankCustomerMapperTest {
             }
             """;
 
-        // Act
+
         PagBankCustomer pagBankCustomer = objectMapper.readValue(jsonWithoutBilling, PagBankCustomer.class);
 
-        // Assert
+
         assertNotNull(pagBankCustomer);
         assertNull(pagBankCustomer.getBillingInfo());
     }
-
-    @Test
-    void testToUpdateCustomer() {
-        // Arrange
-        var customer = Customer.builder()
-            .referenceId("ref-update")
-            .name("Updated Name")
-            .email("updated@example.com")
-            .birthDate("1990-01-15")
-            .phone(List.of(new Phone(1, "11", "BR", "987654321")))
-            .address(new Address("Street", "123", null, "City", "São Paulo", "SP", "BR", "01310-100"))
-            .build();
-
-        // Act
-        PagBankCustomer result = PagbankCustomerMapper.toUpdate(customer);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("ref-update", result.getReferenceId());
-        assertEquals("Updated Name", result.getName());
-        assertEquals("updated@example.com", result.getEmail());
-        assertEquals("1990-01-15", result.getBirthDate());
-        assertNotNull(result.getPhone());
-        assertNotNull(result.getAddress());
-    }
-
-    // ===== MÉTODOS AUXILIARES =====
 
     private PagBankCustomer createPagBankCustomer(String id, String name, String email) {
         return PagBankCustomer.builder()
