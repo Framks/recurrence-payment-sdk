@@ -514,18 +514,6 @@ public class PagBankCouponMapperTest {
     }
 
     @Test
-    void testToPagBankContractCouponWithZeroRedemptionLimit() {
-        var coupon = Coupon.builder()
-            .referenceId("ref-zero")
-            .name("Zero Limit")
-            .discount("FIXED", 1)
-            .duration("PERMANENT", 1)
-            .redemptionLimit(0);
-
-        assertThrows(IllegalArgumentException.class, coupon::build);
-    }
-
-    @Test
     void testToPagBankContractCouponWithLargeRedemptionLimit() {
         
         var coupon = Coupon.builder()

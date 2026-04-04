@@ -42,7 +42,8 @@ public class PagbankCustomerMapperTest {
             "token-123",
             "VISA",
             "4111",
-            "1111"
+            "1111",
+            null
         );
 
         var pagBankCustomer = PagBankCustomer.builder()
@@ -74,7 +75,8 @@ public class PagbankCustomerMapperTest {
                     null,
                     "12",
                     "2025",
-                    new com.recurrence.pagbank.domain.commons.Card.Holder("John Doe", null, null)
+                    new com.recurrence.pagbank.domain.commons.Card.Holder("John Doe", null, null),
+                    null
                 )
             )))
             .build();
@@ -143,12 +145,12 @@ public class PagbankCustomerMapperTest {
         var billingInfo1 = new PagBankBillingInfo(
             "CREDIT_CARD",
             new com.recurrence.pagbank.domain.commons.Card("token-1", "4111111111111111", "true", "VISA", null, null, "12", "2025",
-                new com.recurrence.pagbank.domain.commons.Card.Holder("John Doe", null, null))
+                new com.recurrence.pagbank.domain.commons.Card.Holder("John Doe", null, null), null)
         );
         var billingInfo2 = new PagBankBillingInfo(
             "CREDIT_CARD",
             new com.recurrence.pagbank.domain.commons.Card("token-2", "5555555555555555", "true", "MASTERCARD", null, null, "6", "2026",
-                new com.recurrence.pagbank.domain.commons.Card.Holder("Jane Doe", null, null))
+                new com.recurrence.pagbank.domain.commons.Card.Holder("Jane Doe", null, null), null)
         );
 
         List<com.recurrence.pagbank.domain.commons.Phone> phones = List.of(
@@ -197,7 +199,8 @@ public class PagbankCustomerMapperTest {
             "token-alice",
             "DISCOVER",
             "6011",
-            "1111"
+            "1111",
+            null
         );
         var billingInfo = new BillingInfo("CREDIT_CARD", card);
 
