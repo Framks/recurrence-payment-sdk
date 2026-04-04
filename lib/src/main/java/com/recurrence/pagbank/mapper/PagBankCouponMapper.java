@@ -11,7 +11,7 @@ public final class PagBankCouponMapper {
 
     private PagBankCouponMapper() { }
 
-    public static PagBankCoupon from(final Coupon coupon) {
+    public static PagBankCoupon toPagBankContract(final Coupon coupon) {
         return new PagBankCoupon.Builder()
                 .referenceId(coupon.getReferenceId())
                 .name(coupon.getName())
@@ -45,7 +45,7 @@ public final class PagBankCouponMapper {
         );
     }
 
-    public static Coupon to(final PagBankCoupon pagBankCoupon) {
+    public static Coupon toContract(final PagBankCoupon pagBankCoupon) {
         return new Coupon.Builder()
                 .id(pagBankCoupon.getId())
                 .referenceId(pagBankCoupon.getReferenceId())
@@ -69,7 +69,7 @@ public final class PagBankCouponMapper {
                         pagBankListCoupon.getResultSet().limit(),
                         pagBankListCoupon.getResultSet().total()
                 ),
-                pagBankListCoupon.getCoupons().stream().map(PagBankCouponMapper::to).toList()
+                pagBankListCoupon.getCoupons().stream().map(PagBankCouponMapper::toContract).toList()
         );
     }
 }

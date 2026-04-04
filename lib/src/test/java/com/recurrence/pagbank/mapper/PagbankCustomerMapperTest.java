@@ -9,10 +9,11 @@ import com.recurrence.contract.domain.commons.Holder;
 import com.recurrence.contract.domain.commons.Phone;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.core.Converter;
+import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
 import com.recurrence.pagbank.domain.commons.ResultSet;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.customer.PagBankListCustomer;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -22,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PagbankCustomerMapperTest {
 
-    private ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         objectMapper = Converter.mapper();
     }
 
@@ -62,7 +63,7 @@ public class PagbankCustomerMapperTest {
                 "BR",
                 "01310-100"
             ))
-            .billingInfo(List.of(new com.recurrence.pagbank.domain.commons.BillingInfo(
+            .billingInfo(List.of(new PagBankBillingInfo(
                 "CREDIT_CARD",
                 new com.recurrence.pagbank.domain.commons.Card(
                     "token-123",
@@ -139,12 +140,12 @@ public class PagbankCustomerMapperTest {
 
     @Test
     void testToPagBankCustomerWithMultipleBillingInfosUsesFirst() {
-        var billingInfo1 = new com.recurrence.pagbank.domain.commons.BillingInfo(
+        var billingInfo1 = new PagBankBillingInfo(
             "CREDIT_CARD",
             new com.recurrence.pagbank.domain.commons.Card("token-1", "4111111111111111", "true", "VISA", null, null, "12", "2025",
                 new com.recurrence.pagbank.domain.commons.Card.Holder("John Doe", null, null))
         );
-        var billingInfo2 = new com.recurrence.pagbank.domain.commons.BillingInfo(
+        var billingInfo2 = new PagBankBillingInfo(
             "CREDIT_CARD",
             new com.recurrence.pagbank.domain.commons.Card("token-2", "5555555555555555", "true", "MASTERCARD", null, null, "6", "2026",
                 new com.recurrence.pagbank.domain.commons.Card.Holder("Jane Doe", null, null))

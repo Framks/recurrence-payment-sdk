@@ -1,6 +1,6 @@
 package com.recurrence.pagbank.domain.plan;
 
-import com.recurrence.pagbank.domain.commons.Amount;
+import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -10,7 +10,7 @@ final public class PagBankPlan {
     private String status;
     private String name;
     private String description;
-    private Amount amount;
+    private PagBankAmount pagBankAmount;
     private int setupFee;
     private int limitSubscriptions;
     private PagBankPlanInterval interval;
@@ -27,7 +27,7 @@ final public class PagBankPlan {
         this.name = builder.name;
         this.status = builder.status;
         this.description = builder.description;
-        this.amount = builder.amount;
+        this.pagBankAmount = builder.pagBankAmount;
         this.setupFee = builder.setupFee;
         this.limitSubscriptions = builder.limitSubscriptions;
         this.interval = builder.pagBankPlanInterval;
@@ -52,7 +52,7 @@ final public class PagBankPlan {
         private String name;
         private String referenceId;
         private String description;
-        private Amount amount;
+        private PagBankAmount pagBankAmount;
         private int setupFee;
         private int limitSubscriptions;
         private PagBankPlanInterval pagBankPlanInterval;
@@ -103,8 +103,8 @@ final public class PagBankPlan {
             return this;
         }
 
-        public Builder amount(final Amount amount) {
-            this.amount = amount;
+        public Builder amount(final PagBankAmount pagBankAmount) {
+            this.pagBankAmount = pagBankAmount;
             return this;
         }
 
@@ -139,20 +139,7 @@ final public class PagBankPlan {
         }
 
         public PagBankPlan build() {
-            validate();
             return new PagBankPlan(this);
-        }
-
-        private void validate() {
-            if (name == null || name.isBlank()) {
-                throw new IllegalArgumentException("Plan name is required");
-            }
-            if (amount == null) {
-                throw new IllegalArgumentException("Amount is required");
-            }
-            if (pagBankPlanInterval == null) {
-                throw new IllegalArgumentException("Interval is required");
-            }
         }
     }
 
@@ -184,8 +171,8 @@ final public class PagBankPlan {
         return description;
     }
 
-    public Amount getAmount() {
-        return amount;
+    public PagBankAmount getAmount() {
+        return pagBankAmount;
     }
 
     public int getSetupFee() {

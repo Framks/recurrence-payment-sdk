@@ -41,7 +41,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
 
             return switch (requestResponse.getHttpResponse()) {
                 case 201 -> requestResponse.setBody(
-                        PagBankCouponMapper.to(fromJson(response.body(), PagBankCoupon.class))
+                        PagBankCouponMapper.toContract(fromJson(response.body(), PagBankCoupon.class))
                 );
 
                 case 400 ->
@@ -61,7 +61,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
             RequestResponse<Coupon> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
                 case 200 -> requestResponse.setBody(
-                        PagBankCouponMapper.to(fromJson(response.body(), PagBankCoupon.class))
+                        PagBankCouponMapper.toContract(fromJson(response.body(), PagBankCoupon.class))
                 );
 
                 case 400 ->

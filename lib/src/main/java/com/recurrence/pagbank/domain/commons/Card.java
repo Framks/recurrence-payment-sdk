@@ -9,7 +9,8 @@ public record Card (
     String lastDigits,
     String expMonth,
     String expYear,
-    Holder holder
+    Holder holder,
+    String securityCode
 ){
     public record Holder (
         String name,

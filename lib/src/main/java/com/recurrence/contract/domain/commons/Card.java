@@ -9,6 +9,7 @@ public record Card(
     String token,
     String brand,
     String firstDigits,
-    String lastDigits
+    String lastDigits,
+    String securityCode
 ) {
 }

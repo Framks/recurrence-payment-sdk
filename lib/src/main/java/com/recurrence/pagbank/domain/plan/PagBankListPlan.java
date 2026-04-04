@@ -22,12 +22,4 @@ public class PagBankListPlan {
     public void setPlans(List<PagBankPlan> plans) {
         this.plans = plans;
     }
-
-    @Override
-    public String toString() {
-        return "PagBankListPlan{" +
-                "ResultSet=" + resultSet +
-                ", plans=" + plans +
-                '}';
-    }
 }

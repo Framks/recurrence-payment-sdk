@@ -1,6 +1,6 @@
 package com.recurrence.pagbank.domain.commons;
 
-public record Amount(
+public record PagBankAmount(
         int value,
         String currency
 ) {

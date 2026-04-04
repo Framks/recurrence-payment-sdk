@@ -1,5 +1,6 @@
 package com.recurrence.contract.domain;
 
+import com.recurrence.contract.domain.commons.Amount;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +11,7 @@ final public class Plan {
     private String status;
     private final String name;
     private final String description;
-    private final PlanAmount amount;
+    private final Amount amount;
     private final int setupFee;
     private final int limitSubscriptions;
     private final PlanInterval interval;
@@ -24,11 +25,6 @@ final public class Plan {
     public record PlanInterval(
             int length,
             String unit
-    ) { }
-
-    public record PlanAmount(
-            int value,
-            String currency
     ) { }
 
     public record PlanTrial(
@@ -83,7 +79,7 @@ final public class Plan {
         return description;
     }
 
-    public PlanAmount getAmount() {
+    public Amount getAmount() {
         return amount;
     }
 
@@ -132,7 +128,7 @@ final public class Plan {
         private String name;
         private String status;
         private String referenceId;
-        private PlanAmount amount;
+        private Amount amount;
         private PlanInterval interval;
         private String description;
         private int setupFee;
@@ -143,10 +139,6 @@ final public class Plan {
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
         private Boolean editable;
-
-        private Builder(String name) {
-            this.name = Objects.requireNonNull(name, "Plan name must not be null");
-        }
 
         private Builder() { }
 
@@ -176,7 +168,7 @@ final public class Plan {
         }
 
         public Builder amount(int value, String currency) {
-            this.amount = new PlanAmount(value, currency);
+            this.amount = new Amount(value, currency);
             return this;
         }
 
@@ -226,7 +218,7 @@ final public class Plan {
         }
 
         public Plan build() {
-            validate();
+            //validate();
             return new Plan(this);
         }
 

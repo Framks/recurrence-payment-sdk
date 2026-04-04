@@ -6,6 +6,8 @@ import com.recurrence.contract.domain.commons.BillingInfo;
 import com.recurrence.contract.domain.commons.Card;
 import com.recurrence.contract.domain.commons.Holder;
 import com.recurrence.contract.domain.commons.Phone;
+import com.recurrence.pagbank.domain.commons.PagBankAmount;
+import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
 
 public class CommonsMapper {
 
@@ -39,53 +41,54 @@ public class CommonsMapper {
         );
     }
 
-    public static com.recurrence.pagbank.domain.commons.Amount toPagBankAmount(com.recurrence.contract.domain.commons.Amount amount){
-        return new com.recurrence.pagbank.domain.commons.Amount(
+    public static PagBankAmount toPagBankAmount(com.recurrence.contract.domain.commons.Amount amount){
+        return new PagBankAmount(
                 amount.value(),
                 amount.currency()
         );
     }
 
-    public static Amount toContractAmount(com.recurrence.pagbank.domain.commons.Amount amount){
+    public static Amount toContractAmount(PagBankAmount pagBankAmount){
         return new Amount(
-                amount.value(),
-                amount.currency()
+                pagBankAmount.value(),
+                pagBankAmount.currency()
         );
     }
 
-    public static BillingInfo toContractBillingInfo(com.recurrence.pagbank.domain.commons.BillingInfo billingInfo){
-        if (billingInfo == null) return null;
+    public static BillingInfo toContractBillingInfo(PagBankBillingInfo pagBankBillingInfo){
+        if (pagBankBillingInfo == null) return null;
 
-        if ( billingInfo.card() != null){
+        if ( pagBankBillingInfo.card() != null){
             return new BillingInfo(
-                billingInfo.type(),
+                pagBankBillingInfo.type(),
                 new Card(
-                    billingInfo.card().number(),
-                    billingInfo.card().expYear(),
-                    billingInfo.card().expMonth(),
-                    billingInfo.card().encrypted(),
+                    pagBankBillingInfo.card().number(),
+                    pagBankBillingInfo.card().expYear(),
+                    pagBankBillingInfo.card().expMonth(),
+                    pagBankBillingInfo.card().encrypted(),
                     new Holder(
-                        billingInfo.card().holder().name()
+                        pagBankBillingInfo.card().holder().name()
                     ),
-                    billingInfo.card().token(),
-                    billingInfo.card().brand(),
-                    billingInfo.card().firstDigits(),
-                    billingInfo.card().lastDigits()
+                    pagBankBillingInfo.card().token(),
+                    pagBankBillingInfo.card().brand(),
+                    pagBankBillingInfo.card().firstDigits(),
+                    pagBankBillingInfo.card().lastDigits(),
+                    null
                 )
             );
         }
 
         return new BillingInfo(
-            billingInfo.type(),
+            pagBankBillingInfo.type(),
             null
         );
     }
 
-    public static com.recurrence.pagbank.domain.commons.BillingInfo toPagBankBillingInfo(BillingInfo billingInfo){
+    public static PagBankBillingInfo toPagBankBillingInfo(BillingInfo billingInfo){
         if (billingInfo == null) return null;
 
         if ( billingInfo.card() != null){
-            return new com.recurrence.pagbank.domain.commons.BillingInfo(
+            return new PagBankBillingInfo(
                 billingInfo.type(),
                 new com.recurrence.pagbank.domain.commons.Card(
                     billingInfo.card().token(),
@@ -100,12 +103,13 @@ public class CommonsMapper {
                         billingInfo.card().holder().name(),
                         null,
                         null
-                    )
+                    ),
+                    null
                 )
             );
         }
 
-        return new com.recurrence.pagbank.domain.commons.BillingInfo(
+        return new PagBankBillingInfo(
             billingInfo.type(),
             null
         );

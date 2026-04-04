@@ -209,23 +209,7 @@ public class PagBankCoupon {
         }
 
         public PagBankCoupon build() {
-            validate();
             return new PagBankCoupon(this);
-        }
-
-        private void validate() {
-            if (name == null || name.isEmpty()) {
-                throw new IllegalArgumentException("Name is required");
-            }
-            if (discount == null) {
-                throw new IllegalArgumentException("Discount is required");
-            }
-            if (duration == null) {
-                throw new IllegalArgumentException("Duration is required");
-            }
-            if (redemptionLimit <= 0) {
-                throw new IllegalArgumentException("Redemption limit is required");
-            }
         }
     }
 }

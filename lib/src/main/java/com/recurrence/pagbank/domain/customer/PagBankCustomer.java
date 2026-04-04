@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.domain.customer;
 
 import com.recurrence.pagbank.domain.commons.Address;
-import com.recurrence.pagbank.domain.commons.BillingInfo;
+import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
 import com.recurrence.pagbank.domain.commons.Phone;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -18,7 +18,7 @@ public class PagBankCustomer {
     private OffsetDateTime updatedAt;
     private List<Phone> phone;
     private Address address;
-    private List<BillingInfo> billingInfo;
+    private List<PagBankBillingInfo> pagBankBillingInfo;
 
     public PagBankCustomer() {}
 
@@ -33,7 +33,7 @@ public class PagBankCustomer {
         this.updatedAt = builder.updatedAt;
         this.phone = builder.phone;
         this.address = builder.address;
-        this.billingInfo = builder.billingInfo;
+        this.pagBankBillingInfo = builder.pagBankBillingInfo;
     }
 
     public static PagBankCustomer.Builder builder() {
@@ -82,8 +82,8 @@ public class PagBankCustomer {
         return address;
     }
 
-    public List<BillingInfo> getBillingInfo() {
-        return billingInfo;
+    public List<PagBankBillingInfo> getBillingInfo() {
+        return pagBankBillingInfo;
     }
 
     // Setters
@@ -128,8 +128,8 @@ public class PagBankCustomer {
         this.address = address;
     }
 
-    public void setBillingInfo(List<BillingInfo> billingInfo) {
-        this.billingInfo = billingInfo;
+    public void setBillingInfo(List<PagBankBillingInfo> pagBankBillingInfo) {
+        this.pagBankBillingInfo = pagBankBillingInfo;
     }
 
     // Builder
@@ -146,7 +146,7 @@ public class PagBankCustomer {
         private OffsetDateTime updatedAt;
         private List<Phone> phone;
         private Address address;
-        private List<BillingInfo> billingInfo;
+        private List<PagBankBillingInfo> pagBankBillingInfo;
 
         public PagBankCustomer.Builder id(String id) {
             this.id = id;
@@ -198,8 +198,8 @@ public class PagBankCustomer {
             return this;
         }
 
-        public PagBankCustomer.Builder billingInfo(List<BillingInfo> billingInfo) {
-            this.billingInfo = billingInfo;
+        public PagBankCustomer.Builder billingInfo(List<PagBankBillingInfo> pagBankBillingInfo) {
+            this.pagBankBillingInfo = pagBankBillingInfo;
             return this;
         }
 

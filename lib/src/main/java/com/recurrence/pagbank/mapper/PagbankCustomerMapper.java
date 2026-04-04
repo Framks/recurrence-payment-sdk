@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Customer;
-import com.recurrence.pagbank.domain.commons.BillingInfo;
+import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.customer.PagBankListCustomer;
@@ -26,7 +26,7 @@ public class PagbankCustomerMapper {
 
     public static Customer to(PagBankCustomer customer){
         var billingInfoList = customer.getBillingInfo();
-        // pegar o primeiro billing info se existir
+
         var billingInfoOpt = Optional.ofNullable(billingInfoList).filter(l -> !l.isEmpty()).map(l -> l.get(0)).orElse(null);
 
         return Customer.builder()
@@ -46,10 +46,10 @@ public class PagbankCustomerMapper {
     }
 
     public static PagBankCustomer toUpdate(Customer customer){
-        List<BillingInfo> billingInfo = null;
+        List<PagBankBillingInfo> pagBankBillingInfo = null;
 
         if (customer.getBillingInfo() != null){
-            billingInfo = List.of(CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo()));
+            pagBankBillingInfo = List.of(CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo()));
         }
 
         return PagBankCustomer.builder()
@@ -59,15 +59,15 @@ public class PagbankCustomerMapper {
             .phone(customer.getPhone().stream().map(CommonsMapper::toPagBankPhone).toList())
             .birthDate(customer.getBirthDate())
             .address(CommonsMapper.toPagBankAddress(customer.getAddress()))
-            .billingInfo(billingInfo)
+            .billingInfo(pagBankBillingInfo)
             .build();
     }
 
     public static PagBankCustomer from(Customer customer){
-        List<BillingInfo> billingInfo = null;
+        List<PagBankBillingInfo> pagBankBillingInfo = null;
 
         if (customer.getBillingInfo() != null){
-            billingInfo = List.of(CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo()));
+            pagBankBillingInfo = List.of(CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo()));
         }
 
         return PagBankCustomer.builder()
@@ -78,7 +78,7 @@ public class PagbankCustomerMapper {
             .phone(customer.getPhone().stream().map(CommonsMapper::toPagBankPhone).toList())
             .birthDate(customer.getBirthDate())
             .address(CommonsMapper.toPagBankAddress(customer.getAddress()))
-            .billingInfo(billingInfo)
+            .billingInfo(pagBankBillingInfo)
             .build();
     }
 

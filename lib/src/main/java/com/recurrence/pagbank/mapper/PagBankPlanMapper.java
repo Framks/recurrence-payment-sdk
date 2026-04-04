@@ -2,7 +2,7 @@ package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.infra.PageResponse;
-import com.recurrence.pagbank.domain.commons.Amount;
+import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import com.recurrence.pagbank.domain.plan.PagBankListPlan;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
 import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
@@ -10,8 +10,7 @@ import com.recurrence.pagbank.domain.plan.PagBankPlanTrial;
 
 public final class PagBankPlanMapper {
 
-    private PagBankPlanMapper() {
-    }
+    private PagBankPlanMapper() {}
 
     public static PagBankPlan from(Plan plan) {
         return PagBankPlan.builder()
@@ -28,8 +27,8 @@ public final class PagBankPlanMapper {
                 .build();
     }
 
-    private static Amount mapAmount(Plan plan) {
-        return new Amount(
+    private static PagBankAmount mapAmount(Plan plan) {
+        return new PagBankAmount(
                 plan.getAmount().value(),
                 plan.getAmount().currency()
         );
@@ -53,7 +52,6 @@ public final class PagBankPlanMapper {
                 plan.getTrial().hold_setup_fee()
         );
     }
-
 
     public static Plan to(PagBankPlan plan) {
         return Plan.builder()
