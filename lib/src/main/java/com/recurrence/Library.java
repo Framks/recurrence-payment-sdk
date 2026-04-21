@@ -3,6 +3,7 @@ package com.recurrence;
 import com.recurrence.contract.Recurrence;
 import com.recurrence.contract.domain.Coupon;
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.Subscription;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.pagbank.PagBankEnvironment;
@@ -14,16 +15,15 @@ import java.util.UUID;
 
 public class Library {
 
-    private static final String TOKEN = "";
+    private static final String TOKEN = "d229cfe4-76ad-4827-b013-083e911e85821ece519240a4b98aabf64fab3acc2e67eacf-a7ae-4614-928f-5904fd663c64";
 
     public static void main(String[] args) {
-
-        RequestResponse<PageResponse<Coupon>> pagBankResponse = Recurrence.PagBank.config(
+        RequestResponse<Subscription> pagBankResponse = Recurrence.PagBank.config(
                         PagBankEnvironment.SANDBOX,
                         TOKEN)
-                .coupon().list(0, 10);
+                .subscription().get("SUBS_FA74268F-F219-4895-9977-7D551921FBDF");
 
-        ObjectPrinter.print(pagBankResponse.getBody(),2);
+        ObjectPrinter.print(pagBankResponse,2);
     }
 
     private static Plan createPagBankPlan() {

@@ -34,5 +34,9 @@ public class StripeProvider implements RecurrenceProvider {
         return null;
     }
 
+    @Override
+    public com.recurrence.contract.PreferencesService preferencesService() {
+        return null;
+    }
 
 }

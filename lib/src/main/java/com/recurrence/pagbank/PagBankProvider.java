@@ -4,10 +4,13 @@ import com.recurrence.contract.CouponService;
 import com.recurrence.contract.CustomerService;
 import com.recurrence.contract.InvoiceService;
 import com.recurrence.contract.PlanService;
+import com.recurrence.contract.PreferencesService;
 import com.recurrence.contract.RecurrenceProvider;
 import com.recurrence.contract.SubscriptionService;
 import com.recurrence.pagbank.service.PagBankCouponService;
+import com.recurrence.pagbank.service.PagBankInvoiceService;
 import com.recurrence.pagbank.service.PagBankPlanService;
+import com.recurrence.pagbank.service.PagBankPreferencesService;
 import com.recurrence.pagbank.service.PagBankSubscriptionService;
 import com.recurrence.pagbank.service.PagbankCustomerService;
 
@@ -17,6 +20,8 @@ public class PagBankProvider implements RecurrenceProvider {
     private final PagBankCouponService couponService;
     private final PagbankCustomerService customerService;
     private final SubscriptionService subscriptionService;
+    private final PagBankInvoiceService invoiceService;
+    private final PagBankPreferencesService preferencesService;
 
     public PagBankProvider(
             final PagBankEnvironment environment,
@@ -35,6 +40,14 @@ public class PagBankProvider implements RecurrenceProvider {
             token
         );
         this.subscriptionService = new PagBankSubscriptionService(
+            environment,
+            token
+        );
+        this.invoiceService = new PagBankInvoiceService(
+            environment,
+            token
+        );
+        this.preferencesService = new PagBankPreferencesService(
             environment,
             token
         );
@@ -62,6 +75,11 @@ public class PagBankProvider implements RecurrenceProvider {
 
     @Override
     public InvoiceService invoiceService() {
-        return null;
+        return invoiceService;
+    }
+
+    @Override
+    public PreferencesService preferencesService() {
+        return preferencesService;
     }
 }

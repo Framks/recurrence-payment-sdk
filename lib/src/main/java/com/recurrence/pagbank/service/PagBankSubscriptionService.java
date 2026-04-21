@@ -1,6 +1,7 @@
 package com.recurrence.pagbank.service;
 
 import com.recurrence.contract.SubscriptionService;
+import com.recurrence.contract.domain.Invoice;
 import com.recurrence.contract.domain.Subscription;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestResponse;
@@ -8,8 +9,10 @@ import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagBankEnvironment;
 import com.recurrence.pagbank.client.PagBankSubscriptionClient;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
+import com.recurrence.pagbank.domain.payment.PagBankListInvoice;
 import com.recurrence.pagbank.domain.subscription.PagBankSubscription;
 import com.recurrence.pagbank.domain.subscription.PagbankListSubscription;
+import com.recurrence.pagbank.mapper.PagBankInvoiceMapper;
 import com.recurrence.pagbank.mapper.PagBankSubscriptionMapper;
 import java.net.http.HttpResponse;
 import java.util.Objects;
@@ -79,7 +82,6 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 referenceId
             );
 
-            System.out.println("Response da listagem de assinaturas: " + response.body());
             RequestResponse<PageResponse<Subscription>> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 2 -> requestResponse.setBody(
@@ -94,9 +96,18 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     }
 
     @Override
-    public RequestResponse<PageResponse<Void>> listInvoiceBySubscription(String subscriptionId, int offset, int limit) {
+    public RequestResponse<PageResponse<Invoice>> listInvoiceBySubscription(String subscriptionId, int offset, int limit) {
         try {
-            return null;  // ToDo IMPLEMENTAR O INVOICE PARA DEPOIS CRIAR ESSA FUNÇÃO.
+            HttpResponse<String> response = pagBankSubscriptionClient.listInvoices(subscriptionId, defaultHeaders(token));
+            RequestResponse<PageResponse<Invoice>> requestResponse = buildResponse(response);
+
+            return switch ((requestResponse.getHttpResponse()/100)) {
+                case 2 -> requestResponse.setBody(
+                    PagBankInvoiceMapper.toInvoicePageResponse(fromJson(response.body(), PagBankListInvoice.class))
+                );
+                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
+                default -> requestResponse;
+            };
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -105,7 +116,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Subscription> update(String id, Subscription subscription) {
         try {
-            var payload = toJson(PagBankSubscriptionMapper.toPagBankContract(subscription)); // ToDo fazer o mapper do update, pois nem todos os campos são atualizáveis
+            var payload = toJson(PagBankSubscriptionMapper.toPagBankContract(subscription));
             var headers = defaultHeaders(token);
             HttpResponse<String> response = pagBankSubscriptionClient.put(id, payload, headers);
             RequestResponse<Subscription> requestResponse = buildResponse(response);
@@ -126,7 +137,6 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
         try {
             HttpResponse<String> response = pagBankSubscriptionClient.suspend(id, defaultHeaders(token));
             RequestResponse<Void> requestResponse = buildResponse(response);
-            System.out.println("Response da suspensão da assinatura: " + response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
@@ -168,6 +178,20 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     public RequestResponse<Void> deleteCoupon(String id) {
         try {
             HttpResponse<String> response = pagBankSubscriptionClient.deleteCoupons(id, defaultHeaders(token));
+            RequestResponse<Void> requestResponse = buildResponse(response);
+            return switch ((requestResponse.getHttpResponse()/100)) {
+                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
+                default -> requestResponse;
+            };
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public RequestResponse<Void> retry(String id) {
+        try {
+            HttpResponse<String> response = pagBankSubscriptionClient.retry(id, defaultHeaders(token));
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());

@@ -15,7 +15,7 @@ public class PagBankSubscription {
     private Boolean proRata;
     private String nextInvoiceAt;
     private PagBankCoupon coupon;
-    private PagBankAmount pagBankAmount;
+    private PagBankAmount amount;
     private PagBankPlan plan;
     private List<PagBankBillingInfo> paymentMethod;
     private PagBankCustomer customer;
@@ -35,7 +35,7 @@ public class PagBankSubscription {
         Boolean proRata,
         String nextInvoiceAt,
         PagBankCoupon coupon,
-        PagBankAmount pagBankAmount,
+        PagBankAmount amount,
         PagBankPlan plan,
         List<PagBankBillingInfo> paymentMethod,
         PagBankCustomer customer,
@@ -52,7 +52,7 @@ public class PagBankSubscription {
         this.proRata = proRata;
         this.nextInvoiceAt = nextInvoiceAt;
         this.coupon = coupon;
-        this.pagBankAmount = pagBankAmount;
+        this.amount = amount;
         this.plan = plan;
         this.paymentMethod = paymentMethod;
         this.customer = customer;
@@ -71,7 +71,7 @@ public class PagBankSubscription {
         this.proRata = builder.proRata;
         this.nextInvoiceAt = builder.nextInvoiceAt;
         this.coupon = builder.coupon;
-        this.pagBankAmount = builder.pagBankAmount;
+        this.amount = builder.amount;
         this.plan = builder.plan;
         this.paymentMethod = builder.paymentMethod;
         this.customer = builder.customer;
@@ -89,7 +89,7 @@ public class PagBankSubscription {
     ){}
     public record Receiver(
         Account account,
-        PagBankAmount pagBankAmount
+        PagBankAmount amount
     ){}
     public record Account(
         String id
@@ -110,7 +110,7 @@ public class PagBankSubscription {
         private Boolean proRata;
         private String nextInvoiceAt;
         private PagBankCoupon coupon;
-        private PagBankAmount pagBankAmount;
+        private PagBankAmount amount;
         private PagBankPlan plan;
         private List<PagBankBillingInfo> paymentMethod;
         private PagBankCustomer customer;
@@ -151,8 +151,8 @@ public class PagBankSubscription {
             return this;
         }
 
-        public Builder amount(PagBankAmount pagBankAmount) {
-            this.pagBankAmount = pagBankAmount;
+        public Builder amount(PagBankAmount amount) {
+            this.amount = amount;
             return this;
         }
 
@@ -219,7 +219,7 @@ public class PagBankSubscription {
 
     public PagBankCoupon getCoupon() {return coupon;}
 
-    public PagBankAmount getAmount() {return pagBankAmount;}
+    public PagBankAmount getAmount() {return amount;}
 
     public PagBankPlan getPlan() {return plan;}
 
@@ -252,7 +252,7 @@ public class PagBankSubscription {
 
     public void setCoupon(PagBankCoupon coupon) {this.coupon = coupon;}
 
-    public void setAmount(PagBankAmount pagBankAmount) {this.pagBankAmount = pagBankAmount;}
+    public void setAmount(PagBankAmount amount) {this.amount = amount;}
 
     public void setPlan(PagBankPlan plan) {this.plan = plan;}
 

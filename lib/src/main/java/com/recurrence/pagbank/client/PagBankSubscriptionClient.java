@@ -81,6 +81,9 @@ public class PagBankSubscriptionClient {
         return httpClient.delete(uriDeleteCoupons(id), headers);
     }
 
+    public HttpResponse<String> retry(final String id, final Map<String, String> headers) {
+        return httpClient.post(uriRetry(id), "", headers);
+    }
 
 
     private String uriCreate() {
@@ -120,5 +123,9 @@ public class PagBankSubscriptionClient {
 
     private String uriDeleteCoupons(String id) {
         return this.environment.getHost() + RESOURCE + "/" + id + "/coupons";
+    }
+
+    private String uriRetry(String id) {
+        return this.environment.getHost() + RESOURCE + "/" + id + "/retry";
     }
 }

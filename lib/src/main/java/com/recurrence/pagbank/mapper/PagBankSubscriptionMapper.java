@@ -72,11 +72,10 @@ public class PagBankSubscriptionMapper {
         );
     }
 
-
     private static Subscription.Receiver toContractReceiver(PagBankSubscription.Receiver receiver){
             return new Subscription.Receiver(
                 receiver.account().id(),
-                receiver.pagBankAmount().value()
+                receiver.amount().value()
             );
     }
 

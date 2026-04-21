@@ -33,11 +33,8 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
     public RequestResponse<Customer> create(Customer customer) {
         try{
             String payload = toJson(PagbankCustomerMapper.from(customer));
-
             var headers = defaultHeaders(token);
-
             HttpResponse<String> response = pagBankCustomerClient.create(payload, headers);
-
             RequestResponse<Customer> requestResponse = buildResponse(response);
 
             return switch (requestResponse.getHttpResponse()) {

@@ -8,6 +8,7 @@ import com.recurrence.contract.domain.commons.Holder;
 import com.recurrence.contract.domain.commons.Phone;
 import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
+import com.recurrence.pagbank.domain.commons.PaymentMethod;
 
 public class CommonsMapper {
 
@@ -80,6 +81,35 @@ public class CommonsMapper {
 
         return new BillingInfo(
             pagBankBillingInfo.type(),
+            null
+        );
+    }
+
+    public static BillingInfo toContractBillingInfo(PaymentMethod paymentMethod){
+        if (paymentMethod == null) return null;
+
+        if ( paymentMethod.card() != null){
+            return new BillingInfo(
+                paymentMethod.type(),
+                new Card(
+                    paymentMethod.card().number(),
+                    paymentMethod.card().expYear(),
+                    paymentMethod.card().expMonth(),
+                    paymentMethod.card().encrypted(),
+                    new Holder(
+                        paymentMethod.card().holder().name()
+                    ),
+                    paymentMethod.card().token(),
+                    paymentMethod.card().brand(),
+                    paymentMethod.card().firstDigits(),
+                    paymentMethod.card().lastDigits(),
+                    null
+                )
+            );
+        }
+
+        return new BillingInfo(
+            paymentMethod.type(),
             null
         );
     }

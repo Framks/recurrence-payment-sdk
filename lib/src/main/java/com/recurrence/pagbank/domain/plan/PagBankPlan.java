@@ -10,7 +10,7 @@ final public class PagBankPlan {
     private String status;
     private String name;
     private String description;
-    private PagBankAmount pagBankAmount;
+    private PagBankAmount amount;
     private int setupFee;
     private int limitSubscriptions;
     private PagBankPlanInterval interval;
@@ -27,7 +27,7 @@ final public class PagBankPlan {
         this.name = builder.name;
         this.status = builder.status;
         this.description = builder.description;
-        this.pagBankAmount = builder.pagBankAmount;
+        this.amount = builder.amount;
         this.setupFee = builder.setupFee;
         this.limitSubscriptions = builder.limitSubscriptions;
         this.interval = builder.pagBankPlanInterval;
@@ -52,7 +52,7 @@ final public class PagBankPlan {
         private String name;
         private String referenceId;
         private String description;
-        private PagBankAmount pagBankAmount;
+        private PagBankAmount amount;
         private int setupFee;
         private int limitSubscriptions;
         private PagBankPlanInterval pagBankPlanInterval;
@@ -103,8 +103,8 @@ final public class PagBankPlan {
             return this;
         }
 
-        public Builder amount(final PagBankAmount pagBankAmount) {
-            this.pagBankAmount = pagBankAmount;
+        public Builder amount(final PagBankAmount amount) {
+            this.amount = amount;
             return this;
         }
 
@@ -172,7 +172,7 @@ final public class PagBankPlan {
     }
 
     public PagBankAmount getAmount() {
-        return pagBankAmount;
+        return amount;
     }
 
     public int getSetupFee() {
