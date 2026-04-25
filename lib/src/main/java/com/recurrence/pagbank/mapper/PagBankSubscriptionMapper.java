@@ -4,23 +4,31 @@ import com.recurrence.contract.domain.Coupon;
 import com.recurrence.contract.domain.Customer;
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.domain.Subscription;
+import com.recurrence.contract.domain.commons.Amount;
 import com.recurrence.contract.domain.commons.BillingInfo;
+import com.recurrence.contract.domain.commons.Boleto;
+import com.recurrence.contract.domain.commons.Card;
+import com.recurrence.contract.domain.commons.Holder;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.domain.commons.Address;
 import com.recurrence.pagbank.domain.commons.PagBankAmount;
-import com.recurrence.pagbank.domain.commons.Card;
+import com.recurrence.pagbank.domain.commons.PagBankCard;
 import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
+import com.recurrence.pagbank.domain.commons.PagBankLink;
 import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
 import com.recurrence.pagbank.domain.subscription.PagBankSubscription;
 import com.recurrence.pagbank.domain.subscription.PagbankListSubscription;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PagBankSubscriptionMapper {
 
     public static PagBankSubscription toPagBankContract(Subscription subscription){
+        if ( subscription.getBestInvoiceDate() == null ) throw new IllegalArgumentException("Best invoice date must be provided");
+
         return PagBankSubscription.builder()
             .referenceId(subscription.getReferenceId())
             .proRata(subscription.getProRata())
@@ -48,7 +56,7 @@ public class PagBankSubscriptionMapper {
             .coupon(toContractCoupon(pagBankSubscription))
             .amount(toContractAmount(pagBankSubscription))
             .plan(toContractPlan(pagBankSubscription))
-            .paymentMethod(toContractBillingInfo(pagBankSubscription.getPaymentMethod()))
+            .paymentMethod(toContractBillingInfo(pagBankSubscription.getPaymentMethod(), pagBankSubscription.getLinks()))
             .customer(toContractCustomer(pagBankSubscription))
             .expAt(pagBankSubscription.getExpAt())
             .createdAt(pagBankSubscription.getCreatedAt())
@@ -72,6 +80,7 @@ public class PagBankSubscriptionMapper {
         );
     }
 
+
     private static Subscription.Receiver toContractReceiver(PagBankSubscription.Receiver receiver){
             return new Subscription.Receiver(
                 receiver.account().id(),
@@ -91,6 +100,8 @@ public class PagBankSubscriptionMapper {
     }
 
     private static PagBankPlan toPagBankPlan(Subscription subscription){
+        if ( subscription.getPlan() == null) throw new IllegalArgumentException("Plan must be provided");
+
         return PagBankPlan.builder()
             .id(subscription.getPlan().getId())
             .build();
@@ -120,6 +131,8 @@ public class PagBankSubscriptionMapper {
     }
 
     private static PagBankCustomer toPagBankCustomer(Subscription subscription){
+        if ( subscription.getCustomer() == null ) throw new IllegalArgumentException("Customer must be provided");
+
         var customer = subscription.getCustomer();
 
         if (customer.getId() != null){
@@ -156,79 +169,115 @@ public class PagBankSubscriptionMapper {
             return List.of(
                 new PagBankBillingInfo(
                     billingInfo.type(),
+                    null,
                     null
                 )
             );
         }else {
+            if ( billingInfo.card() == null) throw new IllegalArgumentException("Card information must be provided for credit card payment method");
+            // fazer uma validação que represente as regras de envio do cartão para o pagbank
             return List.of(
                 new PagBankBillingInfo(
                     billingInfo.type(),
-                    new Card(
+                    new PagBankCard(
+                        billingInfo.card().token(),
+                        billingInfo.card().number(),
+                        billingInfo.card().encrypted(),
+                        billingInfo.card().brand(),
                         null,
                         null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        billingInfo.card().expMonth(),
+                        billingInfo.card().expYear(),
+                        new PagBankCard.Holder(
+                            billingInfo.card().holder().name(),
+                            null,
+                            null
+                        ),
                         billingInfo.card().securityCode()
-                    )
-                )
-            );
-        }
-    }
-
-    private static List<BillingInfo> toContractBillingInfo(List<PagBankBillingInfo> pagBankBillingInfos){
-        if (pagBankBillingInfos == null || pagBankBillingInfos.isEmpty()) {
-            return null;
-        }
-
-        var pagBankBillingInfo = pagBankBillingInfos.get(0);
-
-        if (Objects.equals(pagBankBillingInfo.type(), "BOLETO")) {
-            return List.of(
-                new BillingInfo(
-                    pagBankBillingInfo.type(),
+                    ),
                     null
                 )
             );
-        }else {
-            return List.of(
-                new BillingInfo(
-                    pagBankBillingInfo.type(),
-                    new com.recurrence.contract.domain.commons.Card(
-                        pagBankBillingInfo.card().number(),
-                        pagBankBillingInfo.card().expYear(),
-                        pagBankBillingInfo.card().expMonth(),
-                        pagBankBillingInfo.card().encrypted(),
-                        new com.recurrence.contract.domain.commons.Holder(
-                            pagBankBillingInfo.card().holder().name()
-                        ),
-                        pagBankBillingInfo.card().token(),
-                        pagBankBillingInfo.card().brand(),
-                        pagBankBillingInfo.card().firstDigits(),
-                        pagBankBillingInfo.card().lastDigits(),
-                        null
-                    )
-                )
-            );
         }
     }
 
+    private static List<BillingInfo> toContractBillingInfo(
+        List<PagBankBillingInfo> billingInfos,
+        List<PagBankLink> links
+    ) {
+        if (billingInfos == null || billingInfos.isEmpty()) {
+            return null;
+        }
+
+        var info = billingInfos.get(0);
+
+        var linksByType = links.stream()
+            .collect(Collectors.toMap(
+                PagBankLink::media,
+                PagBankLink::href,
+                (a, b) -> a
+            ));
+
+        return List.of(
+            new BillingInfo(
+                info.type(),
+                mapCard(info),
+                mapBoleto(info, linksByType)
+            )
+        );
+    }
+
+    private static Boleto mapBoleto(PagBankBillingInfo info, Map<String, String> links) {
+        if (!"BOLETO".equals(info.type()) || info.boleto() == null) {
+            return null;
+        }
+        return new Boleto(
+            info.boleto().id(),
+            info.boleto().barcode(),
+            info.boleto().formattedBarcode(),
+            info.boleto().dueAt(),
+            links.get("application/pdf"),
+            links.get("image/png")
+        );
+    }
+
+    private static Card mapCard(PagBankBillingInfo info) {
+        if (!"CREDIT_CARD".equals(info.type()) || info.card() == null) {
+            return null;
+        }
+
+        return new Card(
+            info.card().number(),
+            info.card().expYear(),
+            info.card().expMonth(),
+            info.card().encrypted(),
+            new Holder(info.card().holder().name()),
+            info.card().token(),
+            info.card().brand(),
+            info.card().firstDigits(),
+            info.card().lastDigits(),
+            null
+        );
+    }
+
     private static PagBankAmount toPagBankAmount(Subscription subscription){
+        if ( subscription.getAmount() == null) throw new IllegalArgumentException("Amount must be provided");
+        if ( subscription.getAmount().value() <= 0) throw new IllegalArgumentException("Amount must be greater than zero");
+        if ( subscription.getAmount().currency() == null || subscription.getAmount().currency().isBlank()) throw new IllegalArgumentException("Currency must be provided");
+
         return new PagBankAmount(
             subscription.getAmount().value(),
             subscription.getAmount().currency()
         );
     }
 
-    private static com.recurrence.contract.domain.commons.Amount toContractAmount(PagBankSubscription subscription){
-        return new com.recurrence.contract.domain.commons.Amount(subscription.getAmount().value(), subscription.getAmount().currency());
+    private static Amount toContractAmount(PagBankSubscription subscription){
+        return new Amount(subscription.getAmount().value(), subscription.getAmount().currency());
     }
 
     private static PagBankCoupon toPagBankCoupon(Subscription subscription){
+        if ( subscription.getCoupon() == null ) return null;
+
         return PagBankCoupon.builder()
             .id(subscription.getCoupon().getId())
             .build();
@@ -279,9 +328,4 @@ public class PagBankSubscriptionMapper {
 
         return splits;
     }
-
-    // ToDo ajustar para que o mapper não chame outros mappers pois isso vai acabar com a manutenção,
-    //  o ideal é que cada mapper seja responsável apenas por um objeto,
-    //  e os objetos relacionados sejam mapeados em seus respectivos mappers.
-    //  quebrando o principio de responsabilidade única, o que pode levar a um código mais difícil de manter e testar.
 }

@@ -1,8 +1,10 @@
 package com.recurrence.pagbank.domain.payment;
 
+import com.recurrence.pagbank.domain.commons.PagBankLink;
 import com.recurrence.pagbank.domain.commons.PaymentMethod;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public class PagBankPayment {
     private String id;
@@ -13,6 +15,7 @@ public class PagBankPayment {
     private PagBankCustomer customer;
     private PaymentMethod paymentMethod;
     private Provider provider;
+    private List<PagBankLink> links;
 
     public record Provider(
             String name,
@@ -54,6 +57,10 @@ public class PagBankPayment {
         return provider;
     }
 
+    public List<PagBankLink> getLinks() {
+        return links;
+    }
+
     // Setters
     public void setId(String id) {
         this.id = id;
@@ -85,5 +92,9 @@ public class PagBankPayment {
 
     public void setProvider(Provider provider) {
         this.provider = provider;
+    }
+
+    public void setLinks(List<PagBankLink> links) {
+        this.links = links;
     }
 }

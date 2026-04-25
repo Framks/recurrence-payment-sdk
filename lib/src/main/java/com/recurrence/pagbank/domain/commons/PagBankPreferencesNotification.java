@@ -1,13 +1,14 @@
 package com.recurrence.pagbank.domain.commons;
 
+import java.util.List;
+
 public class PagBankPreferencesNotification {
-    private String url;
+    private List<String> urls;
     private EmailPreferences email;
 
     public PagBankPreferencesNotification() {}
-
     private PagBankPreferencesNotification(Builder builder) {
-        this.url = builder.webhook;
+        this.urls = builder.webhook;
         this.email = new EmailPreferences(
             new Merchant(builder.emailMerchant),
             new Customer(builder.emailCustomer)
@@ -25,15 +26,15 @@ public class PagBankPreferencesNotification {
         Boolean enabled
     ) {}
 
-    public String getUrl() {
-        return url;
+    public List<String> getUrls() {
+        return urls;
     }
     public EmailPreferences getEmail() {
         return email;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUrls(List<String> urls) {
+        this.urls = urls;
     }
     public void setEmail(EmailPreferences email) {
         this.email = email;
@@ -47,7 +48,7 @@ public class PagBankPreferencesNotification {
     public static class Builder {
         private Boolean emailMerchant;
         private Boolean emailCustomer;
-        private String webhook;
+        private List<String> webhook;
 
         public Builder emailMerchant(Boolean emailMerchant) {
             this.emailMerchant = emailMerchant;
@@ -59,7 +60,7 @@ public class PagBankPreferencesNotification {
             return this;
         }
 
-        public Builder webhook(String webhook) {
+        public Builder webhooks(List<String> webhook) {
             this.webhook = webhook;
             return this;
         }

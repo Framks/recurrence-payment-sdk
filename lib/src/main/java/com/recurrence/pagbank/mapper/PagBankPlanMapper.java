@@ -27,32 +27,6 @@ public final class PagBankPlanMapper {
                 .build();
     }
 
-    private static PagBankAmount mapAmount(Plan plan) {
-        return new PagBankAmount(
-                plan.getAmount().value(),
-                plan.getAmount().currency()
-        );
-    }
-
-    private static PagBankPlanInterval mapInterval(Plan plan) {
-        return new PagBankPlanInterval(
-                plan.getInterval().length(),
-                plan.getInterval().unit()
-        );
-    }
-
-    private static PagBankPlanTrial mapTrial(Plan plan) {
-        if (plan.getTrial() == null) {
-            return null;
-        }
-
-        return new PagBankPlanTrial(
-                plan.getTrial().days(),
-                plan.getTrial().enabled(),
-                plan.getTrial().hold_setup_fee()
-        );
-    }
-
     public static Plan to(PagBankPlan plan) {
         return Plan.builder()
                 .id(plan.getId())
@@ -65,7 +39,7 @@ public final class PagBankPlanMapper {
                 .limitSubscriptions(plan.getLimitSubscriptions())
                 .interval(plan.getInterval().length(), plan.getInterval().unit())
                 .billingCycles(plan.getBillingCycles())
-                .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().hold_setup_fee())
+                .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().holdSetupFee())
                 .paymentMethods(plan.getPaymentMethod())
                 .createdAt(plan.getCreatedAt())
                 .updatedAt(plan.getUpdatedAt())
@@ -80,6 +54,34 @@ public final class PagBankPlanMapper {
                         pagBankListPlan.getResultSet().limit(),
                         pagBankListPlan.getResultSet().total()),
                 pagBankListPlan.getPlans().stream().map(PagBankPlanMapper::to).toList()
+        );
+    }
+
+
+    private static PagBankAmount mapAmount(Plan plan) {
+
+        return new PagBankAmount(
+            plan.getAmount().value(),
+            plan.getAmount().currency()
+        );
+    }
+
+    private static PagBankPlanInterval mapInterval(Plan plan) {
+        return new PagBankPlanInterval(
+            plan.getInterval().length(),
+            plan.getInterval().unit()
+        );
+    }
+
+    private static PagBankPlanTrial mapTrial(Plan plan) {
+        if (plan.getTrial() == null) {
+            return null;
+        }
+
+        return new PagBankPlanTrial(
+            plan.getTrial().days(),
+            plan.getTrial().enabled(),
+            plan.getTrial().hold_setup_fee()
         );
     }
 }

@@ -1,5 +1,6 @@
 package com.recurrence.pagbank.domain.coupon;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 
 public class PagBankCoupon {
@@ -11,7 +12,8 @@ public class PagBankCoupon {
     private String status;
     private PagBankCouponDuration duration;
     private int redemptionLimit;
-    private OffsetDateTime expiresAt;
+    @JsonProperty("exp_at")
+    private String expiresAt;
     private Boolean inUse;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
@@ -98,11 +100,11 @@ public class PagBankCoupon {
         this.redemptionLimit = redemptionLimit;
     }
 
-    public OffsetDateTime getExpiresAt() {
+    public String getExpiresAt() {
         return expiresAt;
     }
 
-    public void setExpiresAt(OffsetDateTime expiresAt) {
+    public void setExpiresAt(String expiresAt) {
         this.expiresAt = expiresAt;
     }
 
@@ -143,7 +145,7 @@ public class PagBankCoupon {
         private PagBankCouponDiscount discount;
         private PagBankCouponDuration duration;
         private int redemptionLimit;
-        private OffsetDateTime expiresAt;
+        private String expiresAt;
         private Boolean inUse;
         private OffsetDateTime createAt;
         private OffsetDateTime updatedAt;
@@ -198,7 +200,7 @@ public class PagBankCoupon {
             return this;
         }
 
-        public Builder expiresAt(OffsetDateTime expiresAt) {
+        public Builder expiresAt(String expiresAt) {
             this.expiresAt = expiresAt;
             return this;
         }

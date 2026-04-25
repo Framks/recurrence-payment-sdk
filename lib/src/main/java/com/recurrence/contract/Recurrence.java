@@ -48,8 +48,12 @@ final public class Recurrence {
     }
 
 
-    // Todo: configurar o timeout das requisiçẽos sabendo que algumas operações estavam durando 10s em alguns provedores.
-    //  isso pode ser um problema?
+    // ToDo: Sabendo que a proposta é ajudar no momento de integração, vale fazer as validações do que os provedores esperam?
+    //  ou só validar para que a gente não tome null pointer exception? ou ainda os dois?
+
+    // Todo: devemos configurar o timeout das requisições no momento de configurar o provedor?
+    //  sabendo que algumas operações estavam durando 10s em alguns provedores.
+    //  ou podemos deixar tudo fixo?
 
     // ToDo: implementar outros providers, como Vindi, PayPal e Iugu, com base na documentação de cada um:
     // https://vindi.github.io/api-docs/dist/,

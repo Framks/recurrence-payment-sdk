@@ -11,7 +11,7 @@ final public class Coupon {
     private String status;
     private final CouponDuration duration;
     private final int redemptionLimit;
-    private final OffsetDateTime expiresAt;
+    private final String expiresAt;
     private Boolean inUse;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
@@ -74,7 +74,7 @@ final public class Coupon {
         return redemptionLimit;
     }
 
-    public OffsetDateTime getExpiresAt() {
+    public String getExpiresAt() {
         return expiresAt;
     }
 
@@ -107,7 +107,7 @@ final public class Coupon {
         private CouponDiscount discount;
         private CouponDuration duration;
         private int redemptionLimit;
-        private OffsetDateTime expiresAt;
+        private String expiresAt;
         private Boolean inUse;
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
@@ -162,7 +162,7 @@ final public class Coupon {
             return this;
         }
 
-        public Builder expiresAt(OffsetDateTime expiresAt) {
+        public Builder expiresAt(String expiresAt) {
             this.expiresAt = expiresAt;
             return this;
         }

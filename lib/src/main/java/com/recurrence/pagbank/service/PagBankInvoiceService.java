@@ -91,7 +91,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
     public RequestResponse<Refund> refund(String paymentId, Amount amount) {
         try {
             var headers = defaultHeaders(token);
-            String payload = toJson(PagBankInvoiceMapper.toRefundPayload(amount));
+            String payload = toJson(PagBankInvoiceMapper.toRefundPayload(amount)); // toDo: aqui estou usando o objeto PagBankInvoice para enviar penas o amount que precisa, devemos fazer um dto para isso?
             HttpResponse<String> response = pagBankInvoiceClient.createRefund(paymentId, payload, headers);
             RequestResponse<Refund> requestResponse = buildResponse(response);
 

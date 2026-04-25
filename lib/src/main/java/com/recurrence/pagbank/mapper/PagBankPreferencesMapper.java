@@ -6,6 +6,7 @@ import com.recurrence.contract.domain.RetryPreferences;
 import com.recurrence.pagbank.domain.commons.PagBankPreferencesNotification;
 import com.recurrence.pagbank.domain.commons.PagBankPublicKey;
 import com.recurrence.pagbank.domain.commons.PagBankReferencesRetry;
+import java.util.List;
 
 public final class PagBankPreferencesMapper {
     public static PublicKey toContract(PagBankPublicKey pagBankPublicKey) {
@@ -15,7 +16,7 @@ public final class PagBankPreferencesMapper {
 
     public static NotificationPreferences toContract(PagBankPreferencesNotification pagBankPreferences) {
         return NotificationPreferences.builder()
-            .webhook(pagBankPreferences.getUrl())
+            .webhook(pagBankPreferences.getUrls().get(0))
             .emailCustomer(pagBankPreferences.getEmail().customer().enabled())
             .emailMerchant(pagBankPreferences.getEmail().merchant().enabled())
             .build();
@@ -23,7 +24,7 @@ public final class PagBankPreferencesMapper {
 
     public static PagBankPreferencesNotification toDomain(NotificationPreferences notificationPreferences) {
         return PagBankPreferencesNotification.builder()
-            .webhook(notificationPreferences.getWebhook())
+            .webhooks(List.of(notificationPreferences.getWebhook()))
             .emailCustomer(notificationPreferences.getEmailCustomer())
             .emailMerchant(notificationPreferences.getEmailMerchant())
             .build();
@@ -38,7 +39,7 @@ public final class PagBankPreferencesMapper {
             .build();
     }
 
-     public static RetryPreferences toContract(PagBankReferencesRetry pagBankReferencesRetry) {
+    public static RetryPreferences toContract(PagBankReferencesRetry pagBankReferencesRetry) {
         return RetryPreferences.builder()
             .firstTry(pagBankReferencesRetry.getFirstTry())
             .secondTry(pagBankReferencesRetry.getSecondTry())

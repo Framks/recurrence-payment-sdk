@@ -1,6 +1,6 @@
 package com.recurrence.pagbank.domain.commons;
 
-public record Card (
+public record PagBankCard(
     String token,
     String number,
     String encrypted,

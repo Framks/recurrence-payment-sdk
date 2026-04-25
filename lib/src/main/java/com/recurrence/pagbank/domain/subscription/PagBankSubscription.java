@@ -2,12 +2,16 @@ package com.recurrence.pagbank.domain.subscription;
 
 import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
+import com.recurrence.pagbank.domain.commons.PagBankLink;
 import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+// mapear os links para pegar os links do boleto.
+// na listagem não tem os links do boleto.
+// na criação ele pega o boleto
 public class PagBankSubscription {
     private String id;
     private String referenceId;
@@ -25,6 +29,7 @@ public class PagBankSubscription {
     private BestInvoiceDate bestInvoiceDate;
     private Boolean splitEnabled;
     private Splits splits;
+    private List<PagBankLink> links;
 
     public PagBankSubscription(){}
 
@@ -239,6 +244,8 @@ public class PagBankSubscription {
 
     public BestInvoiceDate getBestInvoiceDate() {return bestInvoiceDate;}
 
+    public List<PagBankLink> getLinks() {return links;}
+
     // setters
     public void setId(String id) {this.id = id;}
 
@@ -271,4 +278,6 @@ public class PagBankSubscription {
     public void setSplits(Splits splits) {this.splits = splits;}
 
     public void setBestInvoiceDate(BestInvoiceDate bestInvoiceDate) {this.bestInvoiceDate = bestInvoiceDate;}
+
+    public void setLinks(List<PagBankLink> links) {this.links = links;}
 }

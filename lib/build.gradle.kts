@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    kotlin("jvm")
 }
 
 repositories {
@@ -15,14 +16,16 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     api(libs.commons.math3)
     implementation(libs.guava)
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
 }
 
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(16)
 }

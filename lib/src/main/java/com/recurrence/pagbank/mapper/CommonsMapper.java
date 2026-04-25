@@ -8,6 +8,7 @@ import com.recurrence.contract.domain.commons.Holder;
 import com.recurrence.contract.domain.commons.Phone;
 import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
+import com.recurrence.pagbank.domain.commons.PagBankCard;
 import com.recurrence.pagbank.domain.commons.PaymentMethod;
 
 public class CommonsMapper {
@@ -75,12 +76,14 @@ public class CommonsMapper {
                     pagBankBillingInfo.card().firstDigits(),
                     pagBankBillingInfo.card().lastDigits(),
                     null
-                )
+                ),
+                null
             );
         }
 
         return new BillingInfo(
             pagBankBillingInfo.type(),
+            null,
             null
         );
     }
@@ -104,12 +107,14 @@ public class CommonsMapper {
                     paymentMethod.card().firstDigits(),
                     paymentMethod.card().lastDigits(),
                     null
-                )
+                ),
+                null
             );
         }
 
         return new BillingInfo(
             paymentMethod.type(),
+            null,
             null
         );
     }
@@ -120,7 +125,7 @@ public class CommonsMapper {
         if ( billingInfo.card() != null){
             return new PagBankBillingInfo(
                 billingInfo.type(),
-                new com.recurrence.pagbank.domain.commons.Card(
+                new PagBankCard(
                     billingInfo.card().token(),
                     billingInfo.card().number(),
                     billingInfo.card().encrypted(),
@@ -129,18 +134,20 @@ public class CommonsMapper {
                     billingInfo.card().lastDigits(),
                     billingInfo.card().expMonth(),
                     billingInfo.card().expYear(),
-                    new com.recurrence.pagbank.domain.commons.Card.Holder(
+                    new PagBankCard.Holder(
                         billingInfo.card().holder().name(),
                         null,
                         null
                     ),
                     null
-                )
+                ),
+                null
             );
         }
 
         return new PagBankBillingInfo(
             billingInfo.type(),
+            null,
             null
         );
     }

@@ -35,7 +35,7 @@ public class PagBankCouponMapperTest {
             .discount("PERCENTAGE", 20)
             .duration("TEMPORARY", 5)
             .redemptionLimit(100)
-            .expiresAt(OffsetDateTime.parse("2026-08-31T23:59:59Z"))
+            .expiresAt("2026-08-31")
             .build();
 
         PagBankCoupon result = PagBankCouponMapper.toPagBankContract(coupon);
@@ -91,7 +91,7 @@ public class PagBankCouponMapperTest {
             .status("ACTIVE")
             .duration(duration)
             .redemptionLimit(500)
-            .expiresAt(now)
+            .expiresAt("2026-11-30")
             .inUse(true)
             .createAt(now)
             .updatedAt(now)
@@ -463,7 +463,7 @@ public class PagBankCouponMapperTest {
             .discount("PERCENTAGE", 25)
             .duration("TEMPORARY", 12)
             .redemptionLimit(500)
-            .expiresAt(OffsetDateTime.parse("2026-06-30T23:59:59Z"))
+            .expiresAt("2026-06-30")
             .build();
 
         PagBankCoupon result = PagBankCouponMapper.toPagBankContract(coupon);

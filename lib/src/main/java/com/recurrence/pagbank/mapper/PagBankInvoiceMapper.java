@@ -7,14 +7,23 @@ import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.domain.Refund;
 import com.recurrence.contract.domain.Subscription;
 import com.recurrence.contract.domain.commons.Amount;
+import com.recurrence.contract.domain.commons.BillingInfo;
+import com.recurrence.contract.domain.commons.Boleto;
+import com.recurrence.contract.domain.commons.Card;
+import com.recurrence.contract.domain.commons.Holder;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.pagbank.domain.commons.PagBankAmount;
+import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
+import com.recurrence.pagbank.domain.commons.PagBankLink;
+import com.recurrence.pagbank.domain.commons.PaymentMethod;
 import com.recurrence.pagbank.domain.payment.PagBankInvoice;
 import com.recurrence.pagbank.domain.payment.PagBankListInvoice;
 import com.recurrence.pagbank.domain.payment.PagBankListPayment;
 import com.recurrence.pagbank.domain.payment.PagBankListRefund;
 import com.recurrence.pagbank.domain.payment.PagBankPayment;
 import com.recurrence.pagbank.domain.payment.PagBankRefund;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PagBankInvoiceMapper {
@@ -23,28 +32,29 @@ public class PagBankInvoiceMapper {
         if (pagBankInvoice == null) return null;
 
         return Invoice.builder()
-                .id(pagBankInvoice.getId())
-                .status(pagBankInvoice.getStatus())
-                .occurrence(pagBankInvoice.getOccurrence())
-                .amount(CommonsMapper.toContractAmount(pagBankInvoice.getAmount()))
-                .subscription(Subscription.builder().id(pagBankInvoice.getSubscription().getId()).build())
-                .customer(Customer.builder()
-                    .id(pagBankInvoice.getCustomer().getId())
-                    .email(pagBankInvoice.getCustomer().getEmail())
-                    .name(pagBankInvoice.getCustomer().getName())
-                    .build()
-                )
-                .plan(Plan.builder()
-                    .id(pagBankInvoice.getPlan().getId())
-                    .name(pagBankInvoice.getPlan().getName())
-                    .build()
-                )
-                .createdAt(pagBankInvoice.getCreatedAt())
-                .updatedAt(pagBankInvoice.getUpdatedAt())
-                .items(pagBankInvoice.getItems() != null ? pagBankInvoice.getItems().stream()
-                        .map(item -> new Invoice.Item(item.type(), CommonsMapper.toContractAmount(item.amount())))
-                        .collect(Collectors.toList()) : null)
-                .build();
+            .id(pagBankInvoice.getId())
+            .status(pagBankInvoice.getStatus())
+            .occurrence(pagBankInvoice.getOccurrence())
+            .amount(CommonsMapper.toContractAmount(pagBankInvoice.getAmount()))
+            .subscription(Subscription.builder().id(pagBankInvoice.getSubscription().getId()).build())
+            .customer(Customer.builder()
+                .id(pagBankInvoice.getCustomer().getId())
+                .email(pagBankInvoice.getCustomer().getEmail())
+                .name(pagBankInvoice.getCustomer().getName())
+                .build()
+            )
+            .plan(Plan.builder()
+                .id(pagBankInvoice.getPlan().getId())
+                .name(pagBankInvoice.getPlan().getName())
+                .build()
+            )
+            .createdAt(pagBankInvoice.getCreatedAt())
+            .updatedAt(pagBankInvoice.getUpdatedAt())
+            .items(pagBankInvoice.getItems() != null ? pagBankInvoice.getItems().stream()
+                    .map(item -> new Invoice.Item(item.type(), CommonsMapper.toContractAmount(item.amount())))
+                    .collect(Collectors.toList()) : null)
+            .build();
+        // ToDo: extrair para funções auxiliares
     }
 
     public static Payment toContract(PagBankPayment pagBankPayment) {
@@ -57,7 +67,7 @@ public class PagBankInvoiceMapper {
             .updatedAt(pagBankPayment.getUpdatedAt())
             .invoiceId(pagBankPayment.getInvoice() != null ? pagBankPayment.getInvoice().getId() : null)
             .amount(pagBankPayment.getInvoice() != null ? CommonsMapper.toContractAmount(pagBankPayment.getInvoice().getAmount()) : null)
-            .paymentMethod(CommonsMapper.toContractBillingInfo(pagBankPayment.getPaymentMethod()))
+            .paymentMethod(toContractBillingInfo(pagBankPayment.getPaymentMethod(), pagBankPayment.getLinks()))
             .customer(Customer.builder()
                 .id(pagBankPayment.getCustomer().getId())
                 .email(pagBankPayment.getCustomer().getEmail())
@@ -135,6 +145,61 @@ public class PagBankInvoiceMapper {
                 listRefund.getRefunds().stream()
                         .map(PagBankInvoiceMapper::toContract)
                         .collect(Collectors.toList())
+        );
+    }
+
+    private static BillingInfo toContractBillingInfo(
+        PaymentMethod billingInfo,
+        List<PagBankLink> links
+    ) {
+        if (billingInfo == null) {
+            return null;
+        }
+
+        var linksByType = links.stream()
+            .collect(Collectors.toMap(
+                PagBankLink::media,
+                PagBankLink::href,
+                (a, b) -> a
+            ));
+
+        return new BillingInfo(
+                billingInfo.type(),
+                mapCard(billingInfo),
+                mapBoleto(billingInfo, linksByType)
+            );
+    }
+
+    private static Boleto mapBoleto(PaymentMethod info, Map<String, String> links) {
+        if (!"BOLETO".equals(info.type()) || info.boleto() == null) {
+            return null;
+        }
+        return new Boleto(
+            info.boleto().id(),
+            info.boleto().barcode(),
+            info.boleto().formattedBarcode(),
+            info.boleto().dueAt(),
+            links.get("application/pdf"),
+            links.get("image/png")
+        );
+    }
+
+    private static Card mapCard(PaymentMethod info) {
+        if (!"CREDIT_CARD".equals(info.type()) || info.card() == null) {
+            return null;
+        }
+
+        return new Card(
+            info.card().number(),
+            info.card().expYear(),
+            info.card().expMonth(),
+            info.card().encrypted(),
+            new Holder(info.card().holder().name()),
+            info.card().token(),
+            info.card().brand(),
+            info.card().firstDigits(),
+            info.card().lastDigits(),
+            null
         );
     }
 }

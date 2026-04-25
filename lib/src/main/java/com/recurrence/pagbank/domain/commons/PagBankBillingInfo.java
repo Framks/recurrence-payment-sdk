@@ -1,8 +1,11 @@
 package com.recurrence.pagbank.domain.commons;
 
+import org.jspecify.annotations.NonNull;
+
 public record PagBankBillingInfo(
     String type,
-    Card card
+    PagBankCard card,
+    PagBankBoleto boleto
 ){}
 
 
