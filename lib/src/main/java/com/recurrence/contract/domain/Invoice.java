@@ -7,7 +7,7 @@ import java.util.List;
 public class Invoice {
     private String id;
     private String status;
-    private int occurrence;
+    private Integer occurrence;
     private Amount amount;
     private Subscription subscription;
     private List<Item> items;
@@ -47,7 +47,7 @@ public class Invoice {
     public String getStatus() {
         return status;
     }
-    public int getOccurrence() {
+    public Integer getOccurrence() {
         return occurrence;
     }
     public Amount getAmount() {
@@ -76,7 +76,7 @@ public class Invoice {
     public static class Builder {
         private String id;
         private String status;
-        private int occurrence;
+        private Integer occurrence;
         private Amount amount;
         private Subscription subscription;
         private List<Item> items;
@@ -95,7 +95,7 @@ public class Invoice {
             return this;
         }
 
-        public Builder occurrence(int occurrence) {
+        public Builder occurrence(Integer occurrence) {
             this.occurrence = occurrence;
             return this;
         }

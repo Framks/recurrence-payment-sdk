@@ -1,6 +1,8 @@
 .gradle
 build
 .kotlin
+.agents
+.codex
 
 ### IntelliJ IDEA ###
 .idea

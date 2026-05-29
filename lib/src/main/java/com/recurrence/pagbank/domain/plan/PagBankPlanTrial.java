@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.domain.plan;
 
 public record PagBankPlanTrial(
-        int days,
+        Integer days,
         Boolean enabled,
         Boolean holdSetupFee
 ) { }

@@ -15,7 +15,7 @@ public class StripePlanService implements PlanService {
     }
 
     @Override
-    public RequestResponse<PageResponse<Plan>> list(Long offset, Long limit) {
+    public RequestResponse<PageResponse<Plan>> list(Integer offset, Integer limit) {
 
         // ToDo: implementar com base na documentação da Stripe: https://docs.stripe.com/api/plans/list
         return null;

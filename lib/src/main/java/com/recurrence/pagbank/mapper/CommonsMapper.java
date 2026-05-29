@@ -5,17 +5,25 @@ import com.recurrence.contract.domain.commons.Amount;
 import com.recurrence.contract.domain.commons.BillingInfo;
 import com.recurrence.contract.domain.commons.Card;
 import com.recurrence.contract.domain.commons.Holder;
+import com.recurrence.contract.domain.commons.PaymentMethodType;
 import com.recurrence.contract.domain.commons.Phone;
+import com.recurrence.exception.UnsupportedProviderTypeException;
 import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
 import com.recurrence.pagbank.domain.commons.PagBankCard;
 import com.recurrence.pagbank.domain.commons.PaymentMethod;
+
+import java.util.List;
+
+import static com.recurrence.contract.domain.commons.PaymentMethodType.BOLETO;
+import static com.recurrence.contract.domain.commons.PaymentMethodType.CREDIT_CARD;
 
 public class CommonsMapper {
 
     private CommonsMapper(){ }
 
     public static Address toContractAddress(com.recurrence.pagbank.domain.commons.Address address){
+        if (address == null) return null;
         return new Address(
                 address.street(),
                 address.number(),
@@ -43,7 +51,7 @@ public class CommonsMapper {
         );
     }
 
-    public static PagBankAmount toPagBankAmount(com.recurrence.contract.domain.commons.Amount amount){
+    public static PagBankAmount toPagBankAmount(Amount amount){
         return new PagBankAmount(
                 amount.value(),
                 amount.currency()
@@ -62,7 +70,7 @@ public class CommonsMapper {
 
         if ( pagBankBillingInfo.card() != null){
             return new BillingInfo(
-                pagBankBillingInfo.type(),
+                    toContractPaymentMethodType(pagBankBillingInfo.type()),
                 new Card(
                     pagBankBillingInfo.card().number(),
                     pagBankBillingInfo.card().expYear(),
@@ -82,7 +90,7 @@ public class CommonsMapper {
         }
 
         return new BillingInfo(
-            pagBankBillingInfo.type(),
+                toContractPaymentMethodType(pagBankBillingInfo.type()),
             null,
             null
         );
@@ -93,7 +101,7 @@ public class CommonsMapper {
 
         if ( paymentMethod.card() != null){
             return new BillingInfo(
-                paymentMethod.type(),
+                    toContractPaymentMethodType(paymentMethod.type()),
                 new Card(
                     paymentMethod.card().number(),
                     paymentMethod.card().expYear(),
@@ -113,18 +121,28 @@ public class CommonsMapper {
         }
 
         return new BillingInfo(
-            paymentMethod.type(),
+                toContractPaymentMethodType(paymentMethod.type()),
             null,
             null
         );
     }
 
-    public static PagBankBillingInfo toPagBankBillingInfo(BillingInfo billingInfo){
+    public static List<PagBankBillingInfo> toPagBankBillingInfo(BillingInfo billingInfo){
         if (billingInfo == null) return null;
 
         if ( billingInfo.card() != null){
-            return new PagBankBillingInfo(
-                billingInfo.type(),
+            PagBankCard.Holder holder = null;
+
+            if (billingInfo.card().holder() != null) {
+                holder = new PagBankCard.Holder(
+                        billingInfo.card().holder().name(),
+                        null,
+                        null
+                );
+            }
+
+            return List.of(new PagBankBillingInfo(
+                    toPagBankPaymentMethodType(billingInfo.type()),
                 new PagBankCard(
                     billingInfo.card().token(),
                     billingInfo.card().number(),
@@ -134,22 +152,18 @@ public class CommonsMapper {
                     billingInfo.card().lastDigits(),
                     billingInfo.card().expMonth(),
                     billingInfo.card().expYear(),
-                    new PagBankCard.Holder(
-                        billingInfo.card().holder().name(),
-                        null,
-                        null
-                    ),
+                    holder,
                     null
                 ),
                 null
-            );
+            ));
         }
 
-        return new PagBankBillingInfo(
-            billingInfo.type(),
+        return List.of(new PagBankBillingInfo(
+                toPagBankPaymentMethodType(billingInfo.type()),
             null,
             null
-        );
+        ));
     }
 
     public static Phone toContractPhone(com.recurrence.pagbank.domain.commons.Phone phone){
@@ -163,10 +177,26 @@ public class CommonsMapper {
 
     public static com.recurrence.pagbank.domain.commons.Phone toPagBankPhone(Phone phone){
         return new com.recurrence.pagbank.domain.commons.Phone(
-            phone.id(),
+            null,
             phone.area(),
             phone.country(),
             phone.number()
         );
+    }
+
+    public static String toPagBankPaymentMethodType(PaymentMethodType type) {
+        return switch (type) {
+            case BOLETO -> "BOLETO";
+            case CREDIT_CARD -> "CREDIT_CARD";
+            case BALANCE, PIX -> throw new UnsupportedProviderTypeException("PagBank", "BALANCE payment method");
+        };
+    }
+
+    public static PaymentMethodType toContractPaymentMethodType(String type){
+        return switch (type) {
+            case "BOLETO" -> BOLETO;
+            case "CREDIT_CARD" -> CREDIT_CARD;
+            default -> throw new UnsupportedProviderTypeException("PagBank", "BALANCE payment method");
+        };
     }
 }

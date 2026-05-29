@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.recurrence.pagbank.mapper.CommonsMapper.toContractPaymentMethodType;
+import static com.recurrence.pagbank.mapper.CommonsMapper.toPagBankPaymentMethodType;
+
 public class PagBankSubscriptionMapper {
 
     public static PagBankSubscription toPagBankContract(Subscription subscription){
@@ -142,8 +145,8 @@ public class PagBankSubscriptionMapper {
         }
 
         List<PagBankBillingInfo> pagBankBillingInfo = null;
-        if (subscription.getPaymentMethod().get(0).type() == "CREDIT_CARD"){
-            pagBankBillingInfo = List.of(CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo()));
+        if (subscription.getPaymentMethod().get(0).type().name().equals("CREDIT_CARD")){
+            pagBankBillingInfo = CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo());
         }
 
         return PagBankCustomer.builder()
@@ -165,10 +168,10 @@ public class PagBankSubscriptionMapper {
 
         var billingInfo = billingInfos.get(0);
 
-        if (billingInfo.type() == "BOLETO") {
+        if (billingInfo.type().name().equals("BOLETO")) {
             return List.of(
                 new PagBankBillingInfo(
-                    billingInfo.type(),
+                        toPagBankPaymentMethodType(billingInfo.type()),
                     null,
                     null
                 )
@@ -178,7 +181,7 @@ public class PagBankSubscriptionMapper {
             // fazer uma validação que represente as regras de envio do cartão para o pagbank
             return List.of(
                 new PagBankBillingInfo(
-                    billingInfo.type(),
+                        toPagBankPaymentMethodType(billingInfo.type()),
                     new PagBankCard(
                         billingInfo.card().token(),
                         billingInfo.card().number(),
@@ -220,7 +223,7 @@ public class PagBankSubscriptionMapper {
 
         return List.of(
             new BillingInfo(
-                info.type(),
+                    toContractPaymentMethodType(info.type()),
                 mapCard(info),
                 mapBoleto(info, linksByType)
             )

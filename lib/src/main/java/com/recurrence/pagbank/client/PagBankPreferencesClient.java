@@ -37,6 +37,10 @@ public class PagBankPreferencesClient {
         return httpClient.get(uriRetry(), headers);
     }
 
+    public HttpResponse<String> putRetry(String payload, final Map<String, String> headers){
+        return httpClient.put(uriRetry(), payload, headers);
+    }
+
     private String uriKey() { return this.environment.getHost() + RESOURCE_KEY; }
     private String uriNotification() { return this.environment.getHost() + RESOURCE_NOTIFICATION; }
     public String uriRetry(){ return this.environment.getHost() + RESOURCE_RETRY; }

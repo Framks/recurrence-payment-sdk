@@ -1,6 +1,8 @@
 package com.recurrence.infrastructure.Exceptions;
 
-public class HttpClientException extends RuntimeException {
+import com.recurrence.exception.RecurrenceException;
+
+public class HttpClientException extends RecurrenceException {
     private final int statusCode;
     private final String responseBody;
 
@@ -18,4 +20,3 @@ public class HttpClientException extends RuntimeException {
         return responseBody;
     }
 }
-

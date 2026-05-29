@@ -1,7 +1,9 @@
 package com.recurrence.infrastructure;
 
-public class LibraryHttpClientError extends RuntimeException {
+import com.recurrence.exception.RecurrenceHttpException;
+
+public class LibraryHttpClientError extends RecurrenceHttpException {
     public LibraryHttpClientError(final String url, String message, Throwable e) {
-        super("URL: " + url + "Message: " + message, e);
+        super(url, message, e);
     }
 }

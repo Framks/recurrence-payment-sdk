@@ -10,7 +10,7 @@ import java.util.List;
 public class PagBankInvoice {
     private String id;
     private String status;
-    private int occurrence;
+    private Integer occurrence;
     private PagBankAmount amount;
     private PagBankSubscription subscription;
     private List<Item> items;
@@ -33,7 +33,7 @@ public class PagBankInvoice {
         return status;
     }
 
-    public int getOccurrence() {
+    public Integer getOccurrence() {
         return occurrence;
     }
 
@@ -74,7 +74,7 @@ public class PagBankInvoice {
         this.status = status;
     }
 
-    public void setOccurrence(int occurrence) {
+    public void setOccurrence(Integer occurrence) {
         this.occurrence = occurrence;
     }
 

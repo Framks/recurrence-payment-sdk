@@ -16,7 +16,7 @@ public class PagBankCustomer {
     private String birthDate;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
-    private List<Phone> phone;
+    private List<Phone> phones;
     private Address address;
     private List<PagBankBillingInfo> pagBankBillingInfo;
 
@@ -31,7 +31,7 @@ public class PagBankCustomer {
         this.birthDate = builder.birthDate;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
-        this.phone = builder.phone;
+        this.phones = builder.phone;
         this.address = builder.address;
         this.pagBankBillingInfo = builder.pagBankBillingInfo;
     }
@@ -74,8 +74,8 @@ public class PagBankCustomer {
         return updatedAt;
     }
 
-    public List<Phone> getPhone() {
-        return phone;
+    public List<Phone> getPhones() {
+        return phones;
     }
 
     public Address getAddress() {
@@ -120,8 +120,8 @@ public class PagBankCustomer {
         this.updatedAt = updatedAt;
     }
 
-    public void setPhone(List<Phone> phone) {
-        this.phone = phone;
+    public void setPhones(List<Phone> phones) {
+        this.phones = phones;
     }
 
     public void setAddress(Address address) {
@@ -227,6 +227,10 @@ public class PagBankCustomer {
             if (phone == null || phone.isEmpty()) {
                 throw new IllegalStateException("Customer must have at least one phone");
             }
+        }
+
+        public PagBankCustomer buildUpdate(){
+            return new PagBankCustomer(this);
         }
     }
 }

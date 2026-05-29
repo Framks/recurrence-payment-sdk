@@ -4,7 +4,9 @@ import com.recurrence.contract.SubscriptionService;
 import com.recurrence.contract.domain.Invoice;
 import com.recurrence.contract.domain.Subscription;
 import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.infra.RequestResponse;
+import com.recurrence.contract.infra.SubscriptionFilter;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagBankEnvironment;
 import com.recurrence.pagbank.client.PagBankSubscriptionClient;
@@ -15,7 +17,9 @@ import com.recurrence.pagbank.domain.subscription.PagbankListSubscription;
 import com.recurrence.pagbank.mapper.PagBankInvoiceMapper;
 import com.recurrence.pagbank.mapper.PagBankSubscriptionMapper;
 import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.Objects;
+import com.recurrence.pagbank.validator.SubscrptionValidator;
 
 public class PagBankSubscriptionService extends BaseService implements SubscriptionService {
     private final String token;
@@ -32,6 +36,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Subscription> create(Subscription subscription) {
         try {
+            SubscrptionValidator.validateCreateRequest(subscription);
             HttpResponse<String> response = pagBankSubscriptionClient.create(
                 toJson(PagBankSubscriptionMapper.toPagBankContract(subscription)),
                 defaultHeaders(token)
@@ -47,7 +52,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -64,34 +69,53 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
     @Override
-    public RequestResponse<PageResponse<Subscription>> list(int offset, int limit, String referenceId) {
+    public RequestResponse<PageResponse<Subscription>> list(){
+        return list(SubscriptionFilter
+                .builder()
+                .build()
+        );
+    }
+
+    @Override
+    public RequestResponse<PageResponse<Subscription>> list(SubscriptionFilter subscriptionFilter) {
+        return list(
+            subscriptionFilter,
+            RequestOptions.empty()
+        );
+    }
+
+    @Override
+    public RequestResponse<PageResponse<Subscription>> list(SubscriptionFilter subscriptionFilter, RequestOptions requestOptions){
         try {
+            SubscriptionFilter filter = subscriptionFilter == null
+                ? SubscriptionFilter.builder().build()
+                : subscriptionFilter;
+            RequestOptions options = requestOptions == null
+                ? RequestOptions.empty()
+                : requestOptions;
+            Map<String, String> headers = defaultHeaders(token);
+            applyRequestOptions(headers, filter);
             HttpResponse<String> response = pagBankSubscriptionClient.list(
-                null,
-                null,
-                null,
-                null,
-                offset,
-                limit,
-                defaultHeaders(token),
-                referenceId
+                    filter,
+                    options,
+                    headers
             );
 
             RequestResponse<PageResponse<Subscription>> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 2 -> requestResponse.setBody(
-                    PagBankSubscriptionMapper.toPageResponse(fromJson(response.body(), PagbankListSubscription.class))
+                        PagBankSubscriptionMapper.toPageResponse(fromJson(response.body(), PagbankListSubscription.class))
                 );
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -109,7 +133,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -128,7 +152,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -142,7 +166,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -156,7 +180,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -170,7 +194,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -184,7 +208,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
         }
     }
 
@@ -198,7 +222,17 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "subscription operation", e);
+        }
+    }
+
+    private void applyRequestOptions(Map<String, String> headers, SubscriptionFilter subscriptionFilter) {
+        if (subscriptionFilter == null) {
+            return;
+        }
+
+        if (subscriptionFilter.getReferenceId() != null && !subscriptionFilter.getReferenceId().isBlank()) {
+            headers.put("q", subscriptionFilter.getReferenceId());
         }
     }
 }

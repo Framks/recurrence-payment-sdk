@@ -1,6 +1,8 @@
 package com.recurrence.contract.domain;
 
 import com.recurrence.contract.domain.commons.Amount;
+import com.recurrence.contract.domain.commons.PaymentMethodType;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -12,23 +14,23 @@ final public class Plan {
     private final String name;
     private final String description;
     private final Amount amount;
-    private final int setupFee;
-    private final int limitSubscriptions;
+    private final Integer setupFee;
+    private final Integer limitSubscriptions;
     private final PlanInterval interval;
-    private final int billingCycles;
+    private final Integer billingCycles;
     private final PlanTrial trial;
-    private final List<String> paymentMethods;
+    private final List<PaymentMethodType> paymentMethods;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private Boolean editable;
 
     public record PlanInterval(
-            int length,
+            Integer length,
             String unit
     ) { }
 
     public record PlanTrial(
-            int days,
+            Integer days,
             Boolean enabled,
             Boolean hold_setup_fee
     ) { }
@@ -83,11 +85,11 @@ final public class Plan {
         return amount;
     }
 
-    public int getSetupFee() {
+    public Integer getSetupFee() {
         return setupFee;
     }
 
-    public int getLimitSubscriptions() {
+    public Integer getLimitSubscriptions() {
         return limitSubscriptions;
     }
 
@@ -95,7 +97,7 @@ final public class Plan {
         return interval;
     }
 
-    public int getBillingCycles() {
+    public Integer getBillingCycles() {
         return billingCycles;
     }
 
@@ -103,7 +105,7 @@ final public class Plan {
         return trial;
     }
 
-    public List<String> getPaymentMethods() {
+    public List<PaymentMethodType> getPaymentMethods() {
         return paymentMethods;
     }
 
@@ -131,11 +133,11 @@ final public class Plan {
         private Amount amount;
         private PlanInterval interval;
         private String description;
-        private int setupFee;
-        private int limitSubscriptions;
-        private int billingCycles;
+        private Integer setupFee;
+        private Integer limitSubscriptions;
+        private Integer billingCycles;
         private PlanTrial trial;
-        private List<String> paymentMethods;
+        private List<PaymentMethodType> paymentMethods;
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
         private Boolean editable;
@@ -167,37 +169,37 @@ final public class Plan {
             return this;
         }
 
-        public Builder amount(int value, String currency) {
+        public Builder amount(Integer value, String currency) {
             this.amount = new Amount(value, currency);
             return this;
         }
 
-        public Builder interval(int length, String unit) {
+        public Builder interval(Integer length, String unit) {
             this.interval = new PlanInterval(length, unit);
             return this;
         }
 
-        public Builder setupFee(int setupFee) {
+        public Builder setupFee(Integer setupFee) {
             this.setupFee = setupFee;
             return this;
         }
 
-        public Builder limitSubscriptions(int limitSubscriptions) {
+        public Builder limitSubscriptions(Integer limitSubscriptions) {
             this.limitSubscriptions = limitSubscriptions;
             return this;
         }
 
-        public Builder billingCycles(int billingCycles) {
+        public Builder billingCycles(Integer billingCycles) {
             this.billingCycles = billingCycles;
             return this;
         }
 
-        public Builder trial(int days, Boolean enabled, Boolean holdSetupFee) {
+        public Builder trial(Integer days, Boolean enabled, Boolean holdSetupFee) {
             this.trial = new PlanTrial(days, enabled, holdSetupFee);
             return this;
         }
 
-        public Builder paymentMethods(List<String> paymentMethods) {
+        public Builder paymentMethods(List<PaymentMethodType> paymentMethods) {
             this.paymentMethods = paymentMethods;
             return this;
         }

@@ -42,8 +42,7 @@ public class RequestResponse<T> {
         return this;
     }
 
-    public record RequestErrorResponseList(
-            List<RequestErrorResponseDetail> errors) {
+    public record RequestErrorResponseList(List<RequestErrorResponseDetail> errors) {
     }
 
     public record RequestErrorResponseDetail(

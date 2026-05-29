@@ -45,7 +45,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "preferences operation", e);
         }
     }
 
@@ -62,7 +62,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "preferences operation", e);
         }
     }
 
@@ -79,7 +79,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "preferences operation", e);
         }
     }
 
@@ -97,7 +97,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "preferences operation", e);
         }
     }
 
@@ -114,7 +114,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                     default -> requestResponse;
                 };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "preferences operation", e);
         }
     }
 
@@ -123,7 +123,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
         try {
             var headers = defaultHeaders(token);
             String payload = toJson(PagBankPreferencesMapper.toDomain(retryPreferences));
-            HttpResponse<String> response = publicPreferencesClient.putNotification(payload, headers);
+            HttpResponse<String> response = publicPreferencesClient.putRetry(payload, headers);
             RequestResponse<RetryPreferences> requestResponse = buildResponse(response);
 
             return switch (requestResponse.getHttpResponse()/100) {
@@ -131,7 +131,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "preferences operation", e);
         }
     }
 

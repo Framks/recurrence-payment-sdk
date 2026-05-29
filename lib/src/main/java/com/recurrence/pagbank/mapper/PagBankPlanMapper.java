@@ -13,6 +13,8 @@ public final class PagBankPlanMapper {
     private PagBankPlanMapper() {}
 
     public static PagBankPlan from(Plan plan) {
+        ///  o que pode ser null
+        ///   referenci_id, description, setup_fee, interval, billing_cycles, trial, limit_subscription, payment_method, editable.
         return PagBankPlan.builder()
                 .name(plan.getName())
                 .referenceId(plan.getReferenceId())
@@ -23,7 +25,7 @@ public final class PagBankPlanMapper {
                 .interval(mapInterval(plan))
                 .billingCycles(plan.getBillingCycles())
                 .trial(mapTrial(plan))
-                .paymentMethod(plan.getPaymentMethods())
+                .paymentMethod(plan.getPaymentMethods().stream().map(Enum::name).toList())
                 .build();
     }
 
@@ -40,7 +42,7 @@ public final class PagBankPlanMapper {
                 .interval(plan.getInterval().length(), plan.getInterval().unit())
                 .billingCycles(plan.getBillingCycles())
                 .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().holdSetupFee())
-                .paymentMethods(plan.getPaymentMethod())
+                .paymentMethods(plan.getPaymentMethod().stream().map(CommonsMapper::toContractPaymentMethodType).toList())
                 .createdAt(plan.getCreatedAt())
                 .updatedAt(plan.getUpdatedAt())
                 .editable(plan.getEditable())

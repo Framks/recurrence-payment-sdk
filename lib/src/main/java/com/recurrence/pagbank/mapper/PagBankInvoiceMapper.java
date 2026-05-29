@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.recurrence.pagbank.mapper.CommonsMapper.toContractPaymentMethodType;
+
 public class PagBankInvoiceMapper {
 
     public static Invoice toContract(PagBankInvoice pagBankInvoice) {
@@ -164,7 +166,7 @@ public class PagBankInvoiceMapper {
             ));
 
         return new BillingInfo(
-                billingInfo.type(),
+                toContractPaymentMethodType(billingInfo.type()),
                 mapCard(billingInfo),
                 mapBoleto(billingInfo, linksByType)
             );

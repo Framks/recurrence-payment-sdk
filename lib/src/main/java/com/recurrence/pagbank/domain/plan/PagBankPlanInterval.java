@@ -1,6 +1,6 @@
 package com.recurrence.pagbank.domain.plan;
 
 public record PagBankPlanInterval(
-        int length,
+        Integer length,
         String unit
 ) {}

@@ -11,10 +11,10 @@ final public class PagBankPlan {
     private String name;
     private String description;
     private PagBankAmount amount;
-    private int setupFee;
-    private int limitSubscriptions;
+    private Integer setupFee;
+    private Integer limitSubscriptions;
     private PagBankPlanInterval interval;
-    private int billingCycles;
+    private Integer billingCycles;
     private PagBankPlanTrial trial;
     private List<String> paymentMethod;
     private OffsetDateTime createdAt;
@@ -53,10 +53,10 @@ final public class PagBankPlan {
         private String referenceId;
         private String description;
         private PagBankAmount amount;
-        private int setupFee;
-        private int limitSubscriptions;
+        private Integer setupFee;
+        private Integer limitSubscriptions;
         private PagBankPlanInterval pagBankPlanInterval;
-        private int billingCycles;
+        private Integer billingCycles;
         private PagBankPlanTrial pagBankPlanTrial;
         private List<String> paymentMethod;
         private OffsetDateTime created_at;
@@ -108,12 +108,12 @@ final public class PagBankPlan {
             return this;
         }
 
-        public Builder setupFee(final int setupFee) {
+        public Builder setupFee(final Integer setupFee) {
             this.setupFee = setupFee;
             return this;
         }
 
-        public Builder limitSubscriptions(final int limitSubscriptions) {
+        public Builder limitSubscriptions(final Integer limitSubscriptions) {
             this.limitSubscriptions = limitSubscriptions;
             return this;
         }
@@ -123,7 +123,7 @@ final public class PagBankPlan {
             return this;
         }
 
-        public Builder billingCycles(final int billingCycles) {
+        public Builder billingCycles(final Integer billingCycles) {
             this.billingCycles = billingCycles;
             return this;
         }
@@ -175,11 +175,11 @@ final public class PagBankPlan {
         return amount;
     }
 
-    public int getSetupFee() {
+    public Integer getSetupFee() {
         return setupFee;
     }
 
-    public int getLimitSubscriptions() {
+    public Integer getLimitSubscriptions() {
         return limitSubscriptions;
     }
 
@@ -187,7 +187,7 @@ final public class PagBankPlan {
         return interval;
     }
 
-    public int getBillingCycles() {
+    public Integer getBillingCycles() {
         return billingCycles;
     }
 

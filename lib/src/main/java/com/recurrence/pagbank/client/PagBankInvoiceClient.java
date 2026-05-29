@@ -49,6 +49,7 @@ public class PagBankInvoiceClient {
         return httpClient.get(uriListPayments(offset, limit), headers);
     }
 
+
     private String uriInvoiceGet(String id) {
         return this.environment.getHost() + RESOURCE_INVOICE + "/" + id;
     }

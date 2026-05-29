@@ -1,6 +1,6 @@
 package com.recurrence.pagbank.domain.coupon;
 
 public record PagBankCouponDiscount(
-        int value,
+        Integer value,
         String type
 ) { }

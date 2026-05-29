@@ -6,12 +6,12 @@ import java.time.OffsetDateTime;
 public class PagBankCoupon {
     private String id;
     private String referenceId;
-    private String name;
+    private String name;                    // ToDo deve ser obrigatorio esse campo.
     private String description;
-    private PagBankCouponDiscount discount;
+    private PagBankCouponDiscount discount; // ToDo deve ser obrigatorio esse campo.
     private String status;
-    private PagBankCouponDuration duration;
-    private int redemptionLimit;
+    private PagBankCouponDuration duration; // ToDo deve ser obrigatorio esse campo.
+    private Integer redemptionLimit;
     @JsonProperty("exp_at")
     private String expiresAt;
     private Boolean inUse;
@@ -92,11 +92,11 @@ public class PagBankCoupon {
         this.duration = duration;
     }
 
-    public int getRedemptionLimit() {
+    public Integer getRedemptionLimit() {
         return redemptionLimit;
     }
 
-    public void setRedemptionLimit(int redemptionLimit) {
+    public void setRedemptionLimit(Integer redemptionLimit) {
         this.redemptionLimit = redemptionLimit;
     }
 
@@ -144,7 +144,7 @@ public class PagBankCoupon {
         private String status;
         private PagBankCouponDiscount discount;
         private PagBankCouponDuration duration;
-        private int redemptionLimit;
+        private Integer redemptionLimit;
         private String expiresAt;
         private Boolean inUse;
         private OffsetDateTime createAt;
@@ -195,7 +195,7 @@ public class PagBankCoupon {
             return this;
         }
 
-        public Builder redemptionLimit(int redemptionLimit) {
+        public Builder redemptionLimit(Integer redemptionLimit) {
             this.redemptionLimit = redemptionLimit;
             return this;
         }

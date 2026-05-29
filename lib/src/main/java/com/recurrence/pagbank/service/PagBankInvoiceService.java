@@ -52,7 +52,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "invoice operation", e);
         }
     }
 
@@ -73,12 +73,12 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "invoice operation", e);
         }
     }
 
     @Override
-    public RequestResponse<PageResponse<Payment>> listPayments(Long offset, Long limit){
+    public RequestResponse<PageResponse<Payment>> listPayments(Integer offset, Integer limit){
         return listPayment(null, offset, limit);
     }
 
@@ -105,7 +105,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "invoice operation", e);
         }
     }
 
@@ -126,15 +126,15 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "invoice operation", e);
         }
     }
 
     @Override
-    public RequestResponse<PageResponse<Refund>> listRefunds(Long offset, Long limit) {
+    public RequestResponse<PageResponse<Refund>> listRefunds(Integer offset, Integer limit) {
         try {
             var headers = defaultHeaders(token);
-            HttpResponse<String> response = pagBankInvoiceClient.getRefunds(offset.intValue(), limit.intValue(), headers);
+            HttpResponse<String> response = pagBankInvoiceClient.getRefunds(pageValue(offset, "offset"), pageValue(limit, "limit"), headers);
             RequestResponse<PageResponse<Refund>> requestResponse = buildResponse(response);
 
             return switch (requestResponse.getHttpResponse()) {
@@ -147,18 +147,18 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "invoice operation", e);
         }
     }
 
 
-    private RequestResponse<PageResponse<Payment>> listPayment(String id, Long offset, Long limit){
+    private RequestResponse<PageResponse<Payment>> listPayment(String id, Integer offset, Integer limit){
         try {
             var headers = defaultHeaders(token);
             HttpResponse<String> response = null;
 
             if (id == null || id.isEmpty()) {
-                response = pagBankInvoiceClient.listPayments(offset.intValue(), limit.intValue(), headers);
+                response = pagBankInvoiceClient.listPayments(pageValue(offset, "offset"), pageValue(limit, "limit"), headers);
             }else{
                 response = pagBankInvoiceClient.listInvoicePayments(id, headers);
             }
@@ -175,7 +175,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "invoice operation", e);
         }
     }
 }

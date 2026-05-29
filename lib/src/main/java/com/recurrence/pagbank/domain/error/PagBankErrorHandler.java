@@ -5,16 +5,35 @@ import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.Converter;
 import com.recurrence.pagbank.mapper.PagBankErrorMapper;
 
+import java.util.List;
+
 public class PagBankErrorHandler {
 
     public static <T> RequestResponse<T> handle(
             RequestResponse<T> response,
             String body
-    ) throws JsonProcessingException {
+    ) {
+        if (body == null || body.isBlank()) {
+            return response.setErrors(fallbackErrors("pagbank_error", "PagBank returned an error without response body"));
+        }
 
-        var errors = Converter.mapper()
-                .readValue(body, PagBankErrorList.class);
+        try {
+            var errors = Converter.mapper()
+                    .readValue(body, PagBankErrorList.class);
 
-        return response.setErrors(PagBankErrorMapper.to(errors));
+            return response.setErrors(PagBankErrorMapper.to(errors));
+        } catch (JsonProcessingException e) {
+            return response.setErrors(fallbackErrors("pagbank_error", body));
+        }
+    }
+
+    private static RequestResponse.RequestErrorResponseList fallbackErrors(String key, String message) {
+        return new RequestResponse.RequestErrorResponseList(
+                List.of(new RequestResponse.RequestErrorResponseDetail(
+                        key,
+                        message,
+                        message
+                ))
+        );
     }
 }

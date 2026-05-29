@@ -27,30 +27,12 @@ public class PagBankProvider implements RecurrenceProvider {
             final PagBankEnvironment environment,
             final String token
     ) {
-        this.planService = new PagBankPlanService(
-            environment,
-            token
-        );
-        this.couponService = new PagBankCouponService(
-            environment,
-            token
-        );
-        this.customerService = new PagbankCustomerService(
-            environment,
-            token
-        );
-        this.subscriptionService = new PagBankSubscriptionService(
-            environment,
-            token
-        );
-        this.invoiceService = new PagBankInvoiceService(
-            environment,
-            token
-        );
-        this.preferencesService = new PagBankPreferencesService(
-            environment,
-            token
-        );
+        this.planService = new PagBankPlanService(environment, token);
+        this.couponService = new PagBankCouponService(environment, token);
+        this.customerService = new PagbankCustomerService(environment, token);
+        this.subscriptionService = new PagBankSubscriptionService(environment, token);
+        this.invoiceService = new PagBankInvoiceService(environment, token);
+        this.preferencesService = new PagBankPreferencesService(environment, token);
     }
 
     @Override

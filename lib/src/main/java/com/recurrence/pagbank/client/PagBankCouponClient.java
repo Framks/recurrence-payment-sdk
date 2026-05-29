@@ -19,7 +19,7 @@ public class PagBankCouponClient {
         return httpClient.post(uriCreate(), payload, headers);
     }
 
-    public HttpResponse<String> list(int offset, int limit, final Map<String, String> headers) {
+    public HttpResponse<String> list(Integer offset, Integer limit, final Map<String, String> headers) {
         return httpClient.get(uriList(offset, limit), headers);
     }
 

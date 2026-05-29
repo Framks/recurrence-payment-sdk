@@ -13,6 +13,7 @@ import com.recurrence.pagbank.mapper.PagBankPlanMapper;
 import com.recurrence.pagbank.domain.plan.PagBankListPlan;
 import java.net.http.HttpResponse;
 import java.util.Objects;
+import com.recurrence.pagbank.validator.PlanValidator;
 
 public class PagBankPlanService extends BaseService implements PlanService {
 
@@ -31,7 +32,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
     @Override
     public RequestResponse<Plan> create(Plan plan) {
         try {
-            // ToDo: nessa etapa seria interessante validar os campos com as regras do pagbank antes de converter para o payload?
+            PlanValidator.validateCreateRequest(plan);
             String payload = toJson(PagBankPlanMapper.from(plan));
 
             var headers = defaultHeaders(token);
@@ -53,16 +54,16 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "plan operation", e);
         }
     }
 
     @Override
-    public RequestResponse<PageResponse<Plan>> list(Long offset, Long limit) {
+    public RequestResponse<PageResponse<Plan>> list(Integer offset, Integer limit) {
         try{
             var headers = defaultHeaders(token);
 
-            HttpResponse<String> response = pagBankPlanClient.list(offset.intValue(), limit.intValue(), headers);
+            HttpResponse<String> response = pagBankPlanClient.list(pageValue(offset, "offset"), pageValue(limit, "limit"), headers);
 
             RequestResponse<PageResponse<Plan>> requestResponse = buildResponse(response);
 
@@ -77,7 +78,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         }catch (Exception e){
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "plan operation", e);
         }
     }
 
@@ -99,7 +100,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         }catch (Exception e ){
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "plan operation", e);
         }
     }
 
@@ -115,7 +116,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
             RequestResponse<Plan> requestResponse = buildResponse(response);
 
             return switch (requestResponse.getHttpResponse()) {
-                case 200, 201 -> // ToDo: validar se o pagbank retorna 200 ou 201 para update
+                case 200 ->
                         requestResponse.setBody(
                                 PagBankPlanMapper.to(
                                         fromJson(response.body(), PagBankPlan.class)
@@ -127,7 +128,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "plan operation", e);
         }
     }
 
@@ -138,12 +139,12 @@ public class PagBankPlanService extends BaseService implements PlanService {
             HttpResponse<String> response = pagBankPlanClient.activate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
-                case 200, 204 -> requestResponse; // ToDo: validar se o pagbank retorna 200 ou 204 para inactivate
+                case 200 -> requestResponse;
                 case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "plan operation", e);
         }
     }
 
@@ -154,12 +155,12 @@ public class PagBankPlanService extends BaseService implements PlanService {
             HttpResponse<String> response = pagBankPlanClient.inactivate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
-                case 200, 204 -> requestResponse; // ToDo: validar se o pagbank retorna 200 ou 204 para inactivate
+                case 200 -> requestResponse;
                 case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "plan operation", e);
         }
     }
 }

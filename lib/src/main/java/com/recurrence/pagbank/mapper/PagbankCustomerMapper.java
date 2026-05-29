@@ -3,6 +3,7 @@ package com.recurrence.pagbank.mapper;
 import com.recurrence.contract.domain.Customer;
 import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
 import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.pagbank.domain.commons.Phone;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.customer.PagBankListCustomer;
 import java.util.List;
@@ -37,7 +38,7 @@ public class PagbankCustomerMapper {
             .taxId(customer.getTaxId())
             .createdAt(customer.getCreatedAt())
             .updatedAt(customer.getUpdatedAt())
-            .phone(customer.getPhone().stream().map(CommonsMapper::toContractPhone).toList())
+            .phone(customer.getPhones().stream().map(CommonsMapper::toContractPhone).toList())
             .address(CommonsMapper.toContractAddress(customer.getAddress()))
             .billingInfo(CommonsMapper.toContractBillingInfo(billingInfoOpt))
             .birthDate(customer.getBirthDate())
@@ -47,27 +48,32 @@ public class PagbankCustomerMapper {
 
     public static PagBankCustomer toUpdate(Customer customer){
         List<PagBankBillingInfo> pagBankBillingInfo = null;
+        List<Phone> phones = null;
 
         if (customer.getBillingInfo() != null){
-            pagBankBillingInfo = List.of(CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo()));
+            pagBankBillingInfo = CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo());
+        }
+
+        if (customer.getPhone() != null ){
+            phones = customer.getPhone().stream().map(CommonsMapper::toPagBankPhone).toList();
         }
 
         return PagBankCustomer.builder()
             .referenceId(customer.getReferenceId())
             .name(customer.getName())
             .email(customer.getEmail())
-            .phone(customer.getPhone().stream().map(CommonsMapper::toPagBankPhone).toList())
+            .phone(phones)
             .birthDate(customer.getBirthDate())
             .address(CommonsMapper.toPagBankAddress(customer.getAddress()))
             .billingInfo(pagBankBillingInfo)
-            .build();
+            .buildUpdate();
     }
 
     public static PagBankCustomer from(Customer customer){
         List<PagBankBillingInfo> pagBankBillingInfo = null;
 
         if (customer.getBillingInfo() != null){
-            pagBankBillingInfo = List.of(CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo()));
+            pagBankBillingInfo = CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo());
         }
 
         return PagBankCustomer.builder()

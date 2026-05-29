@@ -8,22 +8,22 @@ final public class Coupon {
     private final String name;
     private final String description;
     private final CouponDiscount discount;
-    private String status;
+    private String status;                  // ToDo Devemos deixar o contrato com um tipo especifico?
     private final CouponDuration duration;
-    private final int redemptionLimit;
+    private final Integer redemptionLimit;
     private final String expiresAt;
     private Boolean inUse;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
-    public record CouponDiscount(
-        int value,
+    public record CouponDiscount( // ToDo devemos deixar um type especifco exemplo o do paymentMethod
+        Integer value,
         String type
     ) { }
 
-    public record CouponDuration(
+    public record CouponDuration(  // ToDo devemos deixar um type especifco exemplo o do paymentMethod
         String type,
-        int occurrences
+        Integer occurrences
     ) { }
 
     private Coupon(Builder builder){
@@ -70,7 +70,7 @@ final public class Coupon {
         return duration;
     }
 
-    public int getRedemptionLimit() {
+    public Integer getRedemptionLimit() {
         return redemptionLimit;
     }
 
@@ -106,7 +106,7 @@ final public class Coupon {
         private String status;
         private CouponDiscount discount;
         private CouponDuration duration;
-        private int redemptionLimit;
+        private Integer redemptionLimit;
         private String expiresAt;
         private Boolean inUse;
         private OffsetDateTime createdAt;
@@ -147,17 +147,17 @@ final public class Coupon {
             return this;
         }
 
-        public Builder discount(String type, int value) {
+        public Builder discount(String type, Integer value) {
             this.discount = new CouponDiscount(value, type);
             return this;
         }
 
-        public Builder duration(String type, int occurrences) {
+        public Builder duration(String type, Integer occurrences) {
             this.duration = new CouponDuration(type, occurrences);
             return this;
         }
 
-        public Builder redemptionLimit(int redemptionLimit) {
+        public Builder redemptionLimit(Integer redemptionLimit) {
             this.redemptionLimit = redemptionLimit;
             return this;
         }

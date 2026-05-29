@@ -16,6 +16,8 @@ import com.recurrence.pagbank.mapper.PagbankCustomerMapper;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 
+import static com.recurrence.pagbank.validator.CustomerValidator.validateCreateRequest;
+
 public class PagbankCustomerService extends BaseService implements CustomerService {
 
     private final PagBankCustomerClient pagBankCustomerClient;
@@ -32,6 +34,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
     @Override
     public RequestResponse<Customer> create(Customer customer) {
         try{
+            validateCreateRequest(customer);
             String payload = toJson(PagbankCustomerMapper.from(customer));
             var headers = defaultHeaders(token);
             HttpResponse<String> response = pagBankCustomerClient.create(payload, headers);
@@ -45,7 +48,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "customer operation", e);
         }
     }
 
@@ -64,12 +67,12 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         }catch (Exception e){
-            throw new RuntimeException(e);  /// ToDo pensar em um erro mais elaborado
+            throw providerException("PagBank", "customer operation", e);
         }
     }
 
     @Override
-    public RequestResponse<PageResponse<Customer>> list(int offset, int limit, String query) {
+    public RequestResponse<PageResponse<Customer>> list(Integer offset, Integer limit, String query) {
         try {
             var headers = defaultHeaders(token);
             if (query != null && !query.isBlank()){
@@ -85,7 +88,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "customer operation", e);
         }
     }
 
@@ -105,7 +108,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "customer operation", e);
         }
     }
 
@@ -127,7 +130,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw providerException("PagBank", "customer operation", e);
         }
     }
 

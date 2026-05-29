@@ -8,7 +8,7 @@ import com.recurrence.contract.infra.RequestResponse;
 public interface CustomerService {
         RequestResponse<Customer> create(Customer customer);
         RequestResponse<Customer> get(String id);
-        RequestResponse<PageResponse<Customer>> list(int offset, int limit, String query);
+        RequestResponse<PageResponse<Customer>> list(Integer offset, Integer limit, String query);
         RequestResponse<Customer> update(String id, Customer customer);
         RequestResponse<Customer> updateBillingInfo(String id, BillingInfo billingInfo);
 }

@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.domain.commons;
 
 public record Phone (
-        int id,
+        Integer id,
         String area,
         String country,
         String number

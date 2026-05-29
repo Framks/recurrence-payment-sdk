@@ -20,7 +20,7 @@ public class PagBankPlanClient {
         return httpClient.post(uriCreate(), payload, headers);
     }
 
-    public HttpResponse<String> list(int offset, int limit, final Map<String, String> headers) {
+    public HttpResponse<String> list(Integer offset, Integer limit, final Map<String, String> headers) {
         // ToDo saber se nos outros providers tem alguma estrutura de query para fazera a filtragem, ou ordenação, etc..
         return httpClient.get(uriList(offset, limit), headers);
     }
@@ -41,11 +41,12 @@ public class PagBankPlanClient {
         return httpClient.post(uriActivate(id), "", headers);
     }
 
+
     private String uriCreate() {
         return this.environment.getHost() + RESOURCE;
     }
 
-    private String uriList(int offset, int limit) {
+    private String uriList(Integer offset, Integer limit) {
         return this.environment.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
     }
 

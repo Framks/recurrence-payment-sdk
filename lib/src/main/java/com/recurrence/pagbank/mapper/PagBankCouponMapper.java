@@ -28,9 +28,11 @@ public final class PagBankCouponMapper {
             return null;
         }
 
+        Integer occurrences = (coupon.getDuration().occurrences() > 0)? coupon.getDuration().occurrences() : null;
+
         return new PagBankCouponDuration(
                 coupon.getDuration().type(),
-                coupon.getDuration().occurrences()
+                occurrences
         );
     }
 

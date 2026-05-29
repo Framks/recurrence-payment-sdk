@@ -1,9 +1,16 @@
 package com.recurrence.pagbank.client;
 
+import com.recurrence.contract.infra.RequestOptions;
+import com.recurrence.contract.infra.SubscriptionFilter;
 import com.recurrence.infrastructure.HttpClientAdapter;
 import com.recurrence.pagbank.PagBankEnvironment;
+import java.net.URLEncoder;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class PagBankSubscriptionClient {
@@ -25,36 +32,11 @@ public class PagBankSubscriptionClient {
     }
 
     public HttpResponse<String> list(
-            String status,
-            String paymentMethodType,
-            OffsetDateTime createdAtStart,
-            OffsetDateTime createdAtEnd,
-            int offset,
-            int limit,
-            final Map<String, String> headers,
-            String referenceId
+            SubscriptionFilter subscriptionFilter,
+            RequestOptions requestOptions, // devemos evoluir no futuro para todas as chamadas possibilitarem sobrescrita de configuração default.
+            final Map<String, String> headers
     ) {
-        System.out.println("Listando assinaturas com os seguintes parâmetros:");
-        System.out.println(uriList(   // transformar os parâmetros em query params array de string
-            status,
-            paymentMethodType,
-            createdAtStart,
-            createdAtEnd,
-            offset,
-            limit
-        ));
-        System.out.println("Headers:" + headers);
-        return httpClient.get(
-                uriList(   // transformar os parâmetros em query params array de string
-                        status,
-                        paymentMethodType,
-                        createdAtStart,
-                        createdAtEnd,
-                        offset,
-                        limit
-                ),
-                headers
-        );
+        return httpClient.get(uriList(subscriptionFilter), headers);
     }
 
     public HttpResponse<String> listInvoices(final String id, final Map<String, String> headers) {   ///  Todo fazer ele ter filtros
@@ -90,15 +72,32 @@ public class PagBankSubscriptionClient {
         return this.environment.getHost() + RESOURCE;
     }
 
-    private String uriList(  /// todo  transformar os parâmetros em query params array de string
-            String status,
-            String paymentMethodType,
-            OffsetDateTime createdAtStart,
-            OffsetDateTime createdAtEnd,
-            int offset,
-            int limit
+    private String uriList(
+            SubscriptionFilter subscriptionFilter
     ) {
-        return this.environment.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
+        // debugando essa função foi possivel identificar que ele não esta retornando certo
+        // saida https://alguma.coisa/chiqui-chiqui/?offset=10&limit=10&payment_method=DENIED&payment_method=APPROVED&created_at_start=2026-05-29T18%3A24%3A01.936491822Z&updated_at_end=2026-05-29T18%3A24%3A01.936491822Z&reference_id=ALGO_UUID
+        // problema identificado o payment_method é uma lista então ele como o
+        String uri = this.environment.getHost() + RESOURCE;
+
+        if (subscriptionFilter == null) return uri;
+
+        List<String> params = new ArrayList<>();
+
+        addParam(params, "offset", subscriptionFilter.getOffset());
+        addParam(params, "limit", subscriptionFilter.getLimit());
+        addParams(params, "status", subscriptionFilter.getStatus());
+        addParams(params, "payment_method", subscriptionFilter.getPaymentMethods());
+        addParam(params, "created_at_start", tranformeDate(subscriptionFilter.getCreatedAtStart()));
+        addParam(params, "created_at_end", tranformeDate(subscriptionFilter.getCreatedAtEnd()));
+        addParam(params, "reference_id", subscriptionFilter.getReferenceId());
+
+        if (params.isEmpty()) return uri;
+
+        String url = uri + "?" + String.join("&", params); // toDo remover
+        System.out.println(url);
+
+        return url;
     }
 
     private String uriGet(String id) {
@@ -127,5 +126,38 @@ public class PagBankSubscriptionClient {
 
     private String uriRetry(String id) {
         return this.environment.getHost() + RESOURCE + "/" + id + "/retry";
+    }
+
+    private void addParam(List<String> params, String name, Object value) {
+        if (value == null) {
+            return;
+        }
+
+        String rawValue = String.valueOf(value);
+        if (rawValue.isBlank()) {
+            return;
+        }
+
+        params.add(encode(name) + "=" + encode(rawValue));
+    }
+
+    private void addParams(List<String> params, String name, List<?> values) {
+        if (values == null || values.isEmpty()) {
+            return;
+        }
+
+        values.forEach(value -> addParam(params, name, value));
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private String tranformeDate(OffsetDateTime dateTime){ // ToDo remover para uma clase mais adequada.
+        if (dateTime == null) return null;
+
+        return dateTime
+                .toLocalDate()
+                .format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 }

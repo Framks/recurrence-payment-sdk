@@ -15,7 +15,7 @@ public class Customer {
     private String referenceId;
     private String name;
     private String email;
-    private String taxId;
+    private String taxId;              // Todo deixar bem especifico para cada provedor como receber esses dados.
     private String birthDate;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;

@@ -38,6 +38,7 @@ public class Payment {
     public String getInvoiceId() { return invoiceId; }
     public Amount getAmount() { return amount; }
     public Customer getCustomer() { return customer; }
+    public BillingInfo getPaymentMethod() { return paymentMethod; }
 
     public static class Builder {
         private String id;
