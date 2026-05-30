@@ -13,7 +13,7 @@ import java.util.Map;
 
 public abstract class BaseService {
 
-    protected Map<String, String> defaultHeaders(String token) {
+    protected Map<String, String> getHeaders(String token) {
         return new HashMap<>(Map.of(
                 "Authorization", "Bearer " + token,
                 "Content-Type", "application/json",

@@ -1,15 +1,50 @@
 package com.recurrence.contract;
 
-import com.recurrence.pagbank.PagBankEnvironment;
-import com.recurrence.pagbank.PagBankProvider;
-import com.recurrence.stripe.StripeProvider;
+import com.recurrence.contract.config.Environment;
+import com.recurrence.contract.config.Provider;
+import com.recurrence.contract.config.ProviderConfig;
+import com.recurrence.contract.config.ProviderFactory;
+import org.jetbrains.annotations.NotNull;
 
+// Ideia é transformar esse cara meio que em uma fachada. com um ponto unico de acesso,
+// o quem chamar diz o que quer a gente configura e retornar o recurrence
+// antes de publicar devemos documentar e usar as anotações @NotNull para deixar mais explicito.
 final public class Recurrence {
 
     private final RecurrenceProvider provider;
 
     private Recurrence(final RecurrenceProvider provider) {
         this.provider = provider;
+    }
+
+    // Todo ver outras abordagens de receber as credenciais pois tem provedores que não usam só token simples
+    /**
+     * Função responsavel por configurar um provedor.
+     *
+     * <p>Configura um provedor passando o enum provider, o ambiente que estara executando e
+     * as configurações basicas para esta integrando com ele. Retorno sera a classe Recurrence
+     * com o provedor configurado</p>
+     *
+     * <pre>{@code
+     * Recurrence config = Recurrence.config(
+     *      Provider.PAGBANK,
+     *      Enviroment.SANDBOX,
+     *      ProviderConfig.builder()
+     *          .token("your-token")
+     *          .timeout(Duration.ofSeconds(15))  // Default 15s
+     *          .defaultHeader("Accept", "application/json") // opcional
+     *          .build()
+     * );
+     * }</pre>
+     */
+    public static Recurrence config(
+            @NotNull final Provider provider,
+            @NotNull final Environment environment,
+            @NotNull final ProviderConfig config
+            ){
+        return new Recurrence(
+                ProviderFactory.create(provider, environment, config)
+        );
     }
 
     public PlanService plan() {
@@ -30,33 +65,4 @@ final public class Recurrence {
     public PreferencesService preferences(){
         return provider.preferencesService();
     }
-
-    public static class PagBank {
-        public static Recurrence config(final PagBankEnvironment environment, final String token) {
-            return new Recurrence(
-                    new PagBankProvider(environment, token)
-            );
-        }
-    }
-
-    public static class Stripe {
-        public static Recurrence config() {
-            return new Recurrence(
-                    new StripeProvider()
-            );
-        }
-    }
-
-
-    // ToDo: Sabendo que a proposta é ajudar no momento de integração, vale fazer as validações do que os provedores esperam?
-    //  ou só validar para que a gente não tome null pointer exception? ou ainda os dois?
-
-    // Todo: devemos configurar o timeout das requisições no momento de configurar o provedor?
-    //  sabendo que algumas operações estavam durando 10s em alguns provedores.
-    //  ou podemos deixar tudo fixo?
-
-    // ToDo: implementar outros providers, como Vindi, PayPal e Iugu, com base na documentação de cada um:
-    // https://vindi.github.io/api-docs/dist/,
-    // https://developer.paypal.com/docs/api/subscriptions/v1/,
-    // https://dev.iugu.com/docs/realizar-cobran%C3%A7as-recorrentes-por-api
 }

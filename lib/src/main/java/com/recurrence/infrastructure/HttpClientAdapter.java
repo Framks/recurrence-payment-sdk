@@ -15,6 +15,8 @@ final public class HttpClientAdapter {
         this.httpClient = HttpClient.newHttpClient();
     }
 
+    // Criar um singleton para esse cara.
+
     public HttpResponse<String> post(
         final String url,
         final String body,

@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0") // ver opções para resolver vunerabilidade
 
     testImplementation(libs.junit.jupiter)
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.4")

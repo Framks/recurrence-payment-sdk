@@ -5,28 +5,26 @@ import com.recurrence.contract.domain.Coupon;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import com.recurrence.pagbank.client.PagBankCouponClient;
 import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
 import com.recurrence.pagbank.mapper.PagBankCouponMapper;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.domain.coupon.PagBankListCoupon;
 import java.net.http.HttpResponse;
-import java.util.Objects;
+
 import static com.recurrence.pagbank.validator.CouponValidator.validateCreateRequest;
 
 public class PagBankCouponService extends BaseService implements CouponService {
 
-    private final String token;
+    private final PagbankConfig config;
     private final PagBankCouponClient pagBankCouponClient;
 
     public PagBankCouponService(
-            final PagBankEnvironment environment,
-            final String token
+            final PagbankConfig config
     ) {
-        this.token = Objects.requireNonNull(token, "Token must be a valid value");
-
-        pagBankCouponClient = new PagBankCouponClient(Objects.requireNonNull(environment, "Environment must be a valid value"));
+        this.config = config;
+        pagBankCouponClient = new PagBankCouponClient(config);
     }
 
     @Override
@@ -35,7 +33,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
             validateCreateRequest(coupon);
             String payload = toJson(PagBankCouponMapper.toPagBankContract(coupon));
 
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
 
             HttpResponse<String> response = pagBankCouponClient.create(payload, headers);
 
@@ -58,7 +56,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
     @Override
     public RequestResponse<Coupon> get(String id) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCouponClient.get(id, headers);
             RequestResponse<Coupon> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -78,7 +76,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
     @Override
     public RequestResponse<PageResponse<Coupon>> list(Integer offset, Integer limit) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCouponClient.list(offset, limit, headers);
             RequestResponse<PageResponse<Coupon>> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -96,7 +94,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
     @Override
     public RequestResponse<Void> activate(String id) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCouponClient.activate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -113,7 +111,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
     @Override
     public RequestResponse<Void> inactivate(String id) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCouponClient.inactivate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {

@@ -2,18 +2,19 @@ package com.recurrence.pagbank.client;
 
 import com.recurrence.infrastructure.HttpClientAdapter;
 
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import java.net.http.HttpResponse;
 import java.util.Map;
+import java.util.Set;
 
 public class PagBankPlanClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
-    private final PagBankEnvironment environment;
+    private final PagbankConfig config;
     private static final String RESOURCE = "/plans";
 
-    public PagBankPlanClient(PagBankEnvironment environment) {
-        this.environment = environment;
+    public PagBankPlanClient(final PagbankConfig config){
+        this.config = config;
     }
 
     public HttpResponse<String> create(final String payload, final Map<String, String> headers) {
@@ -43,26 +44,26 @@ public class PagBankPlanClient {
 
 
     private String uriCreate() {
-        return this.environment.getHost() + RESOURCE;
+        return this.config.getHost() + RESOURCE;
     }
 
     private String uriList(Integer offset, Integer limit) {
-        return this.environment.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
+        return this.config.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
     }
 
     private String uriGet(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id;
+        return this.config.getHost() + RESOURCE + "/" + id;
     }
 
     private String uriUpdate(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id;
+        return this.config.getHost() + RESOURCE + "/" + id;
     }
 
     private String uriInactivate(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/inactivate";
+        return this.config.getHost() + RESOURCE + "/" + id + "/inactivate";
     }
 
     private String uriActivate(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/activate";
+        return this.config.getHost() + RESOURCE + "/" + id + "/activate";
     }
 }

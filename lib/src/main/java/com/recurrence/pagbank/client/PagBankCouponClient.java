@@ -1,18 +1,21 @@
 package com.recurrence.pagbank.client;
 
 import com.recurrence.infrastructure.HttpClientAdapter;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class PagBankCouponClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
-    private final PagBankEnvironment environment;
+    private final PagbankConfig config;
     private static final String RESOURCE = "/coupons";
 
-    public PagBankCouponClient(PagBankEnvironment environment) {
-        this.environment = environment;
+
+    // ajustar o client para passar o timeout da configuração.
+
+    public PagBankCouponClient(final PagbankConfig config) {
+        this.config = config;
     }
 
     public HttpResponse<String> create(final String payload, final Map<String, String> headers) {
@@ -37,22 +40,22 @@ public class PagBankCouponClient {
 
 
     private String uriCreate() {
-        return this.environment.getHost() + RESOURCE;
+        return this.config.getHost() + RESOURCE;
     }
 
     private String uriList(int offset, int limit) {
-        return this.environment.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
+        return this.config.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
     }
 
     private String uriGet(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id;
+        return this.config.getHost() + RESOURCE + "/" + id;
     }
 
     private String uriInactivate(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/inactivate";
+        return this.config.getHost() + RESOURCE + "/" + id + "/inactivate";
     }
 
     private String uriActivate(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/activate";
+        return this.config.getHost() + RESOURCE + "/" + id + "/activate";
     }
 }

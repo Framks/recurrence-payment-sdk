@@ -1,18 +1,18 @@
 package com.recurrence.pagbank.client;
 
 import com.recurrence.infrastructure.HttpClientAdapter;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class PagBankCustomerClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
-    private final PagBankEnvironment environment;
+    private final PagbankConfig config;
     private static final String RESOURCE = "/customers";
 
-    public PagBankCustomerClient(PagBankEnvironment environment) {
-        this.environment = environment;
+    public PagBankCustomerClient(PagbankConfig config) {
+        this.config = config;
     }
 
     public HttpResponse<String> create(final String payload, final Map<String, String> headers) {
@@ -37,18 +37,18 @@ public class PagBankCustomerClient {
     }
 
     private String uriCreate() {
-        return this.environment.getHost() + RESOURCE;
+        return this.config.getHost() + RESOURCE;
     }
 
     private String uriList(int offset, int limit) {
-        return this.environment.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
+        return this.config.getHost() + RESOURCE + "?offset=" + offset + "&limit=" + limit;
     }
 
     private String uriGet(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id;
+        return this.config.getHost() + RESOURCE + "/" + id;
     }
 
     private String uriPutBillingInfo(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/billing_info";
+        return this.config.getHost() + RESOURCE + "/" + id + "/billing_info";
     }
 }

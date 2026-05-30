@@ -1,20 +1,20 @@
 package com.recurrence.pagbank.client;
 
 import com.recurrence.infrastructure.HttpClientAdapter;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class PagBankInvoiceClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
-    private final PagBankEnvironment environment;
+    private final PagbankConfig config;
     private static final String RESOURCE_INVOICE = "/invoices";
     private static final String RESOURCE_PAYMENT = "/payments";
     private static final String RESOURCE_REFUND = "/refunds";
 
-    public PagBankInvoiceClient(PagBankEnvironment environment) {
-        this.environment = environment;
+    public PagBankInvoiceClient(PagbankConfig config) {
+        this.config = config;
     }
 
     public HttpResponse<String> getInvoice(final String id, final Map<String, String> headers) {
@@ -51,30 +51,30 @@ public class PagBankInvoiceClient {
 
 
     private String uriInvoiceGet(String id) {
-        return this.environment.getHost() + RESOURCE_INVOICE + "/" + id;
+        return this.config.getHost() + RESOURCE_INVOICE + "/" + id;
     }
 
     private String uriInvoicePayments(String id) {
-        return this.environment.getHost() + RESOURCE_INVOICE + "/" + id + "/payments";
+        return this.config.getHost() + RESOURCE_INVOICE + "/" + id + "/payments";
     }
 
     private String uriGetPayment(String id) {
-        return this.environment.getHost() + RESOURCE_PAYMENT + "/" + id;
+        return this.config.getHost() + RESOURCE_PAYMENT + "/" + id;
     }
 
     private String uriCreateRefund(String id) {
-        return this.environment.getHost() + RESOURCE_PAYMENT + "/" + id + "/refunds";
+        return this.config.getHost() + RESOURCE_PAYMENT + "/" + id + "/refunds";
     }
 
     private String uriGetRefund(String id) {
-        return this.environment.getHost() + RESOURCE_REFUND + "/" + id;
+        return this.config.getHost() + RESOURCE_REFUND + "/" + id;
     }
 
     private String uriGetRefunds(int offset, int limit) {
-        return this.environment.getHost() + RESOURCE_REFUND + "?offset=" + offset + "&limit=" + limit;
+        return this.config.getHost() + RESOURCE_REFUND + "?offset=" + offset + "&limit=" + limit;
     }
 
     private String uriListPayments(int offset, int limit) {
-        return this.environment.getHost() + RESOURCE_PAYMENT + "?offset=" + offset + "&limit=" + limit;
+        return this.config.getHost() + RESOURCE_PAYMENT + "?offset=" + offset + "&limit=" + limit;
     }
 }

@@ -3,7 +3,7 @@ package com.recurrence.pagbank.client;
 import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.infra.SubscriptionFilter;
 import com.recurrence.infrastructure.HttpClientAdapter;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import java.net.URLEncoder;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -16,11 +16,11 @@ import java.util.Map;
 public class PagBankSubscriptionClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
-    private final PagBankEnvironment environment;
+    private final PagbankConfig config;
     private static final String RESOURCE = "/subscriptions";
 
-    public PagBankSubscriptionClient(PagBankEnvironment environment) {
-        this.environment = environment;
+    public PagBankSubscriptionClient(PagbankConfig config) {
+        this.config = config;
     }
 
     public HttpResponse<String> create(final String payload, final Map<String, String> headers) {
@@ -69,7 +69,7 @@ public class PagBankSubscriptionClient {
 
 
     private String uriCreate() {
-        return this.environment.getHost() + RESOURCE;
+        return this.config.getHost() + RESOURCE;
     }
 
     private String uriList(
@@ -78,7 +78,7 @@ public class PagBankSubscriptionClient {
         // debugando essa função foi possivel identificar que ele não esta retornando certo
         // saida https://alguma.coisa/chiqui-chiqui/?offset=10&limit=10&payment_method=DENIED&payment_method=APPROVED&created_at_start=2026-05-29T18%3A24%3A01.936491822Z&updated_at_end=2026-05-29T18%3A24%3A01.936491822Z&reference_id=ALGO_UUID
         // problema identificado o payment_method é uma lista então ele como o
-        String uri = this.environment.getHost() + RESOURCE;
+        String uri = this.config.getHost() + RESOURCE;
 
         if (subscriptionFilter == null) return uri;
 
@@ -101,31 +101,31 @@ public class PagBankSubscriptionClient {
     }
 
     private String uriGet(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id;
+        return this.config.getHost() + RESOURCE + "/" + id;
     }
 
     private String uriListInvoices(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/invoices";
+        return this.config.getHost() + RESOURCE + "/" + id + "/invoices";
     }
 
     private String uriCancel(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/cancel";
+        return this.config.getHost() + RESOURCE + "/" + id + "/cancel";
     }
 
     private String uriSuspend(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/suspend";
+        return this.config.getHost() + RESOURCE + "/" + id + "/suspend";
     }
 
     private String uriActivate(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/activate";
+        return this.config.getHost() + RESOURCE + "/" + id + "/activate";
     }
 
     private String uriDeleteCoupons(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/coupons";
+        return this.config.getHost() + RESOURCE + "/" + id + "/coupons";
     }
 
     private String uriRetry(String id) {
-        return this.environment.getHost() + RESOURCE + "/" + id + "/retry";
+        return this.config.getHost() + RESOURCE + "/" + id + "/retry";
     }
 
     private void addParam(List<String> params, String name, Object value) {

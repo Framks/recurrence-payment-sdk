@@ -8,7 +8,7 @@ import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.contract.infra.SubscriptionFilter;
 import com.recurrence.core.BaseService;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import com.recurrence.pagbank.client.PagBankSubscriptionClient;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.domain.payment.PagBankListInvoice;
@@ -18,19 +18,18 @@ import com.recurrence.pagbank.mapper.PagBankInvoiceMapper;
 import com.recurrence.pagbank.mapper.PagBankSubscriptionMapper;
 import java.net.http.HttpResponse;
 import java.util.Map;
-import java.util.Objects;
+
 import com.recurrence.pagbank.validator.SubscrptionValidator;
 
 public class PagBankSubscriptionService extends BaseService implements SubscriptionService {
-    private final String token;
+    private final PagbankConfig config;
     private final PagBankSubscriptionClient pagBankSubscriptionClient;
 
     public PagBankSubscriptionService(
-        final PagBankEnvironment environment,
-        final String token
+            final PagbankConfig config
     ) {
-        this.token = Objects.requireNonNull(token, "Token must be a valid value");
-        pagBankSubscriptionClient = new PagBankSubscriptionClient(Objects.requireNonNull(environment, "Environment must be a valid value"));
+        this.config = config;
+        pagBankSubscriptionClient = new PagBankSubscriptionClient(config);
     }
 
     @Override
@@ -39,7 +38,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
             SubscrptionValidator.validateCreateRequest(subscription);
             HttpResponse<String> response = pagBankSubscriptionClient.create(
                 toJson(PagBankSubscriptionMapper.toPagBankContract(subscription)),
-                defaultHeaders(token)
+                config.fullHeaders()
             );
 
             RequestResponse<Subscription> requestResponse = buildResponse(response);
@@ -59,7 +58,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Subscription> get(String id) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.get(id, defaultHeaders(token));
+            HttpResponse<String> response = pagBankSubscriptionClient.get(id, config.fullHeaders());
             RequestResponse<Subscription> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 2 -> requestResponse.setBody(
@@ -98,7 +97,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
             RequestOptions options = requestOptions == null
                 ? RequestOptions.empty()
                 : requestOptions;
-            Map<String, String> headers = defaultHeaders(token);
+            Map<String, String> headers = config.fullHeaders();
             applyRequestOptions(headers, filter);
             HttpResponse<String> response = pagBankSubscriptionClient.list(
                     filter,
@@ -122,7 +121,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<PageResponse<Invoice>> listInvoiceBySubscription(String subscriptionId, int offset, int limit) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.listInvoices(subscriptionId, defaultHeaders(token));
+            HttpResponse<String> response = pagBankSubscriptionClient.listInvoices(subscriptionId, config.fullHeaders());
             RequestResponse<PageResponse<Invoice>> requestResponse = buildResponse(response);
 
             return switch ((requestResponse.getHttpResponse()/100)) {
@@ -141,7 +140,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     public RequestResponse<Subscription> update(String id, Subscription subscription) {
         try {
             var payload = toJson(PagBankSubscriptionMapper.toPagBankContract(subscription));
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankSubscriptionClient.put(id, payload, headers);
             RequestResponse<Subscription> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
@@ -159,7 +158,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Void> suspend(String id) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.suspend(id, defaultHeaders(token));
+            HttpResponse<String> response = pagBankSubscriptionClient.suspend(id, config.fullHeaders());
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -173,7 +172,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Void> cancel(String id) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.cancel(id, defaultHeaders(token));
+            HttpResponse<String> response = pagBankSubscriptionClient.cancel(id, config.fullHeaders());
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -187,7 +186,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Void> active(String id) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.activate(id, defaultHeaders(token));
+            HttpResponse<String> response = pagBankSubscriptionClient.activate(id, config.fullHeaders());
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -201,7 +200,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Void> deleteCoupon(String id) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.deleteCoupons(id, defaultHeaders(token));
+            HttpResponse<String> response = pagBankSubscriptionClient.deleteCoupons(id, config.fullHeaders());
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -215,7 +214,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
     @Override
     public RequestResponse<Void> retry(String id) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.retry(id, defaultHeaders(token));
+            HttpResponse<String> response = pagBankSubscriptionClient.retry(id, config.fullHeaders());
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());

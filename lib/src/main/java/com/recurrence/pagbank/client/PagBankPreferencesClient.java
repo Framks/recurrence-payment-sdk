@@ -1,20 +1,20 @@
 package com.recurrence.pagbank.client;
 
 import com.recurrence.infrastructure.HttpClientAdapter;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class PagBankPreferencesClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
-    private final PagBankEnvironment environment;
+    private final PagbankConfig config;
     private static final String RESOURCE_KEY = "/public-keys";
     private static final String RESOURCE_NOTIFICATION = "/preferences/notifications";
     private static final String RESOURCE_RETRY = "/preferences/retries";
 
-    public PagBankPreferencesClient(PagBankEnvironment environment) {
-        this.environment = environment;
+    public PagBankPreferencesClient(PagbankConfig config) {
+        this.config = config;
     }
 
     public HttpResponse<String> getKey(final Map<String, String> headers) {
@@ -41,7 +41,7 @@ public class PagBankPreferencesClient {
         return httpClient.put(uriRetry(), payload, headers);
     }
 
-    private String uriKey() { return this.environment.getHost() + RESOURCE_KEY; }
-    private String uriNotification() { return this.environment.getHost() + RESOURCE_NOTIFICATION; }
-    public String uriRetry(){ return this.environment.getHost() + RESOURCE_RETRY; }
+    private String uriKey() { return this.config.getHost() + RESOURCE_KEY; }
+    private String uriNotification() { return this.config.getHost() + RESOURCE_NOTIFICATION; }
+    public String uriRetry(){ return this.config.getHost() + RESOURCE_RETRY; }
 }

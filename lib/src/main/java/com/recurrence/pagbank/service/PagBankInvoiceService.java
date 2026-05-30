@@ -8,7 +8,7 @@ import com.recurrence.contract.domain.commons.Amount;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import com.recurrence.pagbank.client.PagBankInvoiceClient;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.domain.payment.PagBankInvoice;
@@ -18,27 +18,23 @@ import com.recurrence.pagbank.domain.payment.PagBankPayment;
 import com.recurrence.pagbank.domain.payment.PagBankRefund;
 import com.recurrence.pagbank.mapper.PagBankInvoiceMapper;
 import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class PagBankInvoiceService extends BaseService implements InvoiceService {
 
-    private final String token;
+    private final PagbankConfig config;
     private final PagBankInvoiceClient pagBankInvoiceClient;
 
     public PagBankInvoiceService(
-        final PagBankEnvironment environment,
-        final String token
+        final PagbankConfig config
     ){
-        this.token = Objects.requireNonNull(token, "Token must be a valid value");
-        this.pagBankInvoiceClient = new PagBankInvoiceClient(Objects.requireNonNull(environment, "Environment must be a valid value"));
+        this.config = config;
+        this.pagBankInvoiceClient = new PagBankInvoiceClient(config);
     }
 
     @Override
     public RequestResponse<Invoice> getInvoice(String id) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankInvoiceClient.getInvoice(id, headers);
             RequestResponse<Invoice> requestResponse = buildResponse(response);
 
@@ -59,7 +55,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
     @Override
     public RequestResponse<Payment> getPayment(String id) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankInvoiceClient.getPayment(id, headers);
             RequestResponse<Payment> requestResponse = buildResponse(response);
 
@@ -90,7 +86,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
     @Override
     public RequestResponse<Refund> refund(String paymentId, Amount amount) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             String payload = toJson(PagBankInvoiceMapper.toRefundPayload(amount)); // toDo: aqui estou usando o objeto PagBankInvoice para enviar penas o amount que precisa, devemos fazer um dto para isso?
             HttpResponse<String> response = pagBankInvoiceClient.createRefund(paymentId, payload, headers);
             RequestResponse<Refund> requestResponse = buildResponse(response);
@@ -112,7 +108,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
     @Override
     public RequestResponse<Refund> getRefund(String id) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankInvoiceClient.getRefund(id, headers);
             RequestResponse<Refund> requestResponse = buildResponse(response);
 
@@ -133,7 +129,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
     @Override
     public RequestResponse<PageResponse<Refund>> listRefunds(Integer offset, Integer limit) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankInvoiceClient.getRefunds(pageValue(offset, "offset"), pageValue(limit, "limit"), headers);
             RequestResponse<PageResponse<Refund>> requestResponse = buildResponse(response);
 
@@ -154,7 +150,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
 
     private RequestResponse<PageResponse<Payment>> listPayment(String id, Integer offset, Integer limit){
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = null;
 
             if (id == null || id.isEmpty()) {

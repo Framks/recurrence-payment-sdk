@@ -5,28 +5,26 @@ import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import com.recurrence.pagbank.client.PagBankPlanClient;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
 import com.recurrence.pagbank.mapper.PagBankPlanMapper;
 import com.recurrence.pagbank.domain.plan.PagBankListPlan;
 import java.net.http.HttpResponse;
-import java.util.Objects;
+
 import com.recurrence.pagbank.validator.PlanValidator;
 
 public class PagBankPlanService extends BaseService implements PlanService {
 
-    private final String token;
+    private final PagbankConfig config;
     private final PagBankPlanClient pagBankPlanClient;
 
     public PagBankPlanService(
-            final PagBankEnvironment environment,
-            final String token
+            final PagbankConfig config
     ) {
-        this.token = Objects.requireNonNull(token, "Token must be a valid value");
-
-        pagBankPlanClient = new PagBankPlanClient(Objects.requireNonNull(environment, "Environment must be a valid value"));
+        this.config = config;
+        pagBankPlanClient = new PagBankPlanClient(config);
     }
 
     @Override
@@ -35,7 +33,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
             PlanValidator.validateCreateRequest(plan);
             String payload = toJson(PagBankPlanMapper.from(plan));
 
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
 
             HttpResponse<String> response = pagBankPlanClient.create(payload, headers);
 
@@ -61,7 +59,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
     @Override
     public RequestResponse<PageResponse<Plan>> list(Integer offset, Integer limit) {
         try{
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
 
             HttpResponse<String> response = pagBankPlanClient.list(pageValue(offset, "offset"), pageValue(limit, "limit"), headers);
 
@@ -85,7 +83,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
     @Override
     public RequestResponse<Plan> get(String id) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankPlanClient.get(id, headers);
             RequestResponse<Plan> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -109,7 +107,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
         try {
             String payload = toJson(PagBankPlanMapper.from(plan));
 
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
 
             HttpResponse<String> response = pagBankPlanClient.update(id, payload, headers);
 
@@ -135,7 +133,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
     @Override
     public RequestResponse<Void> activate(String id) {
         try{
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankPlanClient.activate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -151,7 +149,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
     @Override
     public RequestResponse<Void> inactivate(String id) {
         try{
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankPlanClient.inactivate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {

@@ -6,7 +6,7 @@ import com.recurrence.contract.domain.Customer;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
-import com.recurrence.pagbank.PagBankEnvironment;
+import com.recurrence.pagbank.PagbankConfig;
 import com.recurrence.pagbank.client.PagBankCustomerClient;
 import com.recurrence.pagbank.domain.customer.PagBankCustomer;
 import com.recurrence.pagbank.domain.customer.PagBankListCustomer;
@@ -14,21 +14,19 @@ import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.mapper.CommonsMapper;
 import com.recurrence.pagbank.mapper.PagbankCustomerMapper;
 import java.net.http.HttpResponse;
-import java.util.Objects;
 
 import static com.recurrence.pagbank.validator.CustomerValidator.validateCreateRequest;
 
 public class PagbankCustomerService extends BaseService implements CustomerService {
 
     private final PagBankCustomerClient pagBankCustomerClient;
-    private final String token;
+    private final PagbankConfig config;
 
     public PagbankCustomerService(
-            PagBankEnvironment environment,
-            String token
+            final PagbankConfig config
     ){
-        this.token = Objects.requireNonNull(token, "Token must be a valid value");
-        pagBankCustomerClient = new PagBankCustomerClient(Objects.requireNonNull(environment, "Environment must be a valid value"));
+        this.config = config;
+        pagBankCustomerClient = new PagBankCustomerClient(config);
     }
 
     @Override
@@ -36,7 +34,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
         try{
             validateCreateRequest(customer);
             String payload = toJson(PagbankCustomerMapper.from(customer));
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCustomerClient.create(payload, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);
 
@@ -55,7 +53,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
     @Override
     public RequestResponse<Customer> get(String id) {
         try{
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCustomerClient.get(id, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()){
@@ -74,7 +72,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
     @Override
     public RequestResponse<PageResponse<Customer>> list(Integer offset, Integer limit, String query) {
         try {
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             if (query != null && !query.isBlank()){
                 headers.put("q",normalizeString(query));
             }
@@ -96,7 +94,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
     public RequestResponse<Customer> update(String id, Customer customer) {
         try {
             String payload = toJson(PagbankCustomerMapper.toUpdate(customer));
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCustomerClient.put(id, payload, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);
 
@@ -119,7 +117,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
         }
         try {
             String payload = toJson(CommonsMapper.toPagBankBillingInfo(billingInfo));
-            var headers = defaultHeaders(token);
+            var headers = config.fullHeaders();
             HttpResponse<String> response = pagBankCustomerClient.putBillingInfo(id, payload, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
