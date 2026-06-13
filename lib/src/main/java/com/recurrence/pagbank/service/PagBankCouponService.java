@@ -7,12 +7,15 @@ import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagbankConfig;
 import com.recurrence.pagbank.client.PagBankCouponClient;
+import com.recurrence.pagbank.domain.commons.PagBankList;
 import com.recurrence.pagbank.domain.coupon.PagBankCoupon;
 import com.recurrence.pagbank.mapper.PagBankCouponMapper;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.domain.coupon.PagBankListCoupon;
 import java.net.http.HttpResponse;
 
+import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
+import static com.recurrence.constants.ProviderConstants.PAGBANK;
 import static com.recurrence.pagbank.validator.CouponValidator.validateCreateRequest;
 
 public class PagBankCouponService extends BaseService implements CouponService {
@@ -49,7 +52,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "coupon operation", e);
+            throw providerException( PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -69,7 +72,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "coupon operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -87,7 +90,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
                 default -> requestResponse;
             };
         } catch (Exception e){
-            throw providerException("PagBank", "coupon operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -104,7 +107,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "coupon operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -120,7 +123,7 @@ public class PagBankCouponService extends BaseService implements CouponService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "coupon operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 

@@ -27,6 +27,10 @@ public class RequestOptions {
         return timeout;
     }
 
+    public Boolean hasIdempotencyKey(){
+        return !idempotencyKey.isEmpty() && !idempotencyKey.isBlank();
+    }
+
     public static final class Builder {
         private String idempotencyKey;
         private Duration timeout;

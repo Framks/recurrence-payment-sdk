@@ -15,6 +15,8 @@ import com.recurrence.pagbank.mapper.CommonsMapper;
 import com.recurrence.pagbank.mapper.PagbankCustomerMapper;
 import java.net.http.HttpResponse;
 
+import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
+import static com.recurrence.constants.ProviderConstants.PAGBANK;
 import static com.recurrence.pagbank.validator.CustomerValidator.validateCreateRequest;
 
 public class PagbankCustomerService extends BaseService implements CustomerService {
@@ -46,7 +48,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "customer operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -65,7 +67,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         }catch (Exception e){
-            throw providerException("PagBank", "customer operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -86,7 +88,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "customer operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -106,7 +108,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "customer operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -128,7 +130,7 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "customer operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 

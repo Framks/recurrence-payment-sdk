@@ -1,7 +1,7 @@
 package com.recurrence.pagbank.client;
 
 import com.recurrence.contract.infra.RequestOptions;
-import com.recurrence.contract.infra.SubscriptionFilter;
+import com.recurrence.contract.filters.SubscriptionFilter;
 import com.recurrence.infrastructure.HttpClientAdapter;
 import com.recurrence.pagbank.PagbankConfig;
 import java.net.URLEncoder;
@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+// devemos evoluir no futuro para que ao enviar o requestOptions possa sobescrever as configurações defaults
 public class PagBankSubscriptionClient {
 
     private final HttpClientAdapter httpClient = new HttpClientAdapter();
@@ -23,7 +23,10 @@ public class PagBankSubscriptionClient {
         this.config = config;
     }
 
-    public HttpResponse<String> create(final String payload, final Map<String, String> headers) {
+    public HttpResponse<String> create(
+            final String payload,
+            final Map<String, String> headers
+    ) {
         return httpClient.post(uriCreate(), payload, headers);
     }
 
@@ -33,7 +36,7 @@ public class PagBankSubscriptionClient {
 
     public HttpResponse<String> list(
             SubscriptionFilter subscriptionFilter,
-            RequestOptions requestOptions, // devemos evoluir no futuro para todas as chamadas possibilitarem sobrescrita de configuração default.
+            RequestOptions requestOptions,
             final Map<String, String> headers
     ) {
         return httpClient.get(uriList(subscriptionFilter), headers);
@@ -75,9 +78,6 @@ public class PagBankSubscriptionClient {
     private String uriList(
             SubscriptionFilter subscriptionFilter
     ) {
-        // debugando essa função foi possivel identificar que ele não esta retornando certo
-        // saida https://alguma.coisa/chiqui-chiqui/?offset=10&limit=10&payment_method=DENIED&payment_method=APPROVED&created_at_start=2026-05-29T18%3A24%3A01.936491822Z&updated_at_end=2026-05-29T18%3A24%3A01.936491822Z&reference_id=ALGO_UUID
-        // problema identificado o payment_method é uma lista então ele como o
         String uri = this.config.getHost() + RESOURCE;
 
         if (subscriptionFilter == null) return uri;
@@ -94,10 +94,7 @@ public class PagBankSubscriptionClient {
 
         if (params.isEmpty()) return uri;
 
-        String url = uri + "?" + String.join("&", params); // toDo remover
-        System.out.println(url);
-
-        return url;
+        return uri + "?" + String.join("&", params);
     }
 
     private String uriGet(String id) {

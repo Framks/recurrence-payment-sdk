@@ -3,12 +3,13 @@ package com.recurrence.contract;
 import com.recurrence.contract.config.Environment;
 import com.recurrence.contract.config.Provider;
 import com.recurrence.contract.config.ProviderConfig;
-import com.recurrence.contract.config.ProviderFactory;
+import com.recurrence.core.ProviderFactory;
+import com.recurrence.exception.RecurrenceException;
 import org.jetbrains.annotations.NotNull;
 
 // Ideia é transformar esse cara meio que em uma fachada. com um ponto unico de acesso,
 // o quem chamar diz o que quer a gente configura e retornar o recurrence
-// antes de publicar devemos documentar e usar as anotações @NotNull para deixar mais explicito.
+// antes de publicar devemos documentar e usar as anotações para deixar explicito o que precisa e o que não precisa.
 final public class Recurrence {
 
     private final RecurrenceProvider provider;
@@ -18,10 +19,12 @@ final public class Recurrence {
     }
 
     // Todo ver outras abordagens de receber as credenciais pois tem provedores que não usam só token simples
+    // atualmente com o Provider config solucionamos. pois podemos apenas criar um build e passar a quelo que
+    // é nescessario para cada provedor. no ato de criação é importante validar e lançar exception se não conseguir criar
     /**
      * Função responsavel por configurar um provedor.
      *
-     * <p>Configura um provedor passando o enum provider, o ambiente que estara executando e
+     * <p>Configura um provedor passando o enum provider, o enum do ambiente que estara executando e
      * as configurações basicas para esta integrando com ele. Retorno sera a classe Recurrence
      * com o provedor configurado</p>
      *
@@ -41,7 +44,7 @@ final public class Recurrence {
             @NotNull final Provider provider,
             @NotNull final Environment environment,
             @NotNull final ProviderConfig config
-            ){
+            ) throws RecurrenceException {
         return new Recurrence(
                 ProviderFactory.create(provider, environment, config)
         );

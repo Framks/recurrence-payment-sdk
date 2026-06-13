@@ -13,6 +13,8 @@ public class PagBankCouponClient {
 
 
     // ajustar o client para passar o timeout da configuração.
+    // se o config ja vai ter os headers. as funções precisam mesmo receber os headers?
+    // como usar o requestOptions nesse caso
 
     public PagBankCouponClient(final PagbankConfig config) {
         this.config = config;

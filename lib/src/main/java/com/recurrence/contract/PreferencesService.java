@@ -4,12 +4,13 @@ import com.recurrence.contract.domain.NotificationPreferences;
 import com.recurrence.contract.domain.PublicKey;
 import com.recurrence.contract.domain.RetryPreferences;
 import com.recurrence.contract.infra.RequestResponse;
+import com.recurrence.exception.RecurrenceException;
 
 public interface PreferencesService {
-    RequestResponse<PublicKey> getPublicKey() throws Exception;
-    RequestResponse<PublicKey> putPublicKey() throws Exception;
-    RequestResponse<NotificationPreferences> getNotificationPreferences() throws Exception;
-    RequestResponse<NotificationPreferences> updateNotificationPreferences(NotificationPreferences notificationPreferences) throws Exception;
-    RequestResponse<RetryPreferences> getRetryPreferences() throws Exception;
-    RequestResponse<RetryPreferences> updateRetryPreferences(RetryPreferences retryPreferences) throws Exception;
+    RequestResponse<PublicKey> getPublicKey() throws RecurrenceException;
+    RequestResponse<PublicKey> putPublicKey() throws RecurrenceException;
+    RequestResponse<NotificationPreferences> getNotificationPreferences() throws RecurrenceException;
+    RequestResponse<NotificationPreferences> updateNotificationPreferences(NotificationPreferences notificationPreferences) throws RecurrenceException;
+    RequestResponse<RetryPreferences> getRetryPreferences() throws RecurrenceException;
+    RequestResponse<RetryPreferences> updateRetryPreferences(RetryPreferences retryPreferences) throws RecurrenceException;
 }

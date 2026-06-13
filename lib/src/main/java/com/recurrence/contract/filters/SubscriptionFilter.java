@@ -1,4 +1,4 @@
-package com.recurrence.contract.infra;
+package com.recurrence.contract.filters;
 
 import com.recurrence.contract.domain.commons.PaymentMethodType;
 import java.time.OffsetDateTime;

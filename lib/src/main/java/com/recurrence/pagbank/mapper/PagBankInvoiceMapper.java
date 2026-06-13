@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.recurrence.constants.MapperMessage.AMOUNT_CURRENCY;
+import static com.recurrence.constants.MapperMessage.AMOUNT_ZERO;
+import static com.recurrence.constants.PaymentMethod.BOLETO;
+import static com.recurrence.constants.PaymentMethod.CREDIT_CARD;
 import static com.recurrence.pagbank.mapper.CommonsMapper.toContractPaymentMethodType;
 
 public class PagBankInvoiceMapper {
@@ -81,10 +85,10 @@ public class PagBankInvoiceMapper {
 
     public static PagBankRefund toRefundPayload(Amount amount){
         if (amount.value() <= 0) {
-            throw new IllegalArgumentException("Amount value must be greater than zero.");
+            throw new IllegalArgumentException(AMOUNT_ZERO);
         }
         if (amount.currency() == null || amount.currency().isEmpty()) {
-            throw new IllegalArgumentException("Currency must be provided.");
+            throw new IllegalArgumentException(AMOUNT_CURRENCY);
         }
 
         var refund = new PagBankRefund();
@@ -173,7 +177,7 @@ public class PagBankInvoiceMapper {
     }
 
     private static Boleto mapBoleto(PaymentMethod info, Map<String, String> links) {
-        if (!"BOLETO".equals(info.type()) || info.boleto() == null) {
+        if (!BOLETO.equals(info.type()) || info.boleto() == null) {
             return null;
         }
         return new Boleto(
@@ -187,7 +191,7 @@ public class PagBankInvoiceMapper {
     }
 
     private static Card mapCard(PaymentMethod info) {
-        if (!"CREDIT_CARD".equals(info.type()) || info.card() == null) {
+        if (!CREDIT_CARD.equals(info.type()) || info.card() == null) {
             return null;
         }
 

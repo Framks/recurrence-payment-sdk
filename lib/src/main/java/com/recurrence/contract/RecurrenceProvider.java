@@ -1,10 +1,12 @@
 package com.recurrence.contract;
 
+import com.recurrence.exception.RecurrenceException;
+
 public interface RecurrenceProvider {
-    PlanService planService();
-    CouponService couponService();
-    CustomerService customerService();
-    SubscriptionService subscriptionService();
-    InvoiceService invoiceService();
-    PreferencesService preferencesService();
+    PlanService planService() throws RecurrenceException;
+    CouponService couponService() throws RecurrenceException;
+    CustomerService customerService() throws RecurrenceException;
+    SubscriptionService subscriptionService() throws RecurrenceException;
+    InvoiceService invoiceService() throws RecurrenceException;
+    PreferencesService preferencesService() throws RecurrenceException;
 }

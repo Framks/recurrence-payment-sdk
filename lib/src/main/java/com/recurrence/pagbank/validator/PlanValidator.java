@@ -3,30 +3,37 @@ package com.recurrence.pagbank.validator;
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.exception.RecurrenceValidationException;
 
+import static com.recurrence.constants.ValidationsMessage.PLAN_AMOUNT_CURRENCY_NULL;
+import static com.recurrence.constants.ValidationsMessage.PLAN_AMOUNT_NULL;
+import static com.recurrence.constants.ValidationsMessage.PLAN_AMOUNT_VALUE_NULL;
+import static com.recurrence.constants.ValidationsMessage.PLAN_AMOUNT_VALUE_ZERO;
+import static com.recurrence.constants.ValidationsMessage.PLAN_NAME_NULL;
+import static com.recurrence.constants.ValidationsMessage.PLAN_NULL;
+
 public final class PlanValidator {
     public static void validateCreateRequest(Plan request){
         if (request == null){
-            throw new RecurrenceValidationException("invalid request, plan is required.");
+            throw new RecurrenceValidationException(PLAN_NULL);
         }
 
         if (request.getName().isBlank()) {
-            throw new RecurrenceValidationException("invalid request, name is required.");
+            throw new RecurrenceValidationException(PLAN_NAME_NULL);
         }
 
         if (request.getAmount() == null){
-            throw new RecurrenceValidationException("invalid request, amount is required.");
+            throw new RecurrenceValidationException(PLAN_AMOUNT_NULL);
         }
 
         if (request.getAmount().value() == null){
-            throw new RecurrenceValidationException("invalid request, Amount.value is required.");
+            throw new RecurrenceValidationException(PLAN_AMOUNT_VALUE_NULL);
         }
 
         if (request.getAmount().currency().isBlank()){
-            throw new RecurrenceValidationException("invalid request,  Amount.currency is required.");
+            throw new RecurrenceValidationException(PLAN_AMOUNT_CURRENCY_NULL);
         }
 
         if (request.getAmount().value() <= 0){
-            throw new RecurrenceValidationException("invalid request,  Amount.value has been more that 0.");
+            throw new RecurrenceValidationException(PLAN_AMOUNT_VALUE_ZERO);
         }
 
         // devemos validar o codigo da moeda?

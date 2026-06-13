@@ -9,9 +9,9 @@ import java.util.Map;
 public class PagbankConfig {
 
     private final String host;
-    private Duration timeout;
-    private String token;
-    private Map<String, String> defaultHeaders;
+    private final Duration timeout;
+    private final String token;
+    private final Map<String, String> defaultHeaders;
 
     PagbankConfig(
             Environment environment,

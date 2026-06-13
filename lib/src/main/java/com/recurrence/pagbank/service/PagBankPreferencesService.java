@@ -6,6 +6,7 @@ import com.recurrence.contract.domain.PublicKey;
 import com.recurrence.contract.domain.RetryPreferences;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
+import com.recurrence.exception.RecurrenceException;
 import com.recurrence.pagbank.PagbankConfig;
 import com.recurrence.pagbank.client.PagBankPreferencesClient;
 import com.recurrence.pagbank.domain.commons.PagBankPreferencesNotification;
@@ -14,6 +15,9 @@ import com.recurrence.pagbank.domain.commons.PagBankReferencesRetry;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.mapper.PagBankPreferencesMapper;
 import java.net.http.HttpResponse;
+
+import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
+import static com.recurrence.constants.ProviderConstants.PAGBANK;
 
 public class PagBankPreferencesService extends BaseService implements PreferencesService {
 
@@ -39,8 +43,10 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
             };
+        } catch (RecurrenceException e) {
+            throw e;
         } catch (Exception e) {
-            throw providerException("PagBank", "preferences operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -57,7 +63,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "preferences operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -74,7 +80,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "preferences operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -92,7 +98,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "preferences operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -109,7 +115,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                     default -> requestResponse;
                 };
         } catch (Exception e) {
-            throw providerException("PagBank", "preferences operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -126,7 +132,7 @@ public class PagBankPreferencesService extends BaseService implements Preference
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "preferences operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 

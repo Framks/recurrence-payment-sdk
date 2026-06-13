@@ -1,4 +1,4 @@
-package com.recurrence.contract;
+package com.recurrence.contract.domain;
 
 public enum Currency {
     BRL,

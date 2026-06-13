@@ -19,6 +19,9 @@ import com.recurrence.pagbank.domain.payment.PagBankRefund;
 import com.recurrence.pagbank.mapper.PagBankInvoiceMapper;
 import java.net.http.HttpResponse;
 
+import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
+import static com.recurrence.constants.ProviderConstants.PAGBANK;
+
 public class PagBankInvoiceService extends BaseService implements InvoiceService {
 
     private final PagbankConfig config;
@@ -48,7 +51,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "invoice operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -69,7 +72,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "invoice operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -101,7 +104,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "invoice operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -122,7 +125,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "invoice operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -143,7 +146,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "invoice operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -171,7 +174,7 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "invoice operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 }

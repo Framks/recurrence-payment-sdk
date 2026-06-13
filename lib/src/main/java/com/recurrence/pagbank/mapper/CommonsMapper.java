@@ -15,6 +15,7 @@ import com.recurrence.pagbank.domain.commons.PaymentMethod;
 
 import java.util.List;
 
+import static com.recurrence.constants.ProviderConstants.PAGBANK;
 import static com.recurrence.contract.domain.commons.PaymentMethodType.BOLETO;
 import static com.recurrence.contract.domain.commons.PaymentMethodType.CREDIT_CARD;
 
@@ -188,7 +189,7 @@ public class CommonsMapper {
         return switch (type) {
             case BOLETO -> "BOLETO";
             case CREDIT_CARD -> "CREDIT_CARD";
-            case BALANCE, PIX -> throw new UnsupportedProviderTypeException("PagBank", "BALANCE payment method");
+            case BALANCE, PIX -> throw new UnsupportedProviderTypeException(PAGBANK, "Unsupported BALANCE payment method");
         };
     }
 
@@ -196,7 +197,7 @@ public class CommonsMapper {
         return switch (type) {
             case "BOLETO" -> BOLETO;
             case "CREDIT_CARD" -> CREDIT_CARD;
-            default -> throw new UnsupportedProviderTypeException("PagBank", "BALANCE payment method");
+            default -> throw new UnsupportedProviderTypeException(PAGBANK, "Unsupported BALANCE payment method");
         };
     }
 }

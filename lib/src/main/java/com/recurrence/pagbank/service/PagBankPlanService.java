@@ -15,6 +15,9 @@ import java.net.http.HttpResponse;
 
 import com.recurrence.pagbank.validator.PlanValidator;
 
+import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
+import static com.recurrence.constants.ProviderConstants.PAGBANK;
+
 public class PagBankPlanService extends BaseService implements PlanService {
 
     private final PagbankConfig config;
@@ -52,7 +55,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "plan operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -76,7 +79,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         }catch (Exception e){
-            throw providerException("PagBank", "plan operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -98,7 +101,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         }catch (Exception e ){
-            throw providerException("PagBank", "plan operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -126,7 +129,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "plan operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -142,7 +145,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "plan operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 
@@ -158,7 +161,7 @@ public class PagBankPlanService extends BaseService implements PlanService {
                 default -> requestResponse;
             };
         } catch (Exception e) {
-            throw providerException("PagBank", "plan operation", e);
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
 }

@@ -24,13 +24,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.recurrence.constants.MapperMessage.AMOUNT_CURRENCY;
+import static com.recurrence.constants.MapperMessage.AMOUNT_NULL;
+import static com.recurrence.constants.MapperMessage.AMOUNT_ZERO;
+import static com.recurrence.constants.MapperMessage.BEST_INVOICE_DATE_NULL;
+import static com.recurrence.constants.MapperMessage.BILLINGINFOS_NULL;
+import static com.recurrence.constants.MapperMessage.CARD_NULL;
+import static com.recurrence.constants.MapperMessage.CUSTOMER_NULL;
+import static com.recurrence.constants.MapperMessage.PLAN_NULL;
+import static com.recurrence.constants.PaymentMethod.BOLETO;
+import static com.recurrence.constants.PaymentMethod.CREDIT_CARD;
 import static com.recurrence.pagbank.mapper.CommonsMapper.toContractPaymentMethodType;
 import static com.recurrence.pagbank.mapper.CommonsMapper.toPagBankPaymentMethodType;
 
 public class PagBankSubscriptionMapper {
 
     public static PagBankSubscription toPagBankContract(Subscription subscription){
-        if ( subscription.getBestInvoiceDate() == null ) throw new IllegalArgumentException("Best invoice date must be provided");
+        if ( subscription.getBestInvoiceDate() == null ) throw new IllegalArgumentException(BEST_INVOICE_DATE_NULL);
 
         return PagBankSubscription.builder()
             .referenceId(subscription.getReferenceId())
@@ -103,7 +113,7 @@ public class PagBankSubscriptionMapper {
     }
 
     private static PagBankPlan toPagBankPlan(Subscription subscription){
-        if ( subscription.getPlan() == null) throw new IllegalArgumentException("Plan must be provided");
+        if ( subscription.getPlan() == null) throw new IllegalArgumentException(PLAN_NULL);
 
         return PagBankPlan.builder()
             .id(subscription.getPlan().getId())
@@ -134,7 +144,7 @@ public class PagBankSubscriptionMapper {
     }
 
     private static PagBankCustomer toPagBankCustomer(Subscription subscription){
-        if ( subscription.getCustomer() == null ) throw new IllegalArgumentException("Customer must be provided");
+        if ( subscription.getCustomer() == null ) throw new IllegalArgumentException(CUSTOMER_NULL);
 
         var customer = subscription.getCustomer();
 
@@ -145,7 +155,7 @@ public class PagBankSubscriptionMapper {
         }
 
         List<PagBankBillingInfo> pagBankBillingInfo = null;
-        if (subscription.getPaymentMethod().get(0).type().name().equals("CREDIT_CARD")){
+        if (subscription.getPaymentMethod().get(0).type().name().equals(CREDIT_CARD)){
             pagBankBillingInfo = CommonsMapper.toPagBankBillingInfo(customer.getBillingInfo());
         }
 
@@ -163,12 +173,12 @@ public class PagBankSubscriptionMapper {
 
     private static List<PagBankBillingInfo> toPagBankBillingInfo(List<BillingInfo> billingInfos){
         if (billingInfos == null || billingInfos.isEmpty()) {
-            throw new IllegalArgumentException("Payment method must be of type 'bank_account'");
+            throw new IllegalArgumentException(BILLINGINFOS_NULL);
         }
 
         var billingInfo = billingInfos.get(0);
 
-        if (billingInfo.type().name().equals("BOLETO")) {
+        if (billingInfo.type().name().equals(BOLETO)) {
             return List.of(
                 new PagBankBillingInfo(
                         toPagBankPaymentMethodType(billingInfo.type()),
@@ -177,7 +187,7 @@ public class PagBankSubscriptionMapper {
                 )
             );
         }else {
-            if ( billingInfo.card() == null) throw new IllegalArgumentException("Card information must be provided for credit card payment method");
+            if ( billingInfo.card() == null) throw new IllegalArgumentException(CARD_NULL);
             // fazer uma validação que represente as regras de envio do cartão para o pagbank
             return List.of(
                 new PagBankBillingInfo(
@@ -231,7 +241,7 @@ public class PagBankSubscriptionMapper {
     }
 
     private static Boleto mapBoleto(PagBankBillingInfo info, Map<String, String> links) {
-        if (!"BOLETO".equals(info.type()) || info.boleto() == null) {
+        if (!BOLETO.equals(info.type()) || info.boleto() == null) {
             return null;
         }
         return new Boleto(
@@ -245,7 +255,7 @@ public class PagBankSubscriptionMapper {
     }
 
     private static Card mapCard(PagBankBillingInfo info) {
-        if (!"CREDIT_CARD".equals(info.type()) || info.card() == null) {
+        if (!CREDIT_CARD.equals(info.type()) || info.card() == null) {
             return null;
         }
 
@@ -264,9 +274,9 @@ public class PagBankSubscriptionMapper {
     }
 
     private static PagBankAmount toPagBankAmount(Subscription subscription){
-        if ( subscription.getAmount() == null) throw new IllegalArgumentException("Amount must be provided");
-        if ( subscription.getAmount().value() <= 0) throw new IllegalArgumentException("Amount must be greater than zero");
-        if ( subscription.getAmount().currency() == null || subscription.getAmount().currency().isBlank()) throw new IllegalArgumentException("Currency must be provided");
+        if ( subscription.getAmount() == null) throw new IllegalArgumentException(AMOUNT_NULL);
+        if ( subscription.getAmount().value() <= 0) throw new IllegalArgumentException(AMOUNT_ZERO);
+        if ( subscription.getAmount().currency() == null || subscription.getAmount().currency().isBlank()) throw new IllegalArgumentException(AMOUNT_CURRENCY);
 
         return new PagBankAmount(
             subscription.getAmount().value(),

@@ -9,12 +9,16 @@ import com.recurrence.contract.RecurrenceProvider;
 import com.recurrence.contract.SubscriptionService;
 import com.recurrence.contract.config.Environment;
 import com.recurrence.contract.config.ProviderConfig;
+import com.recurrence.exception.RecurrenceException;
 import com.recurrence.pagbank.service.PagBankCouponService;
 import com.recurrence.pagbank.service.PagBankInvoiceService;
 import com.recurrence.pagbank.service.PagBankPlanService;
 import com.recurrence.pagbank.service.PagBankPreferencesService;
 import com.recurrence.pagbank.service.PagBankSubscriptionService;
 import com.recurrence.pagbank.service.PagbankCustomerService;
+
+import static com.recurrence.constants.ErrorMessage.PAGBANK_AUTHENTICATION_HEADERS_TOKEN;
+import static com.recurrence.constants.ErrorMessage.PAGBANK_NOT_FOUND_TOKEN;
 
 public class PagBankProvider implements RecurrenceProvider {
 
@@ -29,6 +33,7 @@ public class PagBankProvider implements RecurrenceProvider {
             Environment environment,
             ProviderConfig config
     ){
+        validateConfig(config);
         final PagbankConfig pagBankconfig = new PagbankConfig(environment, config);
 
         this.planService = new PagBankPlanService(pagBankconfig);
@@ -67,5 +72,10 @@ public class PagBankProvider implements RecurrenceProvider {
     @Override
     public PreferencesService preferencesService() {
         return preferencesService;
+    }
+
+    private void validateConfig(ProviderConfig config){
+        if ( config.getToken().isBlank() ) throw new RecurrenceException(PAGBANK_NOT_FOUND_TOKEN);
+        if ( config.getDefaultHeaders().containsKey("Authentication") || config.getDefaultHeaders().containsKey("authentication") ) throw new RecurrenceException(PAGBANK_AUTHENTICATION_HEADERS_TOKEN);
     }
 }
