@@ -18,9 +18,21 @@ public interface SubscriptionService {
 
     RequestResponse<PageResponse<Invoice>> listInvoiceBySubscription(String subscriptionId, int offset, int limit) throws RecurrenceException;
     RequestResponse<Subscription> update(String id, Subscription subscription) throws RecurrenceException;
+    RequestResponse<Subscription> update(String id, Subscription subscription, RequestOptions requestOptions) throws RecurrenceException;
+
     RequestResponse<Void> suspend(String id) throws RecurrenceException;
+    RequestResponse<Void> suspend(String id, RequestOptions requestOptions) throws RecurrenceException;
+
     RequestResponse<Void> cancel(String id) throws RecurrenceException;
+    RequestResponse<Void> cancel(String id, RequestOptions requestOptions) throws RecurrenceException;
+
     RequestResponse<Void> active(String id) throws RecurrenceException;
+    RequestResponse<Void> active(String id, RequestOptions requestOptions) throws RecurrenceException;
+
     RequestResponse<Void> deleteCoupon(String id) throws RecurrenceException;
+    RequestResponse<Void> deleteCoupon(String id, RequestOptions requestOptions) throws RecurrenceException;
+
     RequestResponse<Void> retry(String id) throws RecurrenceException;
+    RequestResponse<Void> retry(String id, RequestOptions requestOptions) throws RecurrenceException;
+
 }

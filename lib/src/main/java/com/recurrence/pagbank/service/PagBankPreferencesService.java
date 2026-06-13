@@ -4,6 +4,7 @@ import com.recurrence.contract.PreferencesService;
 import com.recurrence.contract.domain.NotificationPreferences;
 import com.recurrence.contract.domain.PublicKey;
 import com.recurrence.contract.domain.RetryPreferences;
+import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.exception.RecurrenceException;
@@ -15,6 +16,7 @@ import com.recurrence.pagbank.domain.commons.PagBankReferencesRetry;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.mapper.PagBankPreferencesMapper;
 import java.net.http.HttpResponse;
+import java.util.Map;
 
 import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
 import static com.recurrence.constants.ProviderConstants.PAGBANK;
@@ -121,8 +123,13 @@ public class PagBankPreferencesService extends BaseService implements Preference
 
     @Override
     public RequestResponse<RetryPreferences> updateRetryPreferences(RetryPreferences retryPreferences) {
+        return updateRetryPreferences(retryPreferences, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<RetryPreferences> updateRetryPreferences(RetryPreferences retryPreferences, RequestOptions requestOptions) {
         try {
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
             String payload = toJson(PagBankPreferencesMapper.toDomain(retryPreferences));
             HttpResponse<String> response = publicPreferencesClient.putRetry(payload, headers);
             RequestResponse<RetryPreferences> requestResponse = buildResponse(response);
@@ -136,4 +143,10 @@ public class PagBankPreferencesService extends BaseService implements Preference
         }
     }
 
+    private Map<String, String> resolveIdempotencyKey(Map<String, String> headers, RequestOptions requestOptions){
+        if(requestOptions.hasIdempotencyKey()){
+            headers.put("x-idempotency-key", requestOptions.getIdempotencyKey());
+        }
+        return headers;
+    }
 }

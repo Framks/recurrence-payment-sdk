@@ -106,7 +106,7 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
                 ? RequestOptions.empty()
                 : requestOptions;
             Map<String, String> headers = config.fullHeaders();
-            applyRequestOptions(headers, filter);
+            applyQueryFilter(headers, filter);
             HttpResponse<String> response = pagBankSubscriptionClient.list(
                     filter,
                     options,
@@ -146,14 +146,19 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
 
     @Override
     public RequestResponse<Subscription> update(String id, Subscription subscription) {
+        return update(id, subscription, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Subscription> update(String id, Subscription subscription, RequestOptions requestOptions){
         try {
             var payload = toJson(PagBankSubscriptionMapper.toPagBankContract(subscription));
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
             HttpResponse<String> response = pagBankSubscriptionClient.put(id, payload, headers);
             RequestResponse<Subscription> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 2 -> requestResponse.setBody(
-                    PagBankSubscriptionMapper.toContract(fromJson(response.body(), PagBankSubscription.class))
+                        PagBankSubscriptionMapper.toContract(fromJson(response.body(), PagBankSubscription.class))
                 );
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
                 default -> requestResponse;
@@ -165,8 +170,13 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
 
     @Override
     public RequestResponse<Void> suspend(String id) {
+        return suspend(id, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Void> suspend(String id, RequestOptions requestOptions){
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.suspend(id, config.fullHeaders());
+            HttpResponse<String> response = pagBankSubscriptionClient.suspend(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -179,8 +189,13 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
 
     @Override
     public RequestResponse<Void> cancel(String id) {
+        return cancel(id, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Void> cancel(String id, RequestOptions requestOptions) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.cancel(id, config.fullHeaders());
+            HttpResponse<String> response = pagBankSubscriptionClient.cancel(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -190,11 +205,17 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
             throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
+
 
     @Override
     public RequestResponse<Void> active(String id) {
+        return active(id, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Void> active(String id, RequestOptions requestOptions) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.activate(id, config.fullHeaders());
+            HttpResponse<String> response = pagBankSubscriptionClient.activate(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -204,25 +225,17 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
             throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
     }
+
 
     @Override
     public RequestResponse<Void> deleteCoupon(String id) {
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.deleteCoupons(id, config.fullHeaders());
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
+        return deleteCoupon(id, RequestOptions.builder().build());
     }
 
     @Override
-    public RequestResponse<Void> retry(String id) {
+    public RequestResponse<Void> deleteCoupon(String id, RequestOptions requestOptions) {
         try {
-            HttpResponse<String> response = pagBankSubscriptionClient.retry(id, config.fullHeaders());
+            HttpResponse<String> response = pagBankSubscriptionClient.deleteCoupons(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch ((requestResponse.getHttpResponse()/100)) {
                 case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
@@ -233,7 +246,28 @@ public class PagBankSubscriptionService extends BaseService implements Subscript
         }
     }
 
-    private void applyRequestOptions(Map<String, String> headers, SubscriptionFilter subscriptionFilter) {
+
+    @Override
+    public RequestResponse<Void> retry(String id) {
+        return retry(id, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Void> retry(String id, RequestOptions requestOptions) {
+        try {
+            HttpResponse<String> response = pagBankSubscriptionClient.retry(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
+            RequestResponse<Void> requestResponse = buildResponse(response);
+            return switch ((requestResponse.getHttpResponse()/100)) {
+                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
+                default -> requestResponse;
+            };
+        } catch (Exception e) {
+            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
+        }
+    }
+
+
+    private void applyQueryFilter(Map<String, String> headers, SubscriptionFilter subscriptionFilter) {
         if (subscriptionFilter == null) {
             return;
         }

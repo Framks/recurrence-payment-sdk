@@ -3,6 +3,7 @@ package com.recurrence.pagbank.service;
 import com.recurrence.contract.CouponService;
 import com.recurrence.contract.domain.Coupon;
 import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagbankConfig;
@@ -13,6 +14,7 @@ import com.recurrence.pagbank.mapper.PagBankCouponMapper;
 import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.domain.coupon.PagBankListCoupon;
 import java.net.http.HttpResponse;
+import java.util.Map;
 
 import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
 import static com.recurrence.constants.ProviderConstants.PAGBANK;
@@ -32,11 +34,15 @@ public class PagBankCouponService extends BaseService implements CouponService {
 
     @Override
     public RequestResponse<Coupon> create(Coupon coupon) {
+        return create(coupon, RequestOptions.builder().build());
+    }
+    @Override
+    public RequestResponse<Coupon> create(Coupon coupon, RequestOptions requestOptions) {
         try{
             validateCreateRequest(coupon);
             String payload = toJson(PagBankCouponMapper.toPagBankContract(coupon));
 
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
 
             HttpResponse<String> response = pagBankCouponClient.create(payload, headers);
 
@@ -96,8 +102,12 @@ public class PagBankCouponService extends BaseService implements CouponService {
 
     @Override
     public RequestResponse<Void> activate(String id) {
+        return activate(id, RequestOptions.builder().build());
+    }
+    @Override
+    public RequestResponse<Void> activate(String id, RequestOptions requestOptions) {
         try {
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
             HttpResponse<String> response = pagBankCouponClient.activate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -113,8 +123,12 @@ public class PagBankCouponService extends BaseService implements CouponService {
 
     @Override
     public RequestResponse<Void> inactivate(String id) {
+        return inactivate(id, RequestOptions.builder().build());
+    }
+    @Override
+    public RequestResponse<Void> inactivate(String id, RequestOptions requestOptions) {
         try {
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
             HttpResponse<String> response = pagBankCouponClient.inactivate(id, headers);
             RequestResponse<Void> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -125,6 +139,13 @@ public class PagBankCouponService extends BaseService implements CouponService {
         } catch (Exception e) {
             throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
         }
+    }
+
+    private Map<String, String> resolveIdempotencyKey(Map<String, String> headers, RequestOptions requestOptions){
+        if(requestOptions.hasIdempotencyKey()){
+            headers.put("x-idempotency-key", requestOptions.getIdempotencyKey());
+        }
+        return headers;
     }
 
 }

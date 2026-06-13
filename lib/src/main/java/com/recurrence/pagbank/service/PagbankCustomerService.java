@@ -4,6 +4,7 @@ import com.recurrence.contract.CustomerService;
 import com.recurrence.contract.domain.commons.BillingInfo;
 import com.recurrence.contract.domain.Customer;
 import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
 import com.recurrence.pagbank.PagbankConfig;
@@ -14,6 +15,7 @@ import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
 import com.recurrence.pagbank.mapper.CommonsMapper;
 import com.recurrence.pagbank.mapper.PagbankCustomerMapper;
 import java.net.http.HttpResponse;
+import java.util.Map;
 
 import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
 import static com.recurrence.constants.ProviderConstants.PAGBANK;
@@ -33,10 +35,15 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
 
     @Override
     public RequestResponse<Customer> create(Customer customer) {
+        return create(customer, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Customer> create(Customer customer, RequestOptions requestOptions) {
         try{
             validateCreateRequest(customer);
             String payload = toJson(PagbankCustomerMapper.from(customer));
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
             HttpResponse<String> response = pagBankCustomerClient.create(payload, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);
 
@@ -94,9 +101,14 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
 
     @Override
     public RequestResponse<Customer> update(String id, Customer customer) {
+        return update(id, customer, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Customer> update(String id, Customer customer, RequestOptions requestOptions) {
         try {
             String payload = toJson(PagbankCustomerMapper.toUpdate(customer));
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
             HttpResponse<String> response = pagBankCustomerClient.put(id, payload, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);
 
@@ -114,12 +126,18 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
 
     @Override
     public RequestResponse<Customer> updateBillingInfo(String id, BillingInfo billingInfo) {
+        return updateBillingInfo(id, billingInfo, RequestOptions.builder().build());
+    }
+
+    @Override
+    public RequestResponse<Customer> updateBillingInfo(String id, BillingInfo billingInfo, RequestOptions requestOptions) {
         if (billingInfo == null){
             throw new IllegalArgumentException("BillingInfo must be a valid value");
         }
+        // Todo fazer o validate do billling info
         try {
             String payload = toJson(CommonsMapper.toPagBankBillingInfo(billingInfo));
-            var headers = config.fullHeaders();
+            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
             HttpResponse<String> response = pagBankCustomerClient.putBillingInfo(id, payload, headers);
             RequestResponse<Customer> requestResponse = buildResponse(response);
             return switch (requestResponse.getHttpResponse()) {
@@ -143,5 +161,12 @@ public class PagbankCustomerService extends BaseService implements CustomerServi
         normalized = normalized.replaceAll("\\s+", " ");
 
         return normalized.trim();
+    }
+
+    private Map<String, String> resolveIdempotencyKey(Map<String, String> headers, RequestOptions requestOptions){
+        if(requestOptions.hasIdempotencyKey()){
+            headers.put("x-idempotency-key", requestOptions.getIdempotencyKey());
+        }
+        return headers;
     }
 }
