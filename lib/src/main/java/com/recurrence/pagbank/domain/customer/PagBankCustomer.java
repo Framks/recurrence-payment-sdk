@@ -204,31 +204,8 @@ public class PagBankCustomer {
         }
 
         public PagBankCustomer build() {
-            validateBuild();
             return new PagBankCustomer(this);
         }
-
-        // validar ussar isso ou não, pois poderiamos aproveitar essa classe e usar no update,
-        // e se a gente for usar o validador pode ficar nas classes de mappers ou criar uma
-        // classe validations com as validações para o pags e etc.
-        private void validateBuild(){
-            if (name == null || name.isBlank()) {
-                throw new IllegalStateException("Customer name is required");
-            }
-
-            if (email == null || email.isBlank()) {
-                throw new IllegalStateException("Customer email is required");
-            }
-
-            if (taxId == null || taxId.isBlank()) {
-                throw new IllegalStateException("Customer taxId is required");
-            }
-
-            if (phone == null || phone.isEmpty()) {
-                throw new IllegalStateException("Customer must have at least one phone");
-            }
-        }
-
         public PagBankCustomer buildUpdate(){
             return new PagBankCustomer(this);
         }

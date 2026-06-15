@@ -3,7 +3,9 @@ package com.recurrence.stripe;
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.Plan;
 import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.infra.RequestResponse;
+import com.recurrence.exception.RecurrenceException;
 
 public class StripePlanService implements PlanService {
 
@@ -11,6 +13,11 @@ public class StripePlanService implements PlanService {
     public RequestResponse<Plan> create(Plan plan) {
 
         // ToDo: implementar com base na documentação da Stripe: https://docs.stripe.com/api/plans/create
+        return null;
+    }
+
+    @Override
+    public RequestResponse<Plan> create(Plan plan, RequestOptions requestOptions) throws RecurrenceException {
         return null;
     }
 
@@ -32,12 +39,27 @@ public class StripePlanService implements PlanService {
     }
 
     @Override
+    public RequestResponse<Plan> update(String id, Plan plan, RequestOptions requestOptions) throws RecurrenceException {
+        return null;
+    }
+
+    @Override
     public RequestResponse<Void> activate(String id) {
         return null;
     }
 
     @Override
+    public RequestResponse<Void> activate(String id, RequestOptions requestOptions) throws RecurrenceException {
+        return null;
+    }
+
+    @Override
     public RequestResponse<Void> inactivate(String id) {
+        return null;
+    }
+
+    @Override
+    public RequestResponse<Void> inactivate(String id, RequestOptions requestOptions) throws RecurrenceException {
         return null;
     }
 }

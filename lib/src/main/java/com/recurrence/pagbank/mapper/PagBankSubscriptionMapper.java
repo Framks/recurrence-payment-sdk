@@ -40,7 +40,7 @@ import static com.recurrence.pagbank.mapper.CommonsMapper.toPagBankPaymentMethod
 public class PagBankSubscriptionMapper {
 
     public static PagBankSubscription toPagBankContract(Subscription subscription){
-        if ( subscription.getBestInvoiceDate() == null ) throw new IllegalArgumentException(BEST_INVOICE_DATE_NULL);
+        //if ( subscription.getBestInvoiceDate() == null ) throw new IllegalArgumentException(BEST_INVOICE_DATE_NULL);
 
         return PagBankSubscription.builder()
             .referenceId(subscription.getReferenceId())
@@ -50,10 +50,7 @@ public class PagBankSubscriptionMapper {
             .plan(toPagBankPlan(subscription))
             .paymentMethod(toPagBankBillingInfo(subscription.getPaymentMethod()))
             .customer(toPagBankCustomer(subscription))
-            .bestInvoiceDate(new PagBankSubscription.BestInvoiceDate(
-                subscription.getBestInvoiceDate().day(),
-                subscription.getBestInvoiceDate().month()
-            ))
+            .bestInvoiceDate(toPagBankBestInvoiceDate(subscription.getBestInvoiceDate()))
             .splitEnabled(subscription.getSplitEnabled())
             .splits(toPagBankSplits(subscription))
             .build();
@@ -186,9 +183,18 @@ public class PagBankSubscriptionMapper {
                     null
                 )
             );
-        }else {
+        } else {
             if ( billingInfo.card() == null) throw new IllegalArgumentException(CARD_NULL);
             // fazer uma validação que represente as regras de envio do cartão para o pagbank
+            PagBankCard.Holder holder = null;
+            if (billingInfo.card().holder() != null){
+                holder = new PagBankCard.Holder(
+                        billingInfo.card().holder().name(),
+                        null,
+                        null
+                );
+            }
+
             return List.of(
                 new PagBankBillingInfo(
                         toPagBankPaymentMethodType(billingInfo.type()),
@@ -201,11 +207,7 @@ public class PagBankSubscriptionMapper {
                         null,
                         billingInfo.card().expMonth(),
                         billingInfo.card().expYear(),
-                        new PagBankCard.Holder(
-                            billingInfo.card().holder().name(),
-                            null,
-                            null
-                        ),
+                        holder,
                         billingInfo.card().securityCode()
                     ),
                     null
@@ -274,7 +276,7 @@ public class PagBankSubscriptionMapper {
     }
 
     private static PagBankAmount toPagBankAmount(Subscription subscription){
-        if ( subscription.getAmount() == null) throw new IllegalArgumentException(AMOUNT_NULL);
+        if ( subscription.getAmount() == null) return null;
         if ( subscription.getAmount().value() <= 0) throw new IllegalArgumentException(AMOUNT_ZERO);
         if ( subscription.getAmount().currency() == null || subscription.getAmount().currency().isBlank()) throw new IllegalArgumentException(AMOUNT_CURRENCY);
 
@@ -309,7 +311,7 @@ public class PagBankSubscriptionMapper {
     private static PagBankSubscription.Splits toPagBankSplits(Subscription subscription){
         PagBankSubscription.Splits splits = null;
 
-        if (subscription.getSplitEnabled()){
+        if (subscription.getSplitEnabled() != null && subscription.getSplitEnabled() == true){
             splits = new PagBankSubscription.Splits(
                 subscription.getSplits().method(),
                 subscription.getSplits().receivers().stream().map(
@@ -340,5 +342,13 @@ public class PagBankSubscriptionMapper {
         }
 
         return splits;
+    }
+
+    private static PagBankSubscription.BestInvoiceDate toPagBankBestInvoiceDate(Subscription.BestInvoiceDate bestInvoiceDate){
+        if (bestInvoiceDate == null ) return null;
+        return new PagBankSubscription.BestInvoiceDate(
+                bestInvoiceDate.day(),
+                bestInvoiceDate.month()
+        );
     }
 }
