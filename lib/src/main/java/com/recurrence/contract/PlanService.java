@@ -1,26 +1,27 @@
 package com.recurrence.contract;
 
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.request.CreatePlanRequest;
+import com.recurrence.contract.domain.request.UpdatePlanRequest;
+import com.recurrence.contract.infra.PageOptions;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestOptions;
-import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.exception.RecurrenceException;
 
 public interface PlanService {
-    RequestResponse<Plan> create(Plan plan) throws RecurrenceException;
-    RequestResponse<Plan> create(Plan plan, RequestOptions requestOptions) throws RecurrenceException;
+    Plan create(CreatePlanRequest plan) throws RecurrenceException;
+    Plan create(CreatePlanRequest plan, RequestOptions requestOptions) throws RecurrenceException;
 
-    // AQUI NO LIST DEVEMOS FAZER O FILTER tipo PlanFilter
-    RequestResponse<PageResponse<Plan>> list(Integer offset, Integer limit) throws RecurrenceException;
+    PageResponse<Plan> list(PageOptions pageOptions) throws RecurrenceException;
 
-    RequestResponse<Plan> get(String id) throws RecurrenceException;
+    Plan get(String planId) throws RecurrenceException;
 
-    RequestResponse<Plan> update(String id, Plan plan) throws RecurrenceException;
-    RequestResponse<Plan> update(String id, Plan plan, RequestOptions requestOptions) throws RecurrenceException;
+    Plan update(String planId, UpdatePlanRequest plan) throws RecurrenceException;
+    Plan update(String planId, UpdatePlanRequest plan, RequestOptions requestOptions) throws RecurrenceException;
 
-    RequestResponse<Void> activate(String id) throws RecurrenceException;
-    RequestResponse<Void> activate(String id, RequestOptions requestOptions) throws RecurrenceException;
+    Void activate(String planId) throws RecurrenceException;
+    Void activate(String planId, RequestOptions requestOptions) throws RecurrenceException;
 
-    RequestResponse<Void> inactivate(String id) throws RecurrenceException;
-    RequestResponse<Void> inactivate(String id, RequestOptions requestOptions) throws RecurrenceException;
+    Void deactivate(String planId) throws RecurrenceException;
+    Void deactivate(String planId, RequestOptions requestOptions) throws RecurrenceException;
 }
