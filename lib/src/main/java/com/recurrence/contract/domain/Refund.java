@@ -3,7 +3,7 @@ package com.recurrence.contract.domain;
 import com.recurrence.contract.domain.commons.Amount;
 import java.time.OffsetDateTime;
 
-public class Refund {
+public class Refund { // ToDo validar com os dois provedores se existe o refunde e validar o contrato.
     private String id;
     private String status;
     private String type;

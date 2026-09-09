@@ -2,11 +2,12 @@ package com.recurrence.contract.domain;
 
 import com.recurrence.contract.domain.commons.Amount;
 import com.recurrence.contract.domain.commons.BillingInfo;
+import com.recurrence.contract.domain.enums.PaymentStatus;
 import java.time.OffsetDateTime;
 
 public class Payment {
     private String id;
-    private String status;
+    private PaymentStatus status;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private String invoiceId;
@@ -32,7 +33,7 @@ public class Payment {
     }
 
     public String getId() { return id; }
-    public String getStatus() { return status; }
+    public PaymentStatus getStatus() { return status; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public String getInvoiceId() { return invoiceId; }
@@ -42,7 +43,7 @@ public class Payment {
 
     public static class Builder {
         private String id;
-        private String status;
+        private PaymentStatus status;
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
         private String invoiceId;
@@ -51,7 +52,7 @@ public class Payment {
         private BillingInfo paymentMethod;
 
         public Builder id(String id) { this.id = id; return this; }
-        public Builder status(String status) { this.status = status; return this; }
+        public Builder status(PaymentStatus status) { this.status = status; return this; }
         public Builder createdAt(OffsetDateTime createdAt) { this.createdAt = createdAt; return this; }
         public Builder updatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; return this; }
         public Builder invoiceId(String invoiceId) { this.invoiceId = invoiceId; return this; }

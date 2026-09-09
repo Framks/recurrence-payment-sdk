@@ -2,26 +2,25 @@ package com.recurrence.contract.domain;
 
 import com.recurrence.contract.domain.commons.Amount;
 import com.recurrence.contract.domain.commons.BillingInfo;
+import com.recurrence.contract.domain.enums.SubscriptionStatus;
 import java.time.OffsetDateTime;
 import java.util.List;
 
 public class Subscription {
     private String id;
     private String referenceId;
-    private String status;
+    private SubscriptionStatus status;
     private Boolean proRata;
     private String nextInvoiceAt;
-    private Coupon coupon;
     private Amount amount;
-    private Plan plan;
-    private List<BillingInfo> paymentMethod;
-    private Customer customer;
-    private String expAt;
+    private Plan plan; // ToDo acho que pode ser apenas o id do plano. validar se um dto serve.
+    private List<BillingInfo> paymentMethod; //ToDo ver se faz sentido ter apenas o tipo de pagamento e o card id. validar com os dois provedores
+    private Customer customer; // ToDo acho que só o id do cliente ja é suficiente também. ou também um dto com o email.
+    private String expAt; // ToDo melhorar isso para ser uma data. validar a saida dos dois provedores para ajustar.
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private BestInvoiceDate bestInvoiceDate;
-    private Boolean splitEnabled;
-    private Splits splits;
+    //ToDo acho que se faz nescessario ter um link para usar no caso do mercado pago.
 
     private Subscription(Builder builder) {
         this.id = builder.id;
@@ -29,7 +28,6 @@ public class Subscription {
         this.status = builder.status;
         this.proRata = builder.proRata;
         this.nextInvoiceAt = builder.nextInvoiceAt;
-        this.coupon = builder.coupon;
         this.amount = builder.amount;
         this.plan = builder.plan;
         this.paymentMethod = builder.paymentMethod;
@@ -38,8 +36,6 @@ public class Subscription {
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
         this.bestInvoiceDate = builder.bestInvoiceDate;
-        this.splitEnabled = builder.splitEnabled;
-        this.splits = builder.splits;
     }
 
     public record BestInvoiceDate(
@@ -61,10 +57,9 @@ public class Subscription {
     public static final class Builder {
         private String id;
         private String referenceId;
-        private String status;
+        private SubscriptionStatus status;
         private Boolean proRata;
         private String nextInvoiceAt;
-        private Coupon coupon;
         private Amount amount;
         private Plan plan;
         private List<BillingInfo> paymentMethod;
@@ -88,7 +83,7 @@ public class Subscription {
             return this;
         }
 
-        public Builder status(String status) {
+        public Builder status(SubscriptionStatus status) {
             this.status = status;
             return this;
         }
@@ -100,11 +95,6 @@ public class Subscription {
 
         public Builder nextInvoiceAt(String nextInvoiceAt) {
             this.nextInvoiceAt = nextInvoiceAt;
-            return this;
-        }
-
-        public Builder coupon(Coupon coupon) {
-            this.coupon = coupon;
             return this;
         }
 
@@ -172,7 +162,7 @@ public class Subscription {
         return referenceId;
     }
 
-    public String getStatus() {
+    public SubscriptionStatus getStatus() {
         return status;
     }
 
@@ -182,10 +172,6 @@ public class Subscription {
 
     public String getNextInvoiceAt() {
         return nextInvoiceAt;
-    }
-
-    public Coupon getCoupon() {
-        return coupon;
     }
 
     public Amount getAmount() {
@@ -216,14 +202,6 @@ public class Subscription {
         return updatedAt;
     }
 
-    public Boolean getSplitEnabled() {
-        return splitEnabled;
-    }
-
-    public Splits getSplits() {
-        return splits;
-    }
-
     public BestInvoiceDate getBestInvoiceDate() {
         return bestInvoiceDate;
     }
@@ -237,7 +215,7 @@ public class Subscription {
         this.referenceId = referenceId;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(SubscriptionStatus status) {
         this.status = status;
     }
 
@@ -247,10 +225,6 @@ public class Subscription {
 
     public void setNextInvoiceAt(String nextInvoiceAt) {
         this.nextInvoiceAt = nextInvoiceAt;
-    }
-
-    public void setCoupon(Coupon coupon) {
-        this.coupon = coupon;
     }
 
     public void setAmount(Amount amount) {
@@ -279,14 +253,6 @@ public class Subscription {
 
     public void setUpdatedAt(OffsetDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public void setSplitEnabled(Boolean splitEnabled) {
-        this.splitEnabled = splitEnabled;
-    }
-
-    public void setSplits(Splits splits) {
-        this.splits = splits;
     }
 
     public void setBestInvoiceDate(BestInvoiceDate bestInvoiceDate) {

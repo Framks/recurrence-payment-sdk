@@ -1,96 +1,54 @@
 package com.recurrence.contract.domain;
 
 import com.recurrence.contract.domain.commons.Amount;
-import com.recurrence.contract.domain.commons.PaymentMethodType;
-
+import com.recurrence.contract.domain.commons.PlanInterval;
+import com.recurrence.contract.domain.commons.PlanTrial;
+import com.recurrence.contract.domain.enums.Currency;
+import com.recurrence.contract.domain.enums.PaymentMethodType;
+import com.recurrence.contract.domain.enums.PlanIntervalType;
+import com.recurrence.contract.domain.enums.PlanStatus;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 
 final public class Plan {
-    private String id;
-    private final String referenceId;
-    private String status;
+    private final String id;
+    private final PlanStatus status;
     private final String name;
-    private final String description;
     private final Amount amount;
-    private final Integer setupFee;
-    private final Integer limitSubscriptions;
     private final PlanInterval interval;
     private final Integer billingCycles;
     private final PlanTrial trial;
     private final List<PaymentMethodType> paymentMethods;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
-    private Boolean editable;
-
-    public record PlanInterval(
-            Integer length,
-            String unit
-    ) { }
-
-    public record PlanTrial(
-            Integer days,
-            Boolean enabled,
-            Boolean hold_setup_fee
-    ) { }
+    private final OffsetDateTime createdAt;
+    private final OffsetDateTime updatedAt;
 
     private Plan(Builder builder) {
         this.id = builder.id;
-        this.referenceId = builder.referenceId;
         this.name = builder.name;
         this.status = builder.status;
-        this.description = builder.description;
         this.amount = builder.amount;
-        this.setupFee = builder.setupFee;
-        this.limitSubscriptions = builder.limitSubscriptions;
         this.interval = builder.interval;
         this.billingCycles = builder.billingCycles;
         this.trial = builder.trial;
         this.paymentMethods = builder.paymentMethods;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
-        this.editable = builder.editable;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public String getStatus() {
+    public PlanStatus getStatus() {
         return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public Amount getAmount() {
         return amount;
-    }
-
-    public Integer getSetupFee() {
-        return setupFee;
-    }
-
-    public Integer getLimitSubscriptions() {
-        return limitSubscriptions;
     }
 
     public PlanInterval getInterval() {
@@ -117,10 +75,6 @@ final public class Plan {
         return updatedAt;
     }
 
-    public Boolean getEditable() {
-        return editable;
-    }
-
     public static Builder builder() {
         return new Builder();
     }
@@ -128,19 +82,14 @@ final public class Plan {
     public static final class Builder {
         private String id;
         private String name;
-        private String status;
-        private String referenceId;
+        private PlanStatus status;
         private Amount amount;
         private PlanInterval interval;
-        private String description;
-        private Integer setupFee;
-        private Integer limitSubscriptions;
         private Integer billingCycles;
         private PlanTrial trial;
         private List<PaymentMethodType> paymentMethods;
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
-        private Boolean editable;
 
         private Builder() { }
 
@@ -154,38 +103,18 @@ final public class Plan {
             return this;
         }
 
-        public Builder status(String status) {
+        public Builder status(PlanStatus status) {
             this.status = status;
             return this;
         }
 
-        public Builder referenceId(String referenceId) {
-            this.referenceId = referenceId;
-            return this;
-        }
-
-        public Builder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Builder amount(Integer value, String currency) {
+        public Builder amount(Integer value, Currency currency) {
             this.amount = new Amount(value, currency);
             return this;
         }
 
-        public Builder interval(Integer length, String unit) {
-            this.interval = new PlanInterval(length, unit);
-            return this;
-        }
-
-        public Builder setupFee(Integer setupFee) {
-            this.setupFee = setupFee;
-            return this;
-        }
-
-        public Builder limitSubscriptions(Integer limitSubscriptions) {
-            this.limitSubscriptions = limitSubscriptions;
+        public Builder interval(PlanIntervalType type, Integer frequency) {
+            this.interval = new PlanInterval(type, frequency);
             return this;
         }
 
@@ -194,8 +123,8 @@ final public class Plan {
             return this;
         }
 
-        public Builder trial(Integer days, Boolean enabled, Boolean holdSetupFee) {
-            this.trial = new PlanTrial(days, enabled, holdSetupFee);
+        public Builder trial(Integer days) {
+            this.trial = new PlanTrial(days);
             return this;
         }
 
@@ -214,26 +143,8 @@ final public class Plan {
             return this;
         }
 
-        public Builder editable(Boolean editable) {
-            this.editable = editable;
-            return this;
-        }
-
         public Plan build() {
-            //validate();
             return new Plan(this);
-        }
-
-        private void validate() {
-            if (name.isBlank()) {
-                throw new IllegalArgumentException("Plan name must not be blank");
-            }
-            if (amount == null) {
-                throw new IllegalArgumentException("Plan amount is required");
-            }
-            if (interval == null) {
-                throw new IllegalArgumentException("Plan interval is required");
-            }
         }
     }
 }

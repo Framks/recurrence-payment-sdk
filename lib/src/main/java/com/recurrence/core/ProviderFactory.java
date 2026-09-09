@@ -4,6 +4,7 @@ import com.recurrence.contract.RecurrenceProvider;
 import com.recurrence.contract.config.Environment;
 import com.recurrence.contract.config.Provider;
 import com.recurrence.contract.config.ProviderConfig;
+import com.recurrence.mercadopago.MercadoPagoProvider;
 import com.recurrence.pagbank.PagBankProvider;
 
 public final class ProviderFactory {
@@ -17,8 +18,7 @@ public final class ProviderFactory {
     ){
         return switch (provider){
             case PAGBANK -> new PagBankProvider(environment, config);
-            case STRIPE -> null;
-            case MERCADO_PAGO -> null;
+            case MERCADO_PAGO -> new MercadoPagoProvider(environment, config);
         };
     }
 }

@@ -47,19 +47,10 @@ final public class Recurrence {
     public PlanService plan() {
         return provider.planService();
     }
-    public CouponService coupon() {
-        return provider.couponService();
-    }
-    public CustomerService customer(){
-        return provider.customerService();
-    }
     public SubscriptionService subscription() {
         return provider.subscriptionService();
     }
     public InvoiceService invoice() {
         return provider.invoiceService();
-    }
-    public PreferencesService preferences(){
-        return provider.preferencesService();
     }
 }

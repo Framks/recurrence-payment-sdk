@@ -23,11 +23,13 @@ public class ProviderConfig {
     private final Duration timeout;
     private final String token;
     private final Map<String, String> defaultHeaders;
+    private final String backUrl; // isso vai servir para o mercado pago.
 
     private ProviderConfig(Builder build){
         this.token = build.token;
         this.timeout = build.timeout == null ? Duration.ofSeconds(15) : build.timeout;
         this.defaultHeaders = build.defaultHeaders == null ? defaultHeaders() : build.defaultHeaders;
+        this.backUrl = build.backUrl;
     }
 
     private Map<String, String> defaultHeaders(){
@@ -53,10 +55,15 @@ public class ProviderConfig {
         return defaultHeaders;
     }
 
+    public String getBackUrl(){
+        return backUrl;
+    }
+
     public static class Builder {
         private Duration timeout;
         private String token;
         private Map<String, String> defaultHeaders;
+        private String backUrl;
 
         private Builder() {
         }
@@ -82,9 +89,13 @@ public class ProviderConfig {
             return this;
         }
 
+        public Builder setBackUrl(final String backUrl){
+            this.backUrl = backUrl;
+            return this;
+        }
+
         public ProviderConfig build() {
             Objects.requireNonNull(token, "token must not be null");
-
             return new ProviderConfig(this);
         }
     }

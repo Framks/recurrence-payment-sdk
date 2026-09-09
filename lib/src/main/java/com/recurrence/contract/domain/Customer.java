@@ -1,6 +1,5 @@
 package com.recurrence.contract.domain;
 
-import com.recurrence.contract.domain.commons.Address;
 import com.recurrence.contract.domain.commons.BillingInfo;
 import com.recurrence.contract.domain.commons.Phone;
 import java.time.OffsetDateTime;
@@ -10,17 +9,14 @@ import java.util.List;
 // acredito que validar os campos obrigatórios é melhor ficar dentro de cada mapper,
 // ou a gente criar outro meio de fazer o update, e nessa abordagem a validação fica só no momento de criar o objeto,
 public class Customer {
-
     private String id;
     private String referenceId;
     private String name;
     private String email;
-    private String taxId;              // Todo deixar bem especifico para cada provedor como receber esses dados.
-    private String birthDate;
+    private String taxId;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private List<Phone> phone;
-    private Address address;
     private BillingInfo billingInfo;
 
     public Customer() {}
@@ -31,11 +27,9 @@ public class Customer {
         this.name = builder.name;
         this.email = builder.email;
         this.taxId = builder.taxId;
-        this.birthDate = builder.birthDate;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
         this.phone = builder.phone;
-        this.address = builder.address;
         this.billingInfo = builder.billingInfo;
     }
 
@@ -65,10 +59,6 @@ public class Customer {
         return taxId;
     }
 
-    public String getBirthDate() {
-        return birthDate;
-    }
-
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
@@ -79,10 +69,6 @@ public class Customer {
 
     public List<Phone> getPhone() {
         return phone;
-    }
-
-    public Address getAddress() {
-        return address;
     }
 
     public BillingInfo getBillingInfo() {
@@ -111,10 +97,6 @@ public class Customer {
         this.taxId = taxId;
     }
 
-    public void setBirthDate(String birthDate) {
-        this.birthDate = birthDate;
-    }
-
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -125,10 +107,6 @@ public class Customer {
 
     public void setPhone(List<Phone> phone) {
         this.phone = phone;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
     }
 
     public void setBillingInfo(BillingInfo billingInfo) {
@@ -143,11 +121,9 @@ public class Customer {
         private String name;
         private String email;
         private String taxId;
-        private String birthDate;
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
         private List<Phone> phone;
-        private Address address;
         private BillingInfo billingInfo;
 
         public Builder id(String id) {
@@ -175,11 +151,6 @@ public class Customer {
             return this;
         }
 
-        public Builder birthDate(String birthDate) {
-            this.birthDate = birthDate;
-            return this;
-        }
-
         public Builder createdAt(OffsetDateTime createdAt) {
             this.createdAt = createdAt;
             return this;
@@ -192,11 +163,6 @@ public class Customer {
 
         public Builder phone(List<Phone> phone) {
             this.phone = phone;
-            return this;
-        }
-
-        public Builder address(Address address) {
-            this.address = address;
             return this;
         }
 
