@@ -1,4 +1,4 @@
-package com.recurrence.contract.infra;
+package com.recurrence.contract.filters;
 
 /**
  * Parâmetros de paginação para operações de listagem.

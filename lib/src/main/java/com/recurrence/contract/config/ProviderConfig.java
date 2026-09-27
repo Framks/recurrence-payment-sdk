@@ -23,7 +23,7 @@ public class ProviderConfig {
     private final Duration timeout;
     private final String token;
     private final Map<String, String> defaultHeaders;
-    private final String backUrl; // isso vai servir para o mercado pago.
+    private final String backUrl;
 
     private ProviderConfig(Builder build){
         this.token = build.token;

@@ -1,15 +1,11 @@
 package com.recurrence.exception;
 
+/**
+ * Falha ao converter o payload de/para JSON.
+ */
 public class RecurrenceSerializationException extends RecurrenceException {
 
-    private final String operation;
-
-    public RecurrenceSerializationException(String operation, Throwable cause) {
-        super("Could not serialize or deserialize payload for operation: " + operation, cause);
-        this.operation = operation;
-    }
-
-    public String getOperation() {
-        return operation;
+    public RecurrenceSerializationException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

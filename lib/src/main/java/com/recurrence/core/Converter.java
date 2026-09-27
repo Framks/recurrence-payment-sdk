@@ -7,25 +7,18 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-public class Converter {
+public final class Converter {
 
-    private static ObjectMapper instance;
-
-    private Converter(){ }
-
-    public static ObjectMapper mapper() {
-        if (instance == null) {
-            instance = createObjectMapper();
-        }
-        return instance;
-    }
-
-    private static ObjectMapper createObjectMapper() {
-        return new ObjectMapper()
+    private static final ObjectMapper INSTANCE = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+    private Converter(){ }
+
+    public static ObjectMapper mapper() {
+        return INSTANCE;
     }
 }

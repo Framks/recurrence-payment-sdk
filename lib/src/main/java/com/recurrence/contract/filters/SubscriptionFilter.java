@@ -20,7 +20,7 @@ import com.recurrence.contract.domain.enums.SubscriptionStatus;
 public final class SubscriptionFilter {
 
     private final SubscriptionStatus status;
-    private final String query;
+    private final String query; // devemos fazer uma validação para não permitir coisas diefrentes dos esperados.
     private final String referenceId;
 
     private SubscriptionFilter(Builder builder) {

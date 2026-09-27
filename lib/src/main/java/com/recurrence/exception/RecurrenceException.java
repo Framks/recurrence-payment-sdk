@@ -2,6 +2,10 @@ package com.recurrence.exception;
 
 public class RecurrenceException extends RuntimeException {
 
+    public RecurrenceException(){
+        super();
+    }
+
     public RecurrenceException(String message) {
         super(message);
     }

@@ -28,8 +28,7 @@ public class RequestOptions {
     }
 
     public Boolean hasIdempotencyKey(){
-        if (idempotencyKey == null || idempotencyKey.isBlank()) return false;
-        return true;
+        return idempotencyKey != null && !idempotencyKey.isBlank();
     }
 
     public static final class Builder {

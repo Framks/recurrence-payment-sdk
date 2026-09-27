@@ -3,14 +3,19 @@ package com.recurrence.contract;
 import com.recurrence.contract.domain.Subscription;
 import com.recurrence.contract.domain.request.CreateSubscriptionRequest;
 import com.recurrence.contract.domain.request.UpdateSubscriptionRequest;
-import com.recurrence.contract.infra.PageOptions;
+import com.recurrence.contract.filters.PageOptions;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.filters.SubscriptionFilter;
 import com.recurrence.exception.RecurrenceException;
 
 public interface SubscriptionService {
-    Subscription create(CreateSubscriptionRequest subscription) throws RecurrenceException;
+    default Subscription create(CreateSubscriptionRequest subscription) throws RecurrenceException  {
+        return create(
+                subscription,
+                RequestOptions.empty()
+        );
+    }
     Subscription create(CreateSubscriptionRequest subscription, RequestOptions requestOptions) throws RecurrenceException;
 
     Subscription get(String subscriptionId) throws RecurrenceException;
