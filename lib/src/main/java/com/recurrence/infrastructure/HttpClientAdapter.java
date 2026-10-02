@@ -1,122 +1,64 @@
 package com.recurrence.infrastructure;
 
+import com.recurrence.exception.RecurrenceNetworkException;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Map;
+import java.net.http.HttpTimeoutException;
 
-final public class HttpClientAdapter {
+/**
+ * Envia requisições HTTP. Não interpreta o status: qualquer resposta obtida é
+ * devolvida; apenas falhas sem resposta viram {@link RecurrenceNetworkException}.
+ *
+ * <p>Não é {@code final} para permitir substituição em testes.</p>
+ */
+public class HttpClientAdapter {
 
     private final HttpClient httpClient;
 
     public HttpClientAdapter() {
-        this.httpClient = HttpClient.newHttpClient();
+        this(HttpClient.newHttpClient());
     }
 
-    // Criar um singleton para esse cara.
+    public HttpClientAdapter(HttpClient httpClient) {
+        this.httpClient = httpClient;
+    }
 
-    public HttpResponse<String> post(
-        final String url,
-        final String body,
-        final Map<String, String> headers
-    ) {
+    public HttpResponse<String> send(HttpRequestRecurrence request) {
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(URI.create(request.getUrl()));
+
+        request.getHeaders().forEach(requestBuilder::header);
+
+        switch (request.getMethod()) {
+            case POST -> requestBuilder.POST(bodyOf(request));
+            case PUT -> requestBuilder.PUT(bodyOf(request));
+            case DELETE -> requestBuilder.DELETE();
+            case GET -> requestBuilder.GET();
+        }
+
+        if (request.getTimeout() != null) {
+            requestBuilder.timeout(request.getTimeout());
+        }
+
         try {
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                .timeout(Duration.ofSeconds(15))
-                .uri(URI.create(url))
-                .POST(HttpRequest.BodyPublishers.ofString(body));
-
-            headers.forEach(requestBuilder::header);
-
-            var request = requestBuilder.build();
-
-            return httpClient.send(
-                request,
-                HttpResponse.BodyHandlers.ofString()
-            );
-
-        } catch (Exception e) {
-            throw new LibraryHttpClientError(url, e.getMessage(), e);
+            return httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+        } catch (HttpTimeoutException e) {
+            throw new RecurrenceNetworkException(request.getUrl(), request.getMethod() + " timed out", e);
+        } catch (IOException e) {
+            throw new RecurrenceNetworkException(request.getUrl(), request.getMethod() + " failed", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RecurrenceNetworkException(request.getUrl(), request.getMethod() + " interrupted", e);
         }
     }
 
-    public HttpResponse<String> get(
-        final String url,
-        final Map<String, String> headers
-    ) {
-        try {
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                .timeout(Duration.ofSeconds(15))
-                .uri(URI.create(url))
-                .GET();
-
-            headers.forEach(requestBuilder::header);
-
-            var request = requestBuilder.build();
-
-            return httpClient.send(
-                request,
-                HttpResponse.BodyHandlers.ofString()
-            );
-
-        } catch (Exception e) {
-            throw new LibraryHttpClientError(url, e.getMessage(), e);
-        }
-    }
-
-    public HttpResponse<String> put(
-        final String url,
-        final String body,
-        final Map<String, String> headers
-    ){
-        try {
-            HttpRequest.BodyPublisher publisher =
-                (body == null || body.isBlank())
-                    ? HttpRequest.BodyPublishers.noBody()
-                    : HttpRequest.BodyPublishers.ofString(body);
-
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                .timeout(Duration.ofSeconds(15))
-                .uri(URI.create(url))
-                .PUT(publisher);
-
-            headers.forEach(requestBuilder::header);
-
-            var request = requestBuilder.build();
-
-            return httpClient.send(
-                request,
-                HttpResponse.BodyHandlers.ofString()
-            );
-
-        } catch (Exception e) {
-            throw new LibraryHttpClientError(url, e.getMessage(), e);
-        }
-    }
-
-    public HttpResponse<String> delete(
-        final String url,
-        final Map<String, String> headers
-    ){
-        try {
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                .timeout(Duration.ofSeconds(15))
-                .uri(URI.create(url))
-                .DELETE();
-
-            headers.forEach(requestBuilder::header);
-
-            var request = requestBuilder.build();
-
-            return httpClient.send(
-                request,
-                HttpResponse.BodyHandlers.ofString()
-            );
-
-        } catch (Exception e) {
-            throw new LibraryHttpClientError(url, e.getMessage(), e);
-        }
+    private static HttpRequest.BodyPublisher bodyOf(HttpRequestRecurrence request) {
+        return request.getBody() == null
+                ? HttpRequest.BodyPublishers.noBody()
+                : HttpRequest.BodyPublishers.ofString(request.getBody());
     }
 }

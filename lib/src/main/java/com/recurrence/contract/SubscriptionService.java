@@ -9,32 +9,53 @@ import com.recurrence.contract.infra.RequestOptions;
 import com.recurrence.contract.filters.SubscriptionFilter;
 import com.recurrence.exception.RecurrenceException;
 
+/**
+ * Operações de assinatura comuns aos provedores.
+ *
+ * <p>Cada operação tem um único método abstrato; as variações sem
+ * {@link RequestOptions} ou sem filtro são {@code default}.</p>
+ */
 public interface SubscriptionService {
-    default Subscription create(CreateSubscriptionRequest subscription) throws RecurrenceException  {
-        return create(
-                subscription,
-                RequestOptions.empty()
-        );
+
+    default Subscription create(CreateSubscriptionRequest subscription) throws RecurrenceException {
+        return create(subscription, RequestOptions.empty());
     }
+
     Subscription create(CreateSubscriptionRequest subscription, RequestOptions requestOptions) throws RecurrenceException;
 
     Subscription get(String subscriptionId) throws RecurrenceException;
 
-    PageResponse<Subscription> list(PageOptions pageOptions) throws RecurrenceException;
-    PageResponse<Subscription> list(PageOptions pageOptions, RequestOptions requestOptions) throws RecurrenceException;
-    PageResponse<Subscription> list(PageOptions pageOptions, SubscriptionFilter subscriptionFilter) throws RecurrenceException;
-    PageResponse<Subscription> list(PageOptions pageOptions, SubscriptionFilter subscriptionFilter, RequestOptions requestOptions) throws RecurrenceException;
+    default PageResponse<Subscription> list(PageOptions pageOptions) throws RecurrenceException {
+        return list(pageOptions, null);
+    }
 
-    Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription) throws RecurrenceException;
+    /**
+     * @param pageOptions        paginação; {@code null} usa o padrão do provedor
+     * @param subscriptionFilter filtros; {@code null} não filtra
+     */
+    PageResponse<Subscription> list(PageOptions pageOptions, SubscriptionFilter subscriptionFilter) throws RecurrenceException;
+
+    default Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription) throws RecurrenceException {
+        return update(subscriptionId, subscription, RequestOptions.empty());
+    }
+
     Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription, RequestOptions requestOptions) throws RecurrenceException;
 
-    Void suspend(String subscriptionId) throws RecurrenceException;
-    Void suspend(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
+    default void suspend(String subscriptionId) throws RecurrenceException {
+        suspend(subscriptionId, RequestOptions.empty());
+    }
 
-    Void cancel(String subscriptionId) throws RecurrenceException;
-    Void cancel(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
+    void suspend(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
 
-    Void active(String subscriptionId) throws RecurrenceException;
-    Void active(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
+    default void cancel(String subscriptionId) throws RecurrenceException {
+        cancel(subscriptionId, RequestOptions.empty());
+    }
 
+    void cancel(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
+
+    default void activate(String subscriptionId) throws RecurrenceException {
+        activate(subscriptionId, RequestOptions.empty());
+    }
+
+    void activate(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
 }

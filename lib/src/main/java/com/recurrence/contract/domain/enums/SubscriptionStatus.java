@@ -7,4 +7,6 @@ public enum SubscriptionStatus {
     PENDING,
     SUSPENDED,
     EXPIRED,
+    /** Estado do provedor sem equivalente canônico. Não aceito em filtros. */
+    UNKNOWN,
 }

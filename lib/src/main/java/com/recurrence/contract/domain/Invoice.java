@@ -1,37 +1,35 @@
 package com.recurrence.contract.domain;
 
 import com.recurrence.contract.domain.commons.Amount;
+import com.recurrence.contract.domain.commons.CustomerReference;
+import com.recurrence.contract.domain.commons.PlanReference;
+import com.recurrence.contract.domain.enums.InvoiceStatus;
+
 import java.time.OffsetDateTime;
-import java.util.List;
 
-public class Invoice {
-    private String id;
-    private String status;
-    private Integer occurrence;
-    private Amount amount;
-    private Subscription subscription;
-    private List<Item> items;
-    private Customer customer;
-    private Plan plan;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
-
-    public record Item(
-            String type,
-            Amount amount
-    ) {}
-
-    public Invoice() {}
+/**
+ * Cobrança de um ciclo da assinatura (PagBank {@code invoice} / Mercado Pago
+ * {@code authorized_payment}).
+ */
+public final class Invoice {
+    private final String id;
+    private final InvoiceStatus status;
+    private final Integer occurrence;
+    private final Amount amount;
+    private final String subscriptionId;
+    private final PlanReference plan;
+    private final CustomerReference customer;
+    private final OffsetDateTime createdAt;
+    private final OffsetDateTime updatedAt;
 
     private Invoice(Builder builder) {
         this.id = builder.id;
         this.status = builder.status;
         this.occurrence = builder.occurrence;
         this.amount = builder.amount;
-        this.subscription = builder.subscription;
-        this.items = builder.items;
-        this.customer = builder.customer;
+        this.subscriptionId = builder.subscriptionId;
         this.plan = builder.plan;
+        this.customer = builder.customer;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
     }
@@ -40,57 +38,62 @@ public class Invoice {
         return new Builder();
     }
 
-    // Getters
     public String getId() {
         return id;
     }
-    public String getStatus() {
+
+    public InvoiceStatus getStatus() {
         return status;
     }
+
+    /** Número do ciclo da assinatura a que a fatura se refere. */
     public Integer getOccurrence() {
         return occurrence;
     }
+
     public Amount getAmount() {
         return amount;
     }
-    public Subscription getSubscription() {
-        return subscription;
+
+    public String getSubscriptionId() {
+        return subscriptionId;
     }
-    public List<Item> getItems() {
-        return items;
-    }
-    public Customer getCustomer() {
-        return customer;
-    }
-    public Plan getPlan() {
+
+    public PlanReference getPlan() {
         return plan;
     }
+
+    public CustomerReference getCustomer() {
+        return customer;
+    }
+
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
     public OffsetDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    // Builder
-    public static class Builder {
+    public static final class Builder {
         private String id;
-        private String status;
+        private InvoiceStatus status;
         private Integer occurrence;
         private Amount amount;
-        private Subscription subscription;
-        private List<Item> items;
-        private Customer customer;
-        private Plan plan;
+        private String subscriptionId;
+        private PlanReference plan;
+        private CustomerReference customer;
         private OffsetDateTime createdAt;
         private OffsetDateTime updatedAt;
+
+        private Builder() {}
 
         public Builder id(String id) {
             this.id = id;
             return this;
         }
 
-        public Builder status(String status) {
+        public Builder status(InvoiceStatus status) {
             this.status = status;
             return this;
         }
@@ -105,23 +108,18 @@ public class Invoice {
             return this;
         }
 
-        public Builder subscription(Subscription subscription) {
-            this.subscription = subscription;
+        public Builder subscriptionId(String subscriptionId) {
+            this.subscriptionId = subscriptionId;
             return this;
         }
 
-        public Builder items(List<Item> items) {
-            this.items = items;
-            return this;
-        }
-
-        public Builder customer(Customer customer) {
-            this.customer = customer;
-            return this;
-        }
-
-        public Builder plan(Plan plan) {
+        public Builder plan(PlanReference plan) {
             this.plan = plan;
+            return this;
+        }
+
+        public Builder customer(CustomerReference customer) {
+            this.customer = customer;
             return this;
         }
 

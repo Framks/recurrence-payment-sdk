@@ -6,4 +6,6 @@ public enum PaymentStatus {
     UNPAID,
     DECLINED,
     REFUNDED,
+    /** Estado do provedor sem equivalente canônico. Não aceito em filtros. */
+    UNKNOWN,
 }

@@ -8,4 +8,5 @@ public final class ErrorMessage {
     public static final String CONNECTION_ERROR = "Erro ao conectar ao servidor";
     public static final String PAGBANK_NOT_FOUND_TOKEN = "For PagBank Provider is necessary token";
     public static final String PAGBANK_AUTHENTICATION_HEADERS_TOKEN = "authentication for PagBank not has been send here, use token";
+    public static final String PAGBANK_NOT_SUPPORT_BACK_URL = "Pagbank provider do not support back url";
 }

@@ -5,7 +5,8 @@ import com.recurrence.contract.config.Provider;
 import com.recurrence.contract.config.ProviderConfig;
 import com.recurrence.core.ProviderFactory;
 import com.recurrence.exception.RecurrenceException;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 final public class Recurrence {
 
@@ -35,10 +36,13 @@ final public class Recurrence {
      * }</pre>
      */
     public static Recurrence config(
-            @NotNull final Provider provider,
-            @NotNull final Environment environment,
-            @NotNull final ProviderConfig config
+            final Provider provider,
+            final Environment environment,
+            final ProviderConfig config
             ) throws RecurrenceException {
+        Objects.requireNonNull(provider, "provider must not be null");
+        Objects.requireNonNull(environment, "environment must not be null");
+        Objects.requireNonNull(config, "config must not be null");
         return new Recurrence(
                 ProviderFactory.create(provider, environment, config)
         );

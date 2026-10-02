@@ -7,7 +7,9 @@ import com.recurrence.exception.RecurrenceSerializationException;
 import com.recurrence.infrastructure.HttpRequestRecurrence;
 import com.recurrence.infrastructure.MethodRequest;
 
+import java.net.URLEncoder;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -85,6 +87,11 @@ public abstract class BaseService {
     /** Executa a requisição descartando o corpo (ativar, cancelar, etc.). */
     protected void execute(String operation, HttpRequestRecurrence request) {
         send(operation, request);
+    }
+
+    /** Codifica um valor (ex.: id) para uso seguro como segmento do caminho. */
+    protected static String segment(String value) { // ToDo Validar se isso é nescessário
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     protected String toJson(String operation, Object payload) {

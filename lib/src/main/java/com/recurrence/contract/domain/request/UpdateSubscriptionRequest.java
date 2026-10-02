@@ -4,11 +4,9 @@ import com.recurrence.contract.domain.commons.Amount;
 import com.recurrence.contract.domain.commons.BillingInfo;
 import com.recurrence.contract.domain.enums.Currency;
 
-import java.util.List;
-
 /**
  * Dados aceitos ao atualizar uma assinatura. Todos os campos são opcionais:
- * um campo nulo significa "não alterar".
+ * um campo nulo significa "não alterar". Ao menos um deve ser informado.
  *
  * <p>Interseção entre os provedores:</p>
  * <ul>
@@ -25,7 +23,7 @@ public final class UpdateSubscriptionRequest {
 
     private final String planId;
     private final Amount amount;
-    private final List<BillingInfo> paymentMethod;
+    private final BillingInfo paymentMethod;
 
     private UpdateSubscriptionRequest(Builder builder) {
         this.planId = builder.planId;
@@ -45,14 +43,14 @@ public final class UpdateSubscriptionRequest {
         return amount;
     }
 
-    public List<BillingInfo> getPaymentMethod() {
+    public BillingInfo getPaymentMethod() {
         return paymentMethod;
     }
 
     public static final class Builder {
         private String planId;
         private Amount amount;
-        private List<BillingInfo> paymentMethod;
+        private BillingInfo paymentMethod;
 
         private Builder() { }
 
@@ -66,7 +64,7 @@ public final class UpdateSubscriptionRequest {
             return this;
         }
 
-        public Builder paymentMethod(List<BillingInfo> paymentMethod) {
+        public Builder paymentMethod(BillingInfo paymentMethod) {
             this.paymentMethod = paymentMethod;
             return this;
         }
