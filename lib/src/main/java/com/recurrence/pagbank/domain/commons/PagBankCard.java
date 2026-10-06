@@ -1,20 +1,25 @@
 package com.recurrence.pagbank.domain.commons;
 
+/**
+ * Cartão no formato do PagBank.
+ *
+ * <p>Na requisição, {@code encrypted} (cartão criptografado pelo SDK JS do
+ * PagBank) e {@code securityCode}; na resposta, os dados de exibição.</p>
+ */
 public record PagBankCard(
-    String token,
-    String number,
-    String encrypted,
-    String brand,
-    String firstDigits,
-    String lastDigits,
-    String expMonth,
-    String expYear,
-    Holder holder,
-    String securityCode
-){
-    public record Holder (
-        String name,
-        String taxId,
-        String birthDate
-    ){}
+        String encrypted,
+        String securityCode,
+        String brand,
+        String firstDigits,
+        String lastDigits,
+        String expMonth,
+        String expYear
+) {
+    public static PagBankCard encrypted(String encrypted, String securityCode) {
+        return new PagBankCard(encrypted, securityCode, null, null, null, null, null);
+    }
+
+    public static PagBankCard securityCode(String securityCode) {
+        return new PagBankCard(null, securityCode, null, null, null, null, null);
+    }
 }

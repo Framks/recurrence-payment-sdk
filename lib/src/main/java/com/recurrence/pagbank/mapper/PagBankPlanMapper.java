@@ -1,89 +1,78 @@
 package com.recurrence.pagbank.mapper;
 
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.commons.PlanInterval;
+import com.recurrence.contract.domain.commons.PlanTrial;
+import com.recurrence.contract.domain.enums.PaymentMethodType;
+import com.recurrence.contract.domain.request.CreatePlanRequest;
+import com.recurrence.contract.domain.request.UpdatePlanRequest;
 import com.recurrence.contract.infra.PageResponse;
-import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import com.recurrence.pagbank.domain.plan.PagBankListPlan;
 import com.recurrence.pagbank.domain.plan.PagBankPlan;
-import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
+import com.recurrence.pagbank.domain.plan.PagBankPlanRequest;
 import com.recurrence.pagbank.domain.plan.PagBankPlanTrial;
+
+import java.util.List;
 
 public final class PagBankPlanMapper {
 
     private PagBankPlanMapper() {}
 
-    public static PagBankPlan from(Plan plan) {
-        ///  o que pode ser null
-        ///   referenci_id, description, setup_fee, interval, billing_cycles, trial, limit_subscription, payment_method, editable.
-        return PagBankPlan.builder()
-                .name(plan.getName())
-                .referenceId(plan.getReferenceId())
-                .description(plan.getDescription())
-                .amount(mapAmount(plan))
-                .setupFee(plan.getSetupFee())
-                .limitSubscriptions(plan.getLimitSubscriptions())
-                .interval(mapInterval(plan))
-                .billingCycles(plan.getBillingCycles())
-                .trial(mapTrial(plan))
-                .paymentMethod(plan.getPaymentMethods().stream().map(Enum::name).toList())
-                .build();
-    }
-
-    public static Plan to(PagBankPlan plan) {
-        return Plan.builder()
-                .id(plan.getId())
-                .name(plan.getName())
-                .status(plan.getStatus())
-                .referenceId(plan.getReferenceId())
-                .description(plan.getDescription())
-                .amount(plan.getAmount().value(), plan.getAmount().currency())
-                .setupFee(plan.getSetupFee())
-                .limitSubscriptions(plan.getLimitSubscriptions())
-                .interval(plan.getInterval().length(), plan.getInterval().unit())
-                .billingCycles(plan.getBillingCycles())
-                .trial(plan.getTrial().days(), plan.getTrial().enabled(), plan.getTrial().holdSetupFee())
-                .paymentMethods(plan.getPaymentMethod().stream().map(CommonsMapper::toContractPaymentMethodType).toList())
-                .createdAt(plan.getCreatedAt())
-                .updatedAt(plan.getUpdatedAt())
-                .editable(plan.getEditable())
-                .build();
-    }
-
-    public static PageResponse<Plan> toPageResponse(PagBankListPlan pagBankListPlan) {
-        return new PageResponse<>(
-                new PageResponse.PageInfo(
-                        pagBankListPlan.getResultSet().offset(),
-                        pagBankListPlan.getResultSet().limit(),
-                        pagBankListPlan.getResultSet().total()),
-                pagBankListPlan.getPlans().stream().map(PagBankPlanMapper::to).toList()
+    /** Sem {@code paymentMethods}, envia só cartão para não herdar o padrão do PagBank (que inclui boleto). */
+    public static PagBankPlanRequest toRequest(CreatePlanRequest plan) {
+        List<PaymentMethodType> paymentMethods = plan.getPaymentMethods() == null
+                ? List.of(PaymentMethodType.CREDIT_CARD)
+                : plan.getPaymentMethods();
+        return new PagBankPlanRequest(
+                plan.getName(),
+                CommonsMapper.toPagBank(plan.getAmount()),
+                CommonsMapper.toPagBank(plan.getInterval()),
+                plan.getBillingCycles(),
+                toPagBank(plan.getTrial()),
+                CommonsMapper.toPagBankPaymentMethods(paymentMethods)
         );
     }
 
-
-    private static PagBankAmount mapAmount(Plan plan) {
-
-        return new PagBankAmount(
-            plan.getAmount().value(),
-            plan.getAmount().currency()
+    public static PagBankPlanRequest toRequest(UpdatePlanRequest plan) {
+        return new PagBankPlanRequest(
+                plan.getName(),
+                CommonsMapper.toPagBank(plan.getAmount()),
+                CommonsMapper.toPagBank(plan.getInterval()),
+                plan.getBillingCycles(),
+                toPagBank(plan.getTrial()),
+                CommonsMapper.toPagBankPaymentMethods(plan.getPaymentMethods())
         );
     }
 
-    private static PagBankPlanInterval mapInterval(Plan plan) {
-        return new PagBankPlanInterval(
-            plan.getInterval().length(),
-            plan.getInterval().unit()
-        );
-    }
-
-    private static PagBankPlanTrial mapTrial(Plan plan) {
-        if (plan.getTrial() == null) {
-            return null;
+    public static Plan toContract(PagBankPlan plan) {
+        PlanInterval interval = CommonsMapper.toContract(plan.interval());
+        Plan.Builder builder = Plan.builder()
+                .id(plan.id())
+                .name(plan.name())
+                .status(CommonsMapper.toPlanStatus(plan.status()))
+                .billingCycles(plan.billingCycles())
+                .paymentMethods(CommonsMapper.toContractPaymentMethods(plan.paymentMethod()))
+                .createdAt(plan.createdAt())
+                .updatedAt(plan.updatedAt());
+        if (plan.amount() != null) {
+            var amount = CommonsMapper.toContract(plan.amount());
+            builder.amount(amount.value(), amount.currency());
         }
+        if (interval != null) {
+            builder.interval(interval.type(), interval.frequency());
+        }
+        if (plan.trial() != null && Boolean.TRUE.equals(plan.trial().enabled())) {
+            builder.trial(plan.trial().days());
+        }
+        return builder.build();
+    }
 
-        return new PagBankPlanTrial(
-            plan.getTrial().days(),
-            plan.getTrial().enabled(),
-            plan.getTrial().hold_setup_fee()
-        );
+    public static PageResponse<Plan> toPage(PagBankListPlan list) {
+        return CommonsMapper.toPage(list.resultSet(), list.plans(), PagBankPlanMapper::toContract);
+    }
+
+    private static PagBankPlanTrial toPagBank(PlanTrial trial) {
+        if (trial == null) return null;
+        return new PagBankPlanTrial(trial.days(), true, null);
     }
 }

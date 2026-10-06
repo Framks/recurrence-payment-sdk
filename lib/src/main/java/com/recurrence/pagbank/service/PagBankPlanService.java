@@ -2,195 +2,101 @@ package com.recurrence.pagbank.service;
 
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.domain.Plan;
+import com.recurrence.contract.domain.request.CreatePlanRequest;
+import com.recurrence.contract.domain.request.UpdatePlanRequest;
+import com.recurrence.contract.filters.PageOptions;
+import com.recurrence.contract.filters.PlanFilter;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestOptions;
-import com.recurrence.contract.infra.RequestResponse;
 import com.recurrence.core.BaseService;
-import com.recurrence.pagbank.PagbankConfig;
-import com.recurrence.pagbank.client.PagBankPlanClient;
-import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
-import com.recurrence.pagbank.domain.plan.PagBankPlan;
-import com.recurrence.pagbank.mapper.PagBankPlanMapper;
+import com.recurrence.core.ProviderContext;
+import com.recurrence.core.QueryParams;
+import com.recurrence.core.RequestValidator;
+import com.recurrence.pagbank.constant.Constant;
 import com.recurrence.pagbank.domain.plan.PagBankListPlan;
-import java.net.http.HttpResponse;
-import java.util.Map;
+import com.recurrence.pagbank.domain.plan.PagBankPlan;
+import com.recurrence.pagbank.mapper.PagBankFilterMapper;
+import com.recurrence.pagbank.mapper.PagBankPlanMapper;
 
-import com.recurrence.pagbank.validator.PlanValidator;
-
-import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
-import static com.recurrence.constants.ProviderConstants.PAGBANK;
+import static com.recurrence.infrastructure.MethodRequest.GET;
+import static com.recurrence.infrastructure.MethodRequest.POST;
+import static com.recurrence.infrastructure.MethodRequest.PUT;
+import static com.recurrence.pagbank.constant.Constant.*;
 
 public class PagBankPlanService extends BaseService implements PlanService {
 
-    private final PagbankConfig config;
-    private final PagBankPlanClient pagBankPlanClient;
+    private static final String PLANS = "/plans";
 
-    public PagBankPlanService(
-            final PagbankConfig config
-    ) {
-        this.config = config;
-        pagBankPlanClient = new PagBankPlanClient(config);
+    public PagBankPlanService(ProviderContext context) {
+        super(context);
     }
 
     @Override
-    public RequestResponse<Plan> create(Plan plan) {
-        return create(plan, RequestOptions.builder().build());
+    public Plan create(CreatePlanRequest plan, RequestOptions requestOptions) {
+        RequestValidator.validate(plan);
+        return execute(
+                Operation.PLAN_CREATE,
+                request(POST, PLANS, requestOptions)
+                        .body(toJson(Operation.PLAN_CREATE, PagBankPlanMapper.toRequest(plan)))
+                        .build(),
+                PagBankPlan.class,
+                PagBankPlanMapper::toContract
+        );
     }
 
     @Override
-    public RequestResponse<Plan> create(Plan plan, RequestOptions requestOptions) {
-        try {
-            PlanValidator.validateCreateRequest(plan);
-            String payload = toJson(PagBankPlanMapper.from(plan));
+    public Plan get(String planId) {
+        RequestValidator.requireId(planId, PLAN_ID);
+        return execute(
+                Operation.PLAN_GET,
+                request(GET, planPath(planId), null).build(),
+                PagBankPlan.class,
+                PagBankPlanMapper::toContract
+        );
+    }
 
-            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
-
-            HttpResponse<String> response = pagBankPlanClient.create(payload, headers);
-
-            RequestResponse<Plan> requestResponse = buildResponse(response);
-
-            return switch (requestResponse.getHttpResponse()) {
-                case 201->
-                    requestResponse.setBody(
-                            PagBankPlanMapper.to(
-                                    fromJson(response.body(), PagBankPlan.class)
-                            )
-                    );
-                case 400 ->
-                    PagBankErrorHandler.handle(requestResponse, response.body());
-
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
+    @Override
+    public PageResponse<Plan> list(PageOptions pageOptions, PlanFilter planFilter) {
+        QueryParams query = QueryParams.create().page(pageOptions);
+        if (planFilter != null) {
+            query.add(STATUS, PagBankFilterMapper.status(planFilter.getStatus()))
+                    .add(REFERENCE_ID, planFilter.getQuery());
         }
+        return execute(
+                Operation.PLAN_LIST,
+                request(GET, query.appendTo(PLANS), null).build(),
+                PagBankListPlan.class,
+                PagBankPlanMapper::toPage
+        );
     }
 
     @Override
-    public RequestResponse<PageResponse<Plan>> list(Integer offset, Integer limit) {
-        try{
-            var headers = config.fullHeaders();
-
-            HttpResponse<String> response = pagBankPlanClient.list(pageValue(offset, "offset"), pageValue(limit, "limit"), headers);
-
-            RequestResponse<PageResponse<Plan>> requestResponse = buildResponse(response);
-
-            return switch (requestResponse.getHttpResponse()) {
-                case 200 -> requestResponse.setBody(
-                        PagBankPlanMapper.toPageResponse(
-                                fromJson(response.body(), PagBankListPlan.class)
-                        )
-                );
-                case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
-
-                default -> requestResponse;
-            };
-        }catch (Exception e){
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
+    public Plan update(String planId, UpdatePlanRequest plan, RequestOptions requestOptions) {
+        RequestValidator.requireId(planId, PLAN_ID);
+        RequestValidator.validate(plan);
+        return execute(
+                Constant.Operation.PLAN_UPDATE,
+                request(PUT, planPath(planId), requestOptions)
+                        .body(toJson(Constant.Operation.PLAN_UPDATE, PagBankPlanMapper.toRequest(plan)))
+                        .build(),
+                PagBankPlan.class,
+                PagBankPlanMapper::toContract
+        );
     }
 
     @Override
-    public RequestResponse<Plan> get(String id) {
-        try {
-            var headers = config.fullHeaders();
-            HttpResponse<String> response = pagBankPlanClient.get(id, headers);
-            RequestResponse<Plan> requestResponse = buildResponse(response);
-            return switch (requestResponse.getHttpResponse()) {
-                case 200 -> requestResponse.setBody(
-                        PagBankPlanMapper.to(
-                                fromJson(response.body(), PagBankPlan.class)
-                        )
-                );
-                case 400 ->
-                        PagBankErrorHandler.handle(requestResponse, response.body());
-
-                default -> requestResponse;
-            };
-        }catch (Exception e ){
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
+    public void activate(String planId, RequestOptions requestOptions) {
+        RequestValidator.requireId(planId, PLAN_ID);
+        execute(Operation.PLAN_ACTIVATE, request(PUT, planPath(planId) + PATH_ACTIVE, requestOptions).build());
     }
 
     @Override
-    public RequestResponse<Plan> update(String id, Plan plan) {
-        return update(id, plan, RequestOptions.builder().build());
+    public void deactivate(String planId, RequestOptions requestOptions) {
+        RequestValidator.requireId(planId, PLAN_ID);
+        execute(Operation.PLAN_DEACTIVATE, request(PUT, planPath(planId) + PATH_INACTIVE, requestOptions).build());
     }
 
-    @Override
-    public RequestResponse<Plan> update(String id, Plan plan, RequestOptions requestOptions) {
-        try {
-            String payload = toJson(PagBankPlanMapper.from(plan));
-
-            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
-
-            HttpResponse<String> response = pagBankPlanClient.update(id, payload, headers);
-
-            RequestResponse<Plan> requestResponse = buildResponse(response);
-
-            return switch (requestResponse.getHttpResponse()) {
-                case 200 ->
-                        requestResponse.setBody(
-                                PagBankPlanMapper.to(
-                                        fromJson(response.body(), PagBankPlan.class)
-                                )
-                        );
-                case 400 ->
-                        PagBankErrorHandler.handle(requestResponse, response.body());
-
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<Void> activate(String id) {
-        return activate(id, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Void> activate(String id, RequestOptions requestOptions) {
-        try{
-            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
-            HttpResponse<String> response = pagBankPlanClient.activate(id, headers);
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch (requestResponse.getHttpResponse()) {
-                case 200 -> requestResponse;
-                case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<Void> inactivate(String id) {
-        return inactivate(id, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Void> inactivate(String id, RequestOptions requestOptions) {
-        try{
-            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
-            HttpResponse<String> response = pagBankPlanClient.inactivate(id, headers);
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch (requestResponse.getHttpResponse()) {
-                case 200 -> requestResponse;
-                case 400 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    private Map<String, String> resolveIdempotencyKey(Map<String, String> headers, RequestOptions requestOptions){
-        if(requestOptions.hasIdempotencyKey()){
-            headers.put("x-idempotency-key", requestOptions.getIdempotencyKey());
-        }
-        return headers;
+    private static String planPath(String planId) {
+        return PLANS + "/" + segment(planId);
     }
 }

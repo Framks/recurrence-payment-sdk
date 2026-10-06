@@ -15,9 +15,9 @@ import static com.recurrence.constants.ValidationsMessage.SUBSCRIPTION_REFERENCE
  * Regras exclusivas do PagBank para assinaturas, aplicadas depois do
  * {@code RequestValidator} comum.
  */
-public final class SubscrptionValidator {
+public final class SubscriptionValidator {
 
-    private SubscrptionValidator() {}
+    private SubscriptionValidator() {}
 
     /** O PagBank cria o assinante junto com a assinatura e exige CPF, telefone e CVV. */
     public static void validateCreate(CreateSubscriptionRequest request) {

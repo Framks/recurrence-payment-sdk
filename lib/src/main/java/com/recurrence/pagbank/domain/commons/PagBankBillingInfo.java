@@ -1,10 +1,11 @@
 package com.recurrence.pagbank.domain.commons;
 
-import org.jspecify.annotations.NonNull;
-
+/**
+ * Meio de pagamento no formato do PagBank. Usado em {@code customer.billing_info},
+ * {@code subscription.payment_method} e {@code payment.payment_method}.
+ */
 public record PagBankBillingInfo(
-    String type,
-    PagBankCard card,
-    PagBankBoleto boleto
-){}
-
+        String type,
+        PagBankCard card
+) {
+}

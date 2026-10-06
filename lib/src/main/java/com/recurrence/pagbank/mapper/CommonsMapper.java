@@ -1,203 +1,224 @@
 package com.recurrence.pagbank.mapper;
 
-import com.recurrence.contract.domain.commons.Address;
 import com.recurrence.contract.domain.commons.Amount;
 import com.recurrence.contract.domain.commons.BillingInfo;
 import com.recurrence.contract.domain.commons.Card;
-import com.recurrence.contract.domain.commons.Holder;
-import com.recurrence.contract.domain.commons.PaymentMethodType;
-import com.recurrence.contract.domain.commons.Phone;
-import com.recurrence.exception.UnsupportedProviderTypeException;
+import com.recurrence.contract.domain.commons.CustomerReference;
+import com.recurrence.contract.domain.commons.PlanInterval;
+import com.recurrence.contract.domain.commons.PlanReference;
+import com.recurrence.contract.domain.enums.Currency;
+import com.recurrence.contract.domain.enums.InvoiceStatus;
+import com.recurrence.contract.domain.enums.PaymentMethodType;
+import com.recurrence.contract.domain.enums.PaymentStatus;
+import com.recurrence.contract.domain.enums.PlanIntervalType;
+import com.recurrence.contract.domain.enums.PlanStatus;
+import com.recurrence.contract.domain.enums.SubscriptionStatus;
+import com.recurrence.contract.infra.PageResponse;
+import com.recurrence.exception.RecurrenceSerializationException;
 import com.recurrence.pagbank.domain.commons.PagBankAmount;
 import com.recurrence.pagbank.domain.commons.PagBankBillingInfo;
 import com.recurrence.pagbank.domain.commons.PagBankCard;
-import com.recurrence.pagbank.domain.commons.PaymentMethod;
+import com.recurrence.pagbank.domain.commons.ResultSet;
+import com.recurrence.pagbank.domain.customer.PagBankCustomer;
+import com.recurrence.pagbank.domain.plan.PagBankPlan;
+import com.recurrence.pagbank.domain.plan.PagBankPlanInterval;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.function.Function;
 
-import static com.recurrence.constants.ProviderConstants.PAGBANK;
-import static com.recurrence.contract.domain.commons.PaymentMethodType.BOLETO;
-import static com.recurrence.contract.domain.commons.PaymentMethodType.CREDIT_CARD;
+/**
+ * Conversões compartilhadas entre os mappers do PagBank.
+ *
+ * <p>Valores do PagBank sem equivalente canônico viram {@code UNKNOWN} em vez
+ * de erro, para que um estado novo não quebre a leitura.</p>
+ */
+final class CommonsMapper {
 
-public class CommonsMapper {
+    private static final String CREDIT_CARD = "CREDIT_CARD";
 
-    private CommonsMapper(){ }
+    private CommonsMapper() { }
 
-    public static Address toContractAddress(com.recurrence.pagbank.domain.commons.Address address){
-        if (address == null) return null;
-        return new Address(
-                address.street(),
-                address.number(),
-                address.complement(),
-                address.locality(),
-                address.city(),
-                address.regionCode(),
-                address.country(),
-                address.postalCode()
-        );
+    // ---------- valores ----------
+
+    static PagBankAmount toPagBank(Amount amount) {
+        if (amount == null) return null;
+        return new PagBankAmount(amount.value(), amount.currency().name());
     }
 
-    public static com.recurrence.pagbank.domain.commons.Address toPagBankAddress(Address address){
-        if (address == null) return null;
-
-        return new com.recurrence.pagbank.domain.commons.Address(
-                address.street(),
-                address.number(),
-                address.complement(),
-                address.locality(),
-                address.city(),
-                address.regionCode(),
-                address.country(),
-                address.postalCode()
-        );
+    static Amount toContract(PagBankAmount amount) {
+        if (amount == null) return null;
+        return new Amount(amount.value(), toCurrency(amount.currency()));
     }
 
-    public static PagBankAmount toPagBankAmount(Amount amount){
-        return new PagBankAmount(
-                amount.value(),
-                amount.currency()
-        );
-    }
-
-    public static Amount toContractAmount(PagBankAmount pagBankAmount){
-        return new Amount(
-                pagBankAmount.value(),
-                pagBankAmount.currency()
-        );
-    }
-
-    public static BillingInfo toContractBillingInfo(PagBankBillingInfo pagBankBillingInfo){
-        if (pagBankBillingInfo == null) return null;
-
-        if ( pagBankBillingInfo.card() != null){
-            return new BillingInfo(
-                    toContractPaymentMethodType(pagBankBillingInfo.type()),
-                new Card(
-                    pagBankBillingInfo.card().number(),
-                    pagBankBillingInfo.card().expYear(),
-                    pagBankBillingInfo.card().expMonth(),
-                    pagBankBillingInfo.card().encrypted(),
-                    new Holder(
-                        pagBankBillingInfo.card().holder().name()
-                    ),
-                    pagBankBillingInfo.card().token(),
-                    pagBankBillingInfo.card().brand(),
-                    pagBankBillingInfo.card().firstDigits(),
-                    pagBankBillingInfo.card().lastDigits(),
-                    null
-                ),
-                null
-            );
+    private static Currency toCurrency(String currency) {
+        if (currency == null) return null;
+        for (Currency value : Currency.values()) {
+            if (value.name().equalsIgnoreCase(currency)) return value;
         }
+        return null;
+    }
 
-        return new BillingInfo(
-                toContractPaymentMethodType(pagBankBillingInfo.type()),
-            null,
-            null
+    // ---------- intervalo ----------
+
+    static PagBankPlanInterval toPagBank(PlanInterval interval) {
+        if (interval == null) return null;
+        return new PagBankPlanInterval(interval.frequency(), interval.type().name());
+    }
+
+    /** PagBank aceita {@code YEAR}; convertido sem perda para {@code MONTH x 12}. */
+    static PlanInterval toContract(PagBankPlanInterval interval) {
+        if (interval == null || interval.unit() == null || interval.length() == null) return null;
+        return switch (interval.unit()) {
+            case "DAY" -> new PlanInterval(PlanIntervalType.DAY, interval.length());
+            case "MONTH" -> new PlanInterval(PlanIntervalType.MONTH, interval.length());
+            case "YEAR" -> new PlanInterval(PlanIntervalType.MONTH, interval.length() * 12);
+            default -> null;
+        };
+    }
+
+    // ---------- meio de pagamento ----------
+
+    static PaymentMethodType toPaymentMethodType(String type) {
+        return CREDIT_CARD.equals(type) ? PaymentMethodType.CREDIT_CARD : PaymentMethodType.UNKNOWN;
+    }
+
+    static List<String> toPagBankPaymentMethods(List<PaymentMethodType> types) {
+        if (types == null) return null;
+        return types.stream().map(Enum::name).toList();
+    }
+
+    static List<PaymentMethodType> toContractPaymentMethods(List<String> types) {
+        if (types == null) return null;
+        return types.stream().map(CommonsMapper::toPaymentMethodType).toList();
+    }
+
+    /** Cartão completo, para {@code customer.billing_info}. */
+    static PagBankBillingInfo toPagBankBillingInfo(BillingInfo billingInfo) {
+        return new PagBankBillingInfo(
+                CREDIT_CARD,
+                PagBankCard.encrypted(billingInfo.getCard().getToken(), billingInfo.getCard().getSecurityCode())
         );
     }
 
-    public static BillingInfo toContractBillingInfo(PaymentMethod paymentMethod){
-        if (paymentMethod == null) return null;
-
-        if ( paymentMethod.card() != null){
-            return new BillingInfo(
-                    toContractPaymentMethodType(paymentMethod.type()),
-                new Card(
-                    paymentMethod.card().number(),
-                    paymentMethod.card().expYear(),
-                    paymentMethod.card().expMonth(),
-                    paymentMethod.card().encrypted(),
-                    new Holder(
-                        paymentMethod.card().holder().name()
-                    ),
-                    paymentMethod.card().token(),
-                    paymentMethod.card().brand(),
-                    paymentMethod.card().firstDigits(),
-                    paymentMethod.card().lastDigits(),
-                    null
-                ),
-                null
-            );
-        }
-
-        return new BillingInfo(
-                toContractPaymentMethodType(paymentMethod.type()),
-            null,
-            null
+    /** Só o CVV, para {@code subscription.payment_method}. */
+    static PagBankBillingInfo toPagBankPaymentMethod(BillingInfo billingInfo) {
+        return new PagBankBillingInfo(
+                CREDIT_CARD,
+                PagBankCard.securityCode(billingInfo.getCard().getSecurityCode())
         );
     }
 
-    public static List<PagBankBillingInfo> toPagBankBillingInfo(BillingInfo billingInfo){
+    static BillingInfo toContract(PagBankBillingInfo billingInfo) {
         if (billingInfo == null) return null;
-
-        if ( billingInfo.card() != null){
-            PagBankCard.Holder holder = null;
-
-            if (billingInfo.card().holder() != null) {
-                holder = new PagBankCard.Holder(
-                        billingInfo.card().holder().name(),
-                        null,
-                        null
-                );
-            }
-
-            return List.of(new PagBankBillingInfo(
-                    toPagBankPaymentMethodType(billingInfo.type()),
-                new PagBankCard(
-                    billingInfo.card().token(),
-                    billingInfo.card().number(),
-                    billingInfo.card().encrypted(),
-                    billingInfo.card().brand(),
-                    billingInfo.card().firstDigits(),
-                    billingInfo.card().lastDigits(),
-                    billingInfo.card().expMonth(),
-                    billingInfo.card().expYear(),
-                    holder,
-                    null
-                ),
-                null
-            ));
+        Card card = null;
+        if (billingInfo.card() != null) {
+            card = Card.builder()
+                    .brand(billingInfo.card().brand())
+                    .lastDigits(billingInfo.card().lastDigits())
+                    .build();
         }
-
-        return List.of(new PagBankBillingInfo(
-                toPagBankPaymentMethodType(billingInfo.type()),
-            null,
-            null
-        ));
+        return BillingInfo.builder()
+                .type(toPaymentMethodType(billingInfo.type()))
+                .card(card)
+                .build();
     }
 
-    public static Phone toContractPhone(com.recurrence.pagbank.domain.commons.Phone phone){
-        return new Phone(
-            phone.id(),
-            phone.area(),
-            phone.country(),
-            phone.number()
-        );
+    static BillingInfo firstBillingInfo(List<PagBankBillingInfo> billingInfos) {
+        if (billingInfos == null || billingInfos.isEmpty()) return null;
+        return toContract(billingInfos.get(0));
     }
 
-    public static com.recurrence.pagbank.domain.commons.Phone toPagBankPhone(Phone phone){
-        return new com.recurrence.pagbank.domain.commons.Phone(
-            null,
-            phone.area(),
-            phone.country(),
-            phone.number()
-        );
+    // ---------- referências ----------
+
+    static PlanReference toPlanReference(PagBankPlan plan) {
+        if (plan == null) return null;
+        return new PlanReference(plan.id(), plan.name());
     }
 
-    public static String toPagBankPaymentMethodType(PaymentMethodType type) {
-        return switch (type) {
-            case BOLETO -> "BOLETO";
-            case CREDIT_CARD -> "CREDIT_CARD";
-            case BALANCE, PIX -> throw new UnsupportedProviderTypeException(PAGBANK, "Unsupported BALANCE payment method");
+    static CustomerReference toCustomerReference(PagBankCustomer customer) {
+        if (customer == null) return null;
+        return new CustomerReference(customer.id(), customer.name(), customer.email());
+    }
+
+    // ---------- status ----------
+    // ToDo confirmar no sandbox a lista completa de status devolvida pelo PagBank para fatura e pagamento.
+
+    static PlanStatus toPlanStatus(String status) {
+        if (status == null) return null;
+        return switch (status) {
+            case "ACTIVE" -> PlanStatus.ACTIVE;
+            case "INACTIVE" -> PlanStatus.INACTIVE;
+            default -> PlanStatus.UNKNOWN;
         };
     }
 
-    public static PaymentMethodType toContractPaymentMethodType(String type){
-        return switch (type) {
-            case "BOLETO" -> BOLETO;
-            case "CREDIT_CARD" -> CREDIT_CARD;
-            default -> throw new UnsupportedProviderTypeException(PAGBANK, "Unsupported BALANCE payment method");
+    /** {@code TRIAL} é uma assinatura ativa em período de teste; {@code PENDING_ACTION} aguarda ação do assinante. */
+    static SubscriptionStatus toSubscriptionStatus(String status) {
+        if (status == null) return null;
+        return switch (status) {
+            case "ACTIVE", "TRIAL" -> SubscriptionStatus.ACTIVE;
+            case "CANCELED" -> SubscriptionStatus.CANCELED;
+            case "OVERDUE" -> SubscriptionStatus.OVERDUE;
+            case "PENDING", "PENDING_ACTION" -> SubscriptionStatus.PENDING;
+            case "SUSPENDED" -> SubscriptionStatus.SUSPENDED;
+            case "EXPIRED" -> SubscriptionStatus.EXPIRED;
+            default -> SubscriptionStatus.UNKNOWN;
         };
+    }
+
+    /**
+     * Valores observados no sandbox: {@code PAID}, {@code UNPAID} e {@code OVERDUE}
+     * (cobrança recusada, logo após a tentativa). O contrato não distingue fatura
+     * vencida, então {@code OVERDUE} vira {@code UNPAID}.
+     */
+    static InvoiceStatus toInvoiceStatus(String status) {
+        if (status == null) return null;
+        return switch (status) {
+            case "PAID" -> InvoiceStatus.PAID;
+            case "UNPAID", "OVERDUE" -> InvoiceStatus.UNPAID;
+            default -> InvoiceStatus.UNKNOWN;
+        };
+    }
+
+    /** Valores observados no sandbox: {@code APPROVED}, {@code DENIED} e {@code UNPAID}. */
+    static PaymentStatus toPaymentStatus(String status) {
+        if (status == null) return null;
+        return switch (status) {
+            case "APPROVED" -> PaymentStatus.APPROVED;
+            case "DENIED" -> PaymentStatus.DECLINED;
+            case "UNPAID" -> PaymentStatus.UNPAID;
+            case "PENDING" -> PaymentStatus.PENDING;
+            case "REFUNDED" -> PaymentStatus.REFUNDED;
+            default -> PaymentStatus.UNKNOWN;
+        };
+    }
+
+    // ---------- datas e páginas ----------
+
+    /** Aceita {@code yyyy-MM-dd} ou data/hora ISO, mantendo só a data. */
+    static LocalDate toLocalDate(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return LocalDate.parse(value.length() > 10 ? value.substring(0, 10) : value);
+        } catch (DateTimeParseException e) {
+            throw new RecurrenceSerializationException("PagBank returned an invalid date: " + value, e);
+        }
+    }
+
+    static <P, T> PageResponse<T> toPage(ResultSet resultSet, List<P> items, Function<P, T> mapper) {
+        List<T> data = items == null ? List.of() : items.stream().map(mapper).toList();
+        PageResponse.PageInfo page = resultSet == null
+                ? new PageResponse.PageInfo(0, data.size(), data.size())
+                : new PageResponse.PageInfo(
+                        valueOrZero(resultSet.offset()),
+                        valueOrZero(resultSet.limit()),
+                        valueOrZero(resultSet.total()));
+        return new PageResponse<>(page, data);
+    }
+
+    private static int valueOrZero(Integer value) {
+        return value == null ? 0 : value;
     }
 }

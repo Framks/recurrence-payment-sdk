@@ -1,7 +1,8 @@
 package com.recurrence.pagbank.domain.commons;
 
+/** Valor em centavos. */
 public record PagBankAmount(
-        int value,
+        Integer value,
         String currency
 ) {
 }

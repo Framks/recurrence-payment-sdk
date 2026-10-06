@@ -1,286 +1,147 @@
 package com.recurrence.pagbank.service;
 
 import com.recurrence.contract.SubscriptionService;
-import com.recurrence.contract.domain.Invoice;
 import com.recurrence.contract.domain.Subscription;
+import com.recurrence.contract.domain.request.CreateSubscriptionRequest;
+import com.recurrence.contract.domain.request.UpdateSubscriptionRequest;
+import com.recurrence.contract.filters.PageOptions;
+import com.recurrence.contract.filters.SubscriptionFilter;
 import com.recurrence.contract.infra.PageResponse;
 import com.recurrence.contract.infra.RequestOptions;
-import com.recurrence.contract.infra.RequestResponse;
-import com.recurrence.contract.filters.SubscriptionFilter;
 import com.recurrence.core.BaseService;
-import com.recurrence.pagbank.PagbankConfig;
-import com.recurrence.pagbank.client.PagBankSubscriptionClient;
-import com.recurrence.pagbank.domain.error.PagBankErrorHandler;
-import com.recurrence.pagbank.domain.payment.PagBankListInvoice;
+import com.recurrence.core.ProviderContext;
+import com.recurrence.core.QueryParams;
+import com.recurrence.core.RequestValidator;
 import com.recurrence.pagbank.domain.subscription.PagBankSubscription;
 import com.recurrence.pagbank.domain.subscription.PagbankListSubscription;
-import com.recurrence.pagbank.mapper.PagBankInvoiceMapper;
+import com.recurrence.pagbank.mapper.PagBankFilterMapper;
 import com.recurrence.pagbank.mapper.PagBankSubscriptionMapper;
-import java.net.http.HttpResponse;
-import java.util.Map;
+import com.recurrence.pagbank.validator.SubscriptionValidator;
 
-import com.recurrence.pagbank.validator.SubscrptionValidator;
+import java.lang.ref.Reference;
 
-import static com.recurrence.constants.ProviderConstants.OPERATION_EXCEPTION;
-import static com.recurrence.constants.ProviderConstants.PAGBANK;
+import static com.recurrence.infrastructure.MethodRequest.GET;
+import static com.recurrence.infrastructure.MethodRequest.POST;
+import static com.recurrence.infrastructure.MethodRequest.PUT;
+import static com.recurrence.pagbank.constant.Constant.Operation.SUBSCRIPTION_ACTIVATE;
+import static com.recurrence.pagbank.constant.Constant.Operation.SUBSCRIPTION_CANCEL;
+import static com.recurrence.pagbank.constant.Constant.Operation.SUBSCRIPTION_CREATE;
+import static com.recurrence.pagbank.constant.Constant.Operation.SUBSCRIPTION_LIST;
+import static com.recurrence.pagbank.constant.Constant.Operation.SUBSCRIPTION_SUSPEND;
+import static com.recurrence.pagbank.constant.Constant.Operation.SUBSCRIPTION_UPDATE;
+import static com.recurrence.pagbank.constant.Constant.Operation.SUBSCRIPTION_UPDATE_BILLING;
+import static com.recurrence.pagbank.constant.Constant.PATH_ACTIVE;
+import static com.recurrence.pagbank.constant.Constant.PATH_BILLING_INFO;
+import static com.recurrence.pagbank.constant.Constant.PATH_CANCEL;
+import static com.recurrence.pagbank.constant.Constant.PATH_SUSPEND;
+import static com.recurrence.pagbank.constant.Constant.REFERENCE_ID;
+import static com.recurrence.pagbank.constant.Constant.STATUS;
+import static com.recurrence.pagbank.constant.Constant.SUBSCRIPTION_ID;
 
 public class PagBankSubscriptionService extends BaseService implements SubscriptionService {
-    private final PagbankConfig config;
-    private final PagBankSubscriptionClient pagBankSubscriptionClient;
 
-    public PagBankSubscriptionService(
-            final PagbankConfig config
-    ) {
-        this.config = config;
-        pagBankSubscriptionClient = new PagBankSubscriptionClient(config);
+    private static final String SUBSCRIPTIONS = "/subscriptions";
+    private static final String CUSTOMERS = "/customers";
+
+    public PagBankSubscriptionService(ProviderContext context) {
+        super(context);
     }
 
     @Override
-    public RequestResponse<Subscription> create(Subscription subscription) {
-        return create(subscription, RequestOptions.empty());
-    }
-
-    @Override
-    public RequestResponse<Subscription> create(Subscription subscription, RequestOptions requestOptions){
-        try {
-            SubscrptionValidator.validateCreateRequest(subscription);
-            HttpResponse<String> response = pagBankSubscriptionClient.create(
-                    toJson(PagBankSubscriptionMapper.toPagBankContract(subscription)),
-                    resolveIdempotencyKey(config.fullHeaders(), requestOptions)
-            );
-
-            RequestResponse<Subscription> requestResponse = buildResponse(response);
-
-            return switch((requestResponse.getHttpResponse()/100)){
-                case 2 -> requestResponse.setBody(
-                        PagBankSubscriptionMapper.toContract(fromJson(response.body(), PagBankSubscription.class))
-                );
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<Subscription> get(String id) {
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.get(id, config.fullHeaders());
-            RequestResponse<Subscription> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 2 -> requestResponse.setBody(
-                    PagBankSubscriptionMapper.toContract(fromJson(response.body(), PagBankSubscription.class))
-                );
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<PageResponse<Subscription>> list(){
-        return list(SubscriptionFilter
-                .builder()
-                .build()
+    public Subscription create(CreateSubscriptionRequest subscription, RequestOptions requestOptions) {
+        RequestValidator.validate(subscription);
+        SubscriptionValidator.validateCreate(subscription);
+        return execute(
+                SUBSCRIPTION_CREATE,
+                request(POST, SUBSCRIPTIONS, requestOptions)
+                        .body(toJson(SUBSCRIPTION_CREATE, PagBankSubscriptionMapper.toRequest(subscription)))
+                        .build(),
+                PagBankSubscription.class,
+                PagBankSubscriptionMapper::toContract
         );
     }
 
     @Override
-    public RequestResponse<PageResponse<Subscription>> list(SubscriptionFilter subscriptionFilter) {
-        return list(
-            subscriptionFilter,
-            RequestOptions.empty()
+    public Subscription get(String subscriptionId) {
+        RequestValidator.requireId(subscriptionId, "subscriptionId");
+        return execute(
+                "subscription.get",
+                request(GET, subscriptionPath(subscriptionId), null).build(),
+                PagBankSubscription.class,
+                PagBankSubscriptionMapper::toContract
         );
     }
 
     @Override
-    public RequestResponse<PageResponse<Subscription>> list(SubscriptionFilter subscriptionFilter, RequestOptions requestOptions){
-        try {
-            SubscriptionFilter filter = subscriptionFilter == null
-                ? SubscriptionFilter.builder().build()
-                : subscriptionFilter;
-            RequestOptions options = requestOptions == null
-                ? RequestOptions.empty()
-                : requestOptions;
-            Map<String, String> headers = config.fullHeaders();
-            applyQueryFilter(headers, filter);
-            HttpResponse<String> response = pagBankSubscriptionClient.list(
-                    filter,
-                    options,
-                    headers
+    public PageResponse<Subscription> list(PageOptions pageOptions, SubscriptionFilter subscriptionFilter) {
+        QueryParams query = QueryParams.create().page(pageOptions);
+        if (subscriptionFilter != null) {
+            query.add(STATUS, PagBankFilterMapper.status(subscriptionFilter.getStatus()))
+                    .add("q", subscriptionFilter.getQuery())
+                    .add(REFERENCE_ID, subscriptionFilter.getReferenceId());
+        }
+        return execute(
+                SUBSCRIPTION_LIST,
+                request(GET, query.appendTo(SUBSCRIPTIONS), null).build(),
+                PagbankListSubscription.class,
+                PagBankSubscriptionMapper::toPage
+        );
+    }
+
+    /**
+     * No PagBank o cartão pertence ao assinante: a troca de meio de pagamento vai
+     * para {@code PUT /customers/{id}/billing_info}, e plano/valor para
+     * {@code PUT /subscriptions/{id}}. Ao final devolve a assinatura atualizada.
+     */
+    @Override
+    public Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription, RequestOptions requestOptions) {
+        RequestValidator.requireId(subscriptionId, SUBSCRIPTION_ID);
+        RequestValidator.validate(subscription);
+        SubscriptionValidator.validateSecurityCode(subscription.getPaymentMethod());
+
+        if (subscription.getPaymentMethod() != null) {
+            String customerId = get(subscriptionId).getCustomer().id();
+            execute(
+                    SUBSCRIPTION_UPDATE_BILLING,
+                    request(PUT, CUSTOMERS + "/" + segment(customerId) + PATH_BILLING_INFO, requestOptions)
+                            .body(toJson(SUBSCRIPTION_UPDATE_BILLING, PagBankSubscriptionMapper.toBillingInfoRequest(subscription.getPaymentMethod())))
+                            .build()
             );
-
-            RequestResponse<PageResponse<Subscription>> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 2 -> requestResponse.setBody(
-                        PagBankSubscriptionMapper.toPageResponse(fromJson(response.body(), PagbankListSubscription.class))
-                );
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<PageResponse<Invoice>> listInvoiceBySubscription(String subscriptionId, int offset, int limit) {
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.listInvoices(subscriptionId, config.fullHeaders());
-            RequestResponse<PageResponse<Invoice>> requestResponse = buildResponse(response);
-
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 2 -> requestResponse.setBody(
-                    PagBankInvoiceMapper.toInvoicePageResponse(fromJson(response.body(), PagBankListInvoice.class))
-                );
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<Subscription> update(String id, Subscription subscription) {
-        return update(id, subscription, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Subscription> update(String id, Subscription subscription, RequestOptions requestOptions){
-        try {
-            var payload = toJson(PagBankSubscriptionMapper.toPagBankContract(subscription));
-            var headers = resolveIdempotencyKey(config.fullHeaders(), requestOptions);
-            HttpResponse<String> response = pagBankSubscriptionClient.put(id, payload, headers);
-            RequestResponse<Subscription> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 2 -> requestResponse.setBody(
-                        PagBankSubscriptionMapper.toContract(fromJson(response.body(), PagBankSubscription.class))
-                );
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<Void> suspend(String id) {
-        return suspend(id, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Void> suspend(String id, RequestOptions requestOptions){
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.suspend(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-    @Override
-    public RequestResponse<Void> cancel(String id) {
-        return cancel(id, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Void> cancel(String id, RequestOptions requestOptions) {
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.cancel(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-
-    @Override
-    public RequestResponse<Void> active(String id) {
-        return active(id, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Void> active(String id, RequestOptions requestOptions) {
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.activate(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-
-    @Override
-    public RequestResponse<Void> deleteCoupon(String id) {
-        return deleteCoupon(id, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Void> deleteCoupon(String id, RequestOptions requestOptions) {
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.deleteCoupons(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-
-    @Override
-    public RequestResponse<Void> retry(String id) {
-        return retry(id, RequestOptions.builder().build());
-    }
-
-    @Override
-    public RequestResponse<Void> retry(String id, RequestOptions requestOptions) {
-        try {
-            HttpResponse<String> response = pagBankSubscriptionClient.retry(id, resolveIdempotencyKey(config.fullHeaders(), requestOptions));
-            RequestResponse<Void> requestResponse = buildResponse(response);
-            return switch ((requestResponse.getHttpResponse()/100)) {
-                case 4 -> PagBankErrorHandler.handle(requestResponse, response.body());
-                default -> requestResponse;
-            };
-        } catch (Exception e) {
-            throw providerException(PAGBANK, OPERATION_EXCEPTION, e);
-        }
-    }
-
-
-    private void applyQueryFilter(Map<String, String> headers, SubscriptionFilter subscriptionFilter) {
-        if (subscriptionFilter == null) {
-            return;
         }
 
-        if (subscriptionFilter.getReferenceId() != null && !subscriptionFilter.getReferenceId().isBlank()) {
-            headers.put("q", subscriptionFilter.getReferenceId());
+        if (subscription.getPlanId() != null || subscription.getAmount() != null) {
+            execute(
+                    SUBSCRIPTION_UPDATE,
+                    request(PUT, subscriptionPath(subscriptionId), requestOptions)
+                            .body(toJson(SUBSCRIPTION_UPDATE, PagBankSubscriptionMapper.toRequest(subscription)))
+                            .build()
+            );
         }
+
+        return get(subscriptionId);
     }
 
-    private Map<String, String> resolveIdempotencyKey(Map<String, String> headers, RequestOptions requestOptions){
-        if(requestOptions.hasIdempotencyKey()){
-            headers.put("x-idempotency-key", requestOptions.getIdempotencyKey());
-        }
-        return headers;
+    @Override
+    public void suspend(String subscriptionId, RequestOptions requestOptions) {
+        changeStatus(SUBSCRIPTION_SUSPEND, subscriptionId, PATH_SUSPEND, requestOptions);
+    }
+
+    @Override
+    public void cancel(String subscriptionId, RequestOptions requestOptions) {
+        changeStatus(SUBSCRIPTION_CANCEL, subscriptionId, PATH_CANCEL, requestOptions);
+    }
+
+    @Override
+    public void activate(String subscriptionId, RequestOptions requestOptions) {
+        changeStatus(SUBSCRIPTION_ACTIVATE, subscriptionId, PATH_ACTIVE, requestOptions);
+    }
+
+    private void changeStatus(String operation, String subscriptionId, String action, RequestOptions requestOptions) {
+        RequestValidator.requireId(subscriptionId, SUBSCRIPTION_ID);
+        execute(operation, request(PUT, subscriptionPath(subscriptionId) + action, requestOptions).build());
+    }
+
+    private static String subscriptionPath(String subscriptionId) {
+        return SUBSCRIPTIONS + "/" + segment(subscriptionId);
     }
 }
