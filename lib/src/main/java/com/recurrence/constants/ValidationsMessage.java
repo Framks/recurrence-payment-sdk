@@ -37,4 +37,5 @@ public final class ValidationsMessage {
 
     public static final String FILTER_STATUS_UNKNOWN = "invalid filter, status UNKNOWN cannot be used as filter.";
     public static final String FILTER_STATUS_UNSUPPORTED = "invalid filter, status %s is not supported by %s.";
+    public static final String FILTER_DATE_RANGE_INVALID = "invalid filter, createdFrom and createdUntil must be informed together, in order, with at most 90 days between them.";
 }
