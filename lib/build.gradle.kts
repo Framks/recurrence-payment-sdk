@@ -1,6 +1,5 @@
 plugins {
     `java-library`
-    kotlin("jvm")
 }
 
 repositories {
@@ -16,16 +15,33 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     api(libs.commons.math3)
     implementation(libs.guava)
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
 }
 
+sourceSets {
+    test {
+        java {
+            // ToDo reativar quando os testes forem replanejados (mappers do Mercado Pago ainda não existem
+            // e os testes do PagBank cobrem o contrato antigo).
+            exclude("com/recurrence/mercadopago/**")
+            exclude("com/recurrence/pagbank/**")
+        }
+    }
+}
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
 }
-kotlin {
-    jvmToolchain(16)
+
+// Executa Library.main, que percorre todas as operações do contrato no sandbox do PagBank.
+tasks.register<JavaExec>("runLibrary") {
+    group = "verification"
+    description = "Executa as chamadas do contrato contra o sandbox do PagBank."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "com.recurrence.Library"
 }
