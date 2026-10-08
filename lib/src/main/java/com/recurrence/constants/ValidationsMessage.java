@@ -37,5 +37,7 @@ public final class ValidationsMessage {
 
     public static final String FILTER_STATUS_UNKNOWN = "invalid filter, status UNKNOWN cannot be used as filter.";
     public static final String FILTER_STATUS_UNSUPPORTED = "invalid filter, status %s is not supported by %s.";
+    public static final String MERCADO_PAGO_PLAN_CHANGE_UNSUPPORTED = "invalid request, Mercado Pago does not support changing the plan of an existing subscription.";
+    public static final String FILTER_DATE_PAIR_INVALID = "invalid filter, createdFrom and createdUntil must be informed together, with createdFrom before createdUntil.";
     public static final String FILTER_DATE_RANGE_INVALID = "invalid filter, createdFrom and createdUntil must be informed together, in order, with at most 90 days between them.";
 }
