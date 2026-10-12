@@ -28,10 +28,11 @@ import static com.recurrence.pagbank.constant.Constant.PATH_PUBLIC_KEYS;
  * Criptografa o cartão com a chave pública da conta (RSA/PKCS#1), como o
  * {@code PagSeguro.encryptCard} do SDK JS.
  *
- * <p>A chave é consultada em {@code GET /public-keys} na primeira chamada e
- * reaproveitada enquanto o provedor existir. Se a conta ainda não tiver chave, a
- * consulta falha com {@code RecurrenceApiException}: gere a chave no PagBank antes
- * de tokenizar.</p>
+ * <p>Usa a chave de {@code ProviderConfig.publicKey} (ou
+ * {@code RECURRENCE_PAGBANK_PUBLIC_KEY}) quando informada. Sem ela, a chave é
+ * consultada em {@code GET /public-keys} na primeira chamada e reaproveitada
+ * enquanto o provedor existir; se a conta ainda não tiver chave, a consulta falha
+ * com {@code RecurrenceApiException}: gere a chave no PagBank antes de tokenizar.</p>
  */
 public class PagBankCardService extends BaseService implements CardService {
 
@@ -56,7 +57,8 @@ public class PagBankCardService extends BaseService implements CardService {
             synchronized (this) {
                 key = publicKey;
                 if (key == null) {
-                    String encoded = execute(
+                    String configured = context.config().getPublicKey();
+                    String encoded = configured != null ? configured : execute(
                             CARD_PUBLIC_KEY,
                             request(GET, PATH_PUBLIC_KEYS, requestOptions).build(),
                             PagBankPublicKey.class,

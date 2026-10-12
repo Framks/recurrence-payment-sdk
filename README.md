@@ -12,9 +12,17 @@ PagBank estão em andamento; Mercado Pago ainda é um esqueleto
 `docs/modelo-canonico.md`, seção 12, para a lista de pendências conhecidas
 antes de usar em produção.
 
-## Uso
+## Configuração
+
+O provedor pode ser configurado no código, pelas variáveis de ambiente ou pelas
+duas formas juntas. Quando um campo vem dos dois lados, **o valor declarado no
+código ganha**.
 
 ```java
+// 1. Só variáveis de ambiente
+Recurrence recurrence = Recurrence.config(ProviderConfig.fromEnv());
+
+// 2. Só código
 Recurrence recurrence = Recurrence.config(
     Provider.PAGBANK,
     Environment.SANDBOX,
@@ -24,6 +32,37 @@ Recurrence recurrence = Recurrence.config(
         .build()
 );
 
+// 3. Variáveis de ambiente com campos sobrescritos no código
+Recurrence recurrence = Recurrence.config(
+    ProviderConfig.builder()
+        .provider(Provider.PAGBANK)   // ganha de RECURRENCE_PROVIDER
+        .fromEnv()
+        .timeout(Duration.ofSeconds(30))
+        .build()
+);
+```
+
+### Variáveis de ambiente
+
+O provedor vem de `RECURRENCE_PROVIDER`; os demais campos usam o nome do
+provedor (`PAGBANK` ou `MERCADO_PAGO`), o que permite configurar os dois no
+mesmo processo.
+
+| Variável | Campo | PagBank | Mercado Pago |
+|---|---|---|---|
+| `RECURRENCE_PROVIDER` | provedor | `PAGBANK` | `MERCADO_PAGO` |
+| `RECURRENCE_<P>_ENVIRONMENT` | `environment` | padrão `SANDBOX` | padrão `SANDBOX` |
+| `RECURRENCE_<P>_TOKEN` | `token` | obrigatório | obrigatório (access token) |
+| `RECURRENCE_<P>_PUBLIC_KEY` | `publicKey` | opcional: chave RSA do cartão; sem ela, consulta `GET /public-keys` | opcional, ainda não usada |
+| `RECURRENCE_<P>_BACK_URL` | `backUrl` | não suportado | obrigatório |
+| `RECURRENCE_<P>_TIMEOUT` | `timeout` (segundos) | padrão 15 | padrão 15 |
+
+Variável ausente ou com valor inválido gera `RecurrenceConfigurationException`
+com o nome da variável.
+
+## Uso
+
+```java
 Plan plan = recurrence.plan().create(
     CreatePlanRequest.builder()
         .name("Plano mensal")
