@@ -6,6 +6,7 @@ import com.recurrence.contract.domain.commons.PlanInterval;
 import com.recurrence.contract.domain.enums.PaymentMethodType;
 import com.recurrence.contract.domain.request.CreatePlanRequest;
 import com.recurrence.contract.domain.request.CreateSubscriptionRequest;
+import com.recurrence.contract.domain.request.TokenizeCardRequest;
 import com.recurrence.contract.domain.request.UpdatePlanRequest;
 import com.recurrence.contract.domain.request.UpdateSubscriptionRequest;
 import com.recurrence.exception.RecurrenceValidationException;
@@ -82,6 +83,26 @@ public final class RequestValidator {
         if (request.getPaymentMethod() != null) validatePaymentMethod(request.getPaymentMethod());
     }
 
+    /** Regras do SDK JS do PagBank, que também valem para o Mercado Pago. */
+    public static void validate(TokenizeCardRequest request) {
+        if (request == null) throw new RecurrenceValidationException(CARD_REQUEST_NULL);
+        if (!isDigits(request.getNumber(), 13, 19)) throw new RecurrenceValidationException(CARD_NUMBER_INVALID);
+        if (!isDigits(request.getSecurityCode(), 3, 4)) throw new RecurrenceValidationException(CARD_SECURITY_CODE_INVALID);
+        if (request.getExpMonth() == null || request.getExpMonth() < 1 || request.getExpMonth() > 12) {
+            throw new RecurrenceValidationException(CARD_EXP_MONTH_INVALID);
+        }
+        if (request.getExpYear() == null || request.getExpYear() < 1900 || request.getExpYear() > 2099) {
+            throw new RecurrenceValidationException(CARD_EXP_YEAR_INVALID);
+        }
+        if (isBlank(request.getHolderName()) || request.getHolderName().chars().anyMatch(Character::isDigit)) {
+            throw new RecurrenceValidationException(CARD_HOLDER_NAME_INVALID);
+        }
+        String taxId = request.getHolderTaxId();
+        if (taxId != null && !(isDigits(taxId, 11, 11) || isDigits(taxId, 14, 14))) {
+            throw new RecurrenceValidationException(CARD_HOLDER_TAXID_INVALID);
+        }
+    }
+
     private static void validateAmount(Amount amount) {
         if (amount.value() == null) throw new RecurrenceValidationException(AMOUNT_VALUE_NULL);
         if (amount.currency() == null) throw new RecurrenceValidationException(AMOUNT_CURRENCY_NULL);
@@ -120,6 +141,13 @@ public final class RequestValidator {
         if (paymentMethod.getCard() == null || isBlank(paymentMethod.getCard().getToken())) {
             throw new RecurrenceValidationException(CARD_TOKEN_NULL);
         }
+    }
+
+    private static boolean isDigits(String value, int minLength, int maxLength) {
+        return value != null
+                && value.length() >= minLength
+                && value.length() <= maxLength
+                && value.chars().allMatch(c -> c >= '0' && c <= '9');
     }
 
     private static boolean isBlank(String value) {

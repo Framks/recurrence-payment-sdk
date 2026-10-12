@@ -1,5 +1,6 @@
 package com.recurrence.mercadopago;
 
+import com.recurrence.contract.CardService;
 import com.recurrence.contract.InvoiceService;
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.RecurrenceProvider;
@@ -11,6 +12,7 @@ import com.recurrence.core.ProviderContext;
 import com.recurrence.exception.RecurrenceConfigurationException;
 import com.recurrence.infrastructure.HttpClientAdapter;
 import com.recurrence.mercadopago.mapper.MercadoPagoErrorMapper;
+import com.recurrence.mercadopago.service.MercadoPagoCardService;
 import com.recurrence.mercadopago.service.MercadoPagoInvoiceService;
 import com.recurrence.mercadopago.service.MercadoPagoPlanService;
 import com.recurrence.mercadopago.service.MercadoPagoSubscriptionService;
@@ -31,6 +33,7 @@ public class MercadoPagoProvider implements RecurrenceProvider {
     private final PlanService planService;
     private final SubscriptionService subscriptionService;
     private final InvoiceService invoiceService;
+    private final CardService cardService;
 
     public MercadoPagoProvider(
         Environment environment,
@@ -57,6 +60,7 @@ public class MercadoPagoProvider implements RecurrenceProvider {
         this.planService = new MercadoPagoPlanService(context);
         this.subscriptionService = new MercadoPagoSubscriptionService(context);
         this.invoiceService = new MercadoPagoInvoiceService(context);
+        this.cardService = new MercadoPagoCardService(context);
     }
 
     @Override
@@ -72,6 +76,11 @@ public class MercadoPagoProvider implements RecurrenceProvider {
     @Override
     public InvoiceService invoiceService() {
         return invoiceService;
+    }
+
+    @Override
+    public CardService cardService() {
+        return cardService;
     }
 
     private static void validateConfig(ProviderConfig config) {

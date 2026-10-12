@@ -57,4 +57,7 @@ final public class Recurrence {
     public InvoiceService invoice() {
         return provider.invoiceService();
     }
+    public CardService card() {
+        return provider.cardService();
+    }
 }

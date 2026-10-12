@@ -33,6 +33,31 @@ Plan plan = recurrence.plan().create(
 );
 ```
 
+### Tokenização do cartão no backend
+
+`card().tokenize(...)` devolve o `Card` pronto para usar como meio de
+pagamento. No PagBank o cartão é criptografado localmente com a chave pública
+da conta (`GET /public-keys`, que precisa existir); no Mercado Pago é criado um
+`card_token` de uso único. `holderTaxId` é obrigatório no Mercado Pago e
+ignorado pelo PagBank.
+
+```java
+Card card = recurrence.card().tokenize(
+    TokenizeCardRequest.builder()
+        .number("5555666677778884")
+        .securityCode("123")
+        .expMonth(12)
+        .expYear(2030)
+        .holderName("Joao Pereira Azul")
+        .holderTaxId("12345678909")
+        .build()
+);
+```
+
+> **PCI-DSS:** receber número e CVV no backend coloca a integração no escopo
+> completo do PCI-DSS. Em produção, prefira gerar o token no frontend com o SDK
+> JS do provedor e use este método apenas em testes ou em ambiente certificado.
+
 ## Documentação
 
 - [`docs/modelo-canonico.md`](docs/modelo-canonico.md) — o contrato

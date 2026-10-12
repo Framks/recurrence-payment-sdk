@@ -8,6 +8,9 @@ package com.recurrence.contract.domain.commons;
  * {@code card_token_id}. {@code securityCode} é o CVV, exigido pelo PagBank na
  * cobrança.</p>
  *
+ * <p>Para gerar o token no backend use {@code recurrence.card().tokenize(...)},
+ * que já devolve o {@code Card} preenchido para o provedor ativo.</p>
+ *
  * <p>Nas respostas, {@code token} e {@code securityCode} vêm vazios e apenas os
  * dados de exibição ({@code brand}, {@code lastDigits}) são preenchidos quando o
  * provedor os devolve.</p>

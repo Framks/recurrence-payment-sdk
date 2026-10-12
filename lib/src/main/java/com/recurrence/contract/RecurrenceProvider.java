@@ -6,4 +6,5 @@ public interface RecurrenceProvider {
     PlanService planService() throws RecurrenceException;
     SubscriptionService subscriptionService() throws RecurrenceException;
     InvoiceService invoiceService() throws RecurrenceException;
+    CardService cardService() throws RecurrenceException;
 }

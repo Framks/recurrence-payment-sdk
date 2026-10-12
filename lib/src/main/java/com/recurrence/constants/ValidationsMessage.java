@@ -16,6 +16,15 @@ public final class ValidationsMessage {
     public static final String CARD_TOKEN_NULL = "invalid request, paymentMethod.card.token is required.";
     public static final String CARD_SECURITY_CODE_NULL = "invalid request, paymentMethod.card.securityCode is required.";
 
+    public static final String CARD_REQUEST_NULL = "invalid request, card is required.";
+    public static final String CARD_NUMBER_INVALID = "invalid request, card.number must have only digits, between 13 and 19.";
+    public static final String CARD_SECURITY_CODE_INVALID = "invalid request, card.securityCode must have 3 or 4 digits.";
+    public static final String CARD_EXP_MONTH_INVALID = "invalid request, card.expMonth must be between 1 and 12.";
+    public static final String CARD_EXP_YEAR_INVALID = "invalid request, card.expYear must be between 1900 and 2099.";
+    public static final String CARD_HOLDER_NAME_INVALID = "invalid request, card.holderName is required and must not contain digits.";
+    public static final String CARD_HOLDER_TAXID_INVALID = "invalid request, card.holderTaxId must have only digits, 11 (CPF) or 14 (CNPJ).";
+    public static final String CARD_HOLDER_TAXID_NULL = "invalid request, card.holderTaxId is required by %s.";
+
     public static final String CUSTOMER_NULL = "invalid request, customer is required.";
     public static final String CUSTOMER_NAME_NULL = "invalid request, customer.name is required.";
     public static final String CUSTOMER_EMAIL_NULL = "invalid request, customer.email is required.";

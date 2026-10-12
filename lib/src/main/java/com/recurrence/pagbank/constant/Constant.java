@@ -13,6 +13,7 @@ public final class Constant {
     public static final String PATH_CANCEL = "/cancel";
     public static final String PATH_SUSPEND = "/suspend";
     public static final String PATH_BILLING_INFO = "/billing_info";
+    public static final String PATH_PUBLIC_KEYS = "/public-keys";
     public static final String STATUS = "status";
     public static final String REFERENCE_ID = "reference_id";
     public static final String CREATE_AT_START = "created_at_start";
@@ -39,6 +40,8 @@ public final class Constant {
         public static final String PAYMENT_LIST = "payment.list";
         public static final String INVOICE_GET = "invoice.get";
         public static final String PAYMENT_GET = "payment.get";
+        public static final String CARD_PUBLIC_KEY = "card.public_key";
+        public static final String CARD_ENCRYPT = "card.encrypt";
     }
 }
 

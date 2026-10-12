@@ -9,6 +9,7 @@ public final class Constant {
     public static final String SUBSCRIPTIONS = "/preapproval";
     public static final String INVOICES = "/authorized_payments";
     public static final String PAYMENTS = "/v1/payments";
+    public static final String CARD_TOKENS = "/v1/card_tokens";
     public static final String PATH_SEARCH = "/search";
 
     public static final String PLAN_ID = "planId";
@@ -61,5 +62,6 @@ public final class Constant {
         public static final String PAYMENT_LIST = "payment.list";
         public static final String INVOICE_GET = "invoice.get";
         public static final String PAYMENT_GET = "payment.get";
+        public static final String CARD_TOKENIZE = "card.tokenize";
     }
 }

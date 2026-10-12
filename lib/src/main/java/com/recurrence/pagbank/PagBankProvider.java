@@ -1,5 +1,6 @@
 package com.recurrence.pagbank;
 
+import com.recurrence.contract.CardService;
 import com.recurrence.contract.InvoiceService;
 import com.recurrence.contract.PlanService;
 import com.recurrence.contract.RecurrenceProvider;
@@ -11,6 +12,7 @@ import com.recurrence.core.ProviderContext;
 import com.recurrence.exception.RecurrenceConfigurationException;
 import com.recurrence.infrastructure.HttpClientAdapter;
 import com.recurrence.pagbank.mapper.PagBankErrorMapper;
+import com.recurrence.pagbank.service.PagBankCardService;
 import com.recurrence.pagbank.service.PagBankInvoiceService;
 import com.recurrence.pagbank.service.PagBankPlanService;
 import com.recurrence.pagbank.service.PagBankSubscriptionService;
@@ -27,6 +29,7 @@ public class PagBankProvider implements RecurrenceProvider {
     private final PlanService planService;
     private final SubscriptionService subscriptionService;
     private final InvoiceService invoiceService;
+    private final CardService cardService;
 
     public PagBankProvider(
             Environment environment,
@@ -53,6 +56,7 @@ public class PagBankProvider implements RecurrenceProvider {
         this.planService = new PagBankPlanService(context);
         this.subscriptionService = new PagBankSubscriptionService(context);
         this.invoiceService = new PagBankInvoiceService(context);
+        this.cardService = new PagBankCardService(context);
     }
 
     @Override
@@ -68,6 +72,11 @@ public class PagBankProvider implements RecurrenceProvider {
     @Override
     public InvoiceService invoiceService() {
         return invoiceService;
+    }
+
+    @Override
+    public CardService cardService() {
+        return cardService;
     }
 
     private static String baseUrl(Environment environment) {
