@@ -41,7 +41,7 @@ public final class MercadoPagoPlanMapper {
                         CommonsMapper.toCurrencyId(plan.getAmount()),
                         plan.getTrial() == null ? null : CommonsMapper.toFreeTrial(plan.getTrial().days())
                 ),
-                CommonsMapper.toPaymentMethodsAllowed(paymentMethods),
+                CommonsMapper.toPaymentMethodsAllowed(paymentMethods), // ver na pratica se isso não vai retornar erro.
                 backUrl
         );
     }
