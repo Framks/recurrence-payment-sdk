@@ -8,12 +8,13 @@ import java.time.OffsetDateTime;
  * Filtros de busca de pagamentos. Paginação fica em {@code PageOptions}.
  *
  * <p>Campos aceitos pelos dois provedores (PagBank {@code /payments},
- * Mercado Pago busca de {@code authorized_payments}):</p>
+ * Mercado Pago {@code /v1/payments/search}):</p>
  * <ul>
  *   <li>{@code status} &mdash; PagBank {@code status} / Mercado Pago {@code status};</li>
  *   <li>{@code createdFrom} / {@code createdUntil} &mdash; PagBank
- *       {@code created_at_start}/{@code created_at_end} / Mercado Pago
- *       {@code date_created.from}/{@code date_created.to}.</li>
+ *       {@code created_at_start}/{@code created_at_end} (só a data, no máximo 90 dias) /
+ *       Mercado Pago {@code range=date_created} com {@code begin_date}/{@code end_date}.
+ *       Os dois campos são informados juntos.</li>
  * </ul>
  *
  * <p>{@code payment_method_type} ficou de fora: só o PagBank o expõe na busca.</p>

@@ -11,7 +11,7 @@ import com.recurrence.contract.domain.enums.PaymentMethodType;
  * <pre>{@code
  * BillingInfo billing = BillingInfo.builder()
  *     .type(PaymentMethodType.CREDIT_CARD)
- *     .card(Card.builder().id("CARD_123").build())
+ *     .card(Card.builder().token("TOKEN_DO_CARTAO").securityCode("123").build())
  *     .build();
  * }</pre>
  */
