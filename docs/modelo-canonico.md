@@ -1,524 +1,366 @@
-# Modelo canônico da biblioteca
+# Modelo canônico
 
-> Este documento descreve o contrato **como implementado hoje** em
-> `lib/src/main/java/com/recurrence/contract`. Itens que ainda não existem no
-> código, mas que já foram cogitados, ficam isolados na seção 12
-> ("Pendências e divergências conhecidas") em vez de misturados ao modelo —
-> assim o documento não promete algo que o consumidor da lib não consegue usar.
+Este documento descreve o contrato público da biblioteca (`com.recurrence.contract`)
+como ele está implementado, e como cada tipo é convertido de e para o PagBank e o
+Mercado Pago. Tudo aqui foi conferido contra o código dos mappers e dos services de
+cada adaptador. Os critérios usados para decidir o que entra no contrato estão em
+[`criterios.md`](criterios.md).
 
-## 1. Decisões de escopo
+## 1. Escopo
 
 ### 1.1 Incluído
 
-- criar, consultar, listar (com filtro) e atualizar plano; ativar e inativar
-  plano;
-- criar, consultar, listar (com filtro) e atualizar assinatura vinculada a
-  plano; suspender, reativar e cancelar assinatura;
-- consultar fatura e listar faturas de uma assinatura;
-- consultar pagamento e listar pagamentos (globalmente ou por fatura, com
-  filtro);
-- paginação (`PageOptions`/`PageResponse`), opções por chamada
-  (`RequestOptions`) e configuração de provedor (`ProviderConfig`).
+| Serviço | Operações |
+|---|---|
+| `PlanService` | `create`, `get`, `list`, `update`, `activate`, `deactivate` |
+| `SubscriptionService` | `create`, `get`, `list`, `update`, `suspend`, `cancel`, `activate` |
+| `InvoiceService` | `getInvoice`, `getPayment`, `listPayments(invoiceId, ...)`, `listPayments(pageOptions, ...)`, `listInvoiceBySubscription` |
+| `CardService` | `tokenize` |
 
-### 1.2 Fora do escopo em v1.0
+São 19 operações. Além delas, o contrato tem paginação (`PageOptions`/`PageResponse`),
+filtros (`PlanFilter`, `SubscriptionFilter`, `PaymentFilter`), opções por chamada
+(`RequestOptions`) e configuração (`ProviderConfig`, `Provider`, `Environment`).
 
-- **estorno de pagamento**: o tipo `Refund` existe em
-  `contract.domain.Refund`, mas nenhum service do contrato o expõe
-  (`InvoiceService` não tem `refund`/`getRefund`/`listRefunds`). Ver seção 8
-  e seção 12;
-- **busca global de faturas**: só existe `listInvoiceBySubscription`; não há
-  `search`/`list` de fatura independente de assinatura;
-- **assinante como recurso independente**: não existe `CustomerService`;
-  `Customer` só aparece embutido em `Subscription`/`Invoice`/`Payment` (ver
-  seção 5 e seção 12 sobre a contradição com a intenção original de não ser
-  agregado).
+Meio de pagamento aceito: **só cartão de crédito** (`PaymentMethodType.CREDIT_CARD`).
+
+### 1.2 Excluído
+
+| Fora do contrato | Motivo |
+|---|---|
+| Assinante como recurso próprio (`Customer`, `CustomerService`) | No Mercado Pago o pagador existe só dentro da assinatura. O assinante aparece no contrato apenas como `CustomerReference(id, name, email)` nas respostas e como `CustomerRequest` na criação da assinatura. |
+| Estorno (`Refund`) | Não faz parte do produto de assinaturas do Mercado Pago. Fica como trabalho futuro. |
+| Cupons, preferências de retentativa e de notificação, retentativa manual | Recursos exclusivos do PagBank. |
+| Exportação de assinaturas | Recurso exclusivo do Mercado Pago. |
+| Busca geral de faturas | O PagBank só lista faturas por assinatura. |
+| Assinatura sem plano e checkout por link (`init_point`) | Fluxos exclusivos do Mercado Pago. |
+| Boleto e outros meios de pagamento | O Mercado Pago não oferece boleto em assinaturas. Valores desconhecidos nas respostas viram `PaymentMethodType.UNKNOWN`. |
+| Webhooks e notificações | Payloads e validação são diferentes em cada provedor. |
 
 ## 2. Visão do domínio
 
 ```mermaid
 classDiagram
-    Plan "1" --> "0..*" Subscription : referenciado por
-    Subscription "1" --> "0..*" Invoice : gera (no provedor)
-    Invoice "1" --> "0..*" Payment : referencia por invoiceId
-    Payment "1" --> "0..*" Refund : pode originar (fora do contrato v1.0)
-    Subscription --> Customer : embute o objeto completo
+    direction LR
+    Plan "1" <.. "0..*" Subscription : PlanReference
+    Subscription "1" <.. "0..*" Invoice : subscriptionId
+    Invoice "1" <.. "0..*" Payment : invoiceId
+    Subscription ..> CustomerReference
+    Subscription ..> BillingInfo
+    Payment ..> BillingInfo
+    BillingInfo ..> Card
 
-    class Plan
-    class Subscription
-    class Customer
-    class Invoice
-    class Payment
-    class Refund
+    class Plan {
+        id
+        status : PlanStatus
+        name
+        amount : Amount
+        interval : PlanInterval
+    }
+    class Subscription {
+        id
+        referenceId
+        status : SubscriptionStatus
+        nextInvoiceAt : LocalDate
+    }
+    class Invoice {
+        id
+        status : InvoiceStatus
+        occurrence
+    }
+    class Payment {
+        id
+        status : PaymentStatus
+    }
 ```
 
-Diferente de um modelo com referências por id, `Subscription` hoje **embute o
-objeto completo** de `Plan` e de `Customer` (não `PlanId`/`CustomerId`). Isso
-já está sinalizado como pendência no próprio código-fonte — ver seção 12.
+As entidades se ligam **por referência**, não por objeto embutido: a assinatura traz
+`PlanReference(id, name)` e `CustomerReference(id, name, email)`, a fatura traz
+`subscriptionId` e o pagamento traz `invoiceId`. Para o objeto completo, consulte o
+service correspondente.
 
-Uma fatura representa a cobrança de um ciclo. Um pagamento representa uma
-tentativa ou execução financeira dessa cobrança. `Refund` representa a
-reversão de um pagamento, mas hoje é um tipo "órfão": existe no domínio, não
-é alcançável por nenhum método de service público.
+Uma **fatura** é a cobrança de um ciclo da assinatura (PagBank `invoice`, Mercado Pago
+`authorized_payment`). Um **pagamento** é uma tentativa de cobrar essa fatura (PagBank
+`payment`, Mercado Pago `/v1/payments`).
 
-## 3. Tipos de valor compartilhados (`contract.domain.commons`)
+Todas as entidades e requests são imutáveis e montadas por *builder*. Os tipos de
+valor pequenos são `record`.
 
-```java
-record Amount(Integer value, Currency currency) {}
+## 3. Tipos de valor (`contract.domain.commons`)
 
-record PlanInterval(PlanIntervalType type, Integer frequency) {}
+| Tipo | Forma | Campos | Observações |
+|---|---|---|---|
+| `Amount` | record | `Integer value`, `Currency currency` | `value` em **centavos** (`4990` = R$ 49,90). Deve ser maior que zero nos pedidos. |
+| `PlanInterval` | record | `PlanIntervalType type`, `Integer frequency` | `frequency` maior que zero. `MONTH, 12` é anual. |
+| `PlanTrial` | record | `Integer days` | Período de teste em dias, maior que zero. |
+| `BillingInfo` | classe com builder | `PaymentMethodType type`, `Card card` | Meio de pagamento. É classe, e não record, para aceitar outros meios no futuro sem quebrar o contrato. |
+| `Card` | classe com builder | `token`, `securityCode`, `brand`, `lastDigits` | Nos pedidos: `token` (obrigatório) e `securityCode` (CVV). Nas respostas: só `brand` e `lastDigits`, quando o provedor devolve. |
+| `Phone` | classe com builder | `Integer id`, `area`, `country`, `number` | Telefone do assinante. O `id` não é enviado nem preenchido por nenhum adaptador. |
+| `PlanReference` | record | `id`, `name` | Plano resumido dentro de assinaturas e faturas. |
+| `CustomerReference` | record | `id`, `name`, `email` | Assinante resumido. Qualquer campo pode vir `null`, conforme o provedor (veja as tabelas abaixo). |
 
-record PlanTrial(Integer days) {}
+O que vai em `Card.token` depende do provedor ativo:
 
-final class BillingInfo {
-    PaymentMethodType type;
-    Card card;
-}
+| | PagBank | Mercado Pago |
+|---|---|---|
+| `token` | cartão criptografado (`encrypted`), gerado pelo SDK JS do PagBank ou por `card().tokenize(...)` | `card_token_id`, gerado pelo SDK JS do Mercado Pago ou por `card().tokenize(...)`; uso único e validade curta |
+| `securityCode` | **obrigatório** na criação da assinatura e na troca de cartão | ignorado (o CVV já está dentro do token) |
 
-final class Card {
-    String id;            // cartão já tokenizado/salvo no provedor
-    String encrypted;      // cartão criptografado no formato do provedor
-    String securityCode;   // CVV, quando o fluxo de criação exigir
-}
+## 4. Entidades
 
-final class Phone {
-    Integer id;
-    String area;
-    String country;
-    String number;
-}
-```
+Nas tabelas, "—" significa que o adaptador deixa o campo `null`.
 
-```java
-enum Currency { BRL }
-enum PlanIntervalType { MONTH, DAY }
-enum PaymentMethodType { CREDIT_CARD }
-```
+### 4.1 `Plan`
 
-`YEAR` e `WEEK` não integram `PlanIntervalType`: mês e dia são as unidades
-compartilhadas pelo levantamento original. `Currency` e `PaymentMethodType`
-hoje têm um único valor cada porque só o PagBank está implementado; a entrada
-do Mercado Pago vai exigir novos valores (ele aceita outros meios além de
-cartão) — ver seção 12.
+| Campo | Tipo | PagBank (`/plans`) | Mercado Pago (`/preapproval_plan`) |
+|---|---|---|---|
+| `id` | `String` | `id` | `id` |
+| `status` | `PlanStatus` | `status` (seção 6) | `status` (seção 6) |
+| `name` | `String` | `name` | `reason` |
+| `amount` | `Amount` | `amount.value` (centavos), `amount.currency` | `auto_recurring.transaction_amount` (decimal → centavos), `auto_recurring.currency_id` |
+| `interval` | `PlanInterval` | `interval.length` + `interval.unit` (`YEAR` vira `MONTH × 12`) | `auto_recurring.frequency` + `auto_recurring.frequency_type` (`days`, `months`) |
+| `billingCycles` | `Integer` | `billing_cycles` | `auto_recurring.repetitions` |
+| `trial` | `PlanTrial` | `trial.days`, só quando `trial.enabled = true` | `auto_recurring.free_trial` (em meses vira `meses × 30` dias) |
+| `paymentMethods` | `List<PaymentMethodType>` | `payment_method[]` | `payment_methods_allowed.payment_types[].id` |
+| `createdAt` | `OffsetDateTime` | `created_at` | `date_created` |
+| `updatedAt` | `OffsetDateTime` | `updated_at` | `last_modified` |
 
-`BillingInfo` e `Card` são classes (não `record`) deliberadamente, para
-permitir novos meios de pagamento e novos campos de cartão sem quebrar o
-contrato público.
+### 4.2 `Subscription`
 
-## 4. Plano
+| Campo | Tipo | PagBank (`/subscriptions`) | Mercado Pago (`/preapproval`) |
+|---|---|---|---|
+| `id` | `String` | `id` | `id` |
+| `referenceId` | `String` | `reference_id` | `external_reference` |
+| `status` | `SubscriptionStatus` | `status` (seção 6) | `status` (seção 6) |
+| `amount` | `Amount` | `amount` | `auto_recurring.transaction_amount` + `currency_id` |
+| `plan` | `PlanReference` | `plan.id`, `plan.name` | `preapproval_plan_id`, `reason` |
+| `customer` | `CustomerReference` | `customer.id`, `customer.name`, `customer.email` | `payer_id`, —, `payer_email` (vazio vira `null`; o sandbox devolve vazio nas consultas) |
+| `paymentMethod` | `BillingInfo` | primeiro item de `payment_method[]`: tipo, `card.brand`, `card.last_digits` | `CREDIT_CARD` se houver `card_id`, senão `UNKNOWN`; `brand` = `payment_method_id`; `lastDigits` — |
+| `nextInvoiceAt` | `LocalDate` | `next_invoice_at` (só a data) | `next_payment_date` (só a data) |
+| `expAt` | `LocalDate` | `exp_at` (só a data) | `auto_recurring.end_date` (só a data) |
+| `createdAt` | `OffsetDateTime` | `created_at` | `date_created` |
+| `updatedAt` | `OffsetDateTime` | `updated_at` | `last_modified` |
 
-```java
-final class CreatePlanRequest {
-    String name;
-    Amount amount;
-    PlanInterval interval;
-    Integer billingCycles;
-    PlanTrial trial;
-    List<PaymentMethodType> paymentMethods;
-}
+### 4.3 `Invoice`
 
-final class UpdatePlanRequest {
-    // mesmos campos de CreatePlanRequest, todos opcionais;
-    // campo nulo significa "não alterar".
-}
+| Campo | Tipo | PagBank (`/invoices`) | Mercado Pago (`/authorized_payments`) |
+|---|---|---|---|
+| `id` | `String` | `id` | `id` (o sandbox só atribui alguns segundos depois da cobrança) |
+| `status` | `InvoiceStatus` | `status` (seção 6) | `status` combinado com `payment.status` (seção 6) |
+| `occurrence` | `Integer` | `occurrence` (número do ciclo) | — |
+| `amount` | `Amount` | `amount` | `transaction_amount` + `currency_id` |
+| `subscriptionId` | `String` | `subscription.id` | `preapproval_id` |
+| `plan` | `PlanReference` | `plan.id`, `plan.name` | — (consulte a assinatura) |
+| `customer` | `CustomerReference` | `customer.id`, `customer.name`, `customer.email` | `payer_id`, —, — |
+| `createdAt` | `OffsetDateTime` | `created_at` | `date_created` |
+| `updatedAt` | `OffsetDateTime` | `updated_at` | `last_modified` |
 
-final class Plan {
-    String id;
-    PlanStatus status;
-    String name;
-    Amount amount;
-    PlanInterval interval;
-    Integer billingCycles;
-    PlanTrial trial;
-    List<PaymentMethodType> paymentMethods;
-    OffsetDateTime createdAt;
-    OffsetDateTime updatedAt;
-}
+### 4.4 `Payment`
 
-enum PlanStatus { ACTIVE, INACTIVE }
-```
+| Campo | Tipo | PagBank (`/payments`) | Mercado Pago (`/v1/payments`) |
+|---|---|---|---|
+| `id` | `String` | `id` | `id` |
+| `status` | `PaymentStatus` | `status` (seção 6) | `status` (seção 6) |
+| `invoiceId` | `String` | `invoice.id` | — em `getPayment` e na listagem geral; preenchido em `listPayments(invoiceId)` |
+| `amount` | `Amount` | `invoice.amount` (o pagamento do PagBank não traz valor) | `transaction_amount` + `currency_id` |
+| `paymentMethod` | `BillingInfo` | `payment_method`: tipo, `card.brand`, `card.last_digits` | `payment_type_id`; `brand` = `payment_method_id`; `lastDigits` = `card.last_four_digits` |
+| `customer` | `CustomerReference` | `customer.id`, `customer.name`, `customer.email` | `payer.id`, —, `payer.email` |
+| `createdAt` | `OffsetDateTime` | `created_at` | `date_created` |
+| `updatedAt` | `OffsetDateTime` | `updated_at` | `date_last_updated` |
 
-`name` é o texto público que identifica a recorrência e corresponde a `name`
-no PagBank e `reason` no Mercado Pago. Não há campo de referência externa de
-plano em v1.0.
+No Mercado Pago o `transaction_data.invoice_id` do pagamento é outro identificador e
+não serve em `getInvoice` (verificado no sandbox). Por isso `invoiceId` fica `null`
+quando a fatura de origem não é conhecida.
 
-O período gratuito (`PlanTrial.days`) é normalizado como quantidade de dias
-até a primeira cobrança. Detalhes exclusivos de um provedor, como retenção da
-taxa de adesão, não pertencem ao objeto.
+## 5. Requests (`contract.domain.request`)
 
-```java
-interface PlanService {
-    Plan create(CreatePlanRequest plan) throws RecurrenceException;
-    Plan create(CreatePlanRequest plan, RequestOptions requestOptions) throws RecurrenceException;
+As regras de validação abaixo são aplicadas **antes** de qualquer chamada HTTP e
+lançam `RecurrenceValidationException`. As comuns ficam em `core.RequestValidator`;
+as de um provedor só ficam no `validator/` do adaptador.
 
-    PageResponse<Plan> list(PageOptions pageOptions) throws RecurrenceException;
-    PageResponse<Plan> list(PageOptions pageOptions, PlanFilter planFilter) throws RecurrenceException;
+### 5.1 `CreatePlanRequest` e `UpdatePlanRequest`
 
-    Plan get(String planId) throws RecurrenceException;
+Mesmos campos: `name`, `amount`, `interval`, `billingCycles`, `trial`, `paymentMethods`.
 
-    Plan update(String planId, UpdatePlanRequest plan) throws RecurrenceException;
-    Plan update(String planId, UpdatePlanRequest plan, RequestOptions requestOptions) throws RecurrenceException;
+| Campo | Regra | PagBank | Mercado Pago |
+|---|---|---|---|
+| `name` | obrigatório na criação; não pode ficar em branco | `name` | `reason` |
+| `amount` | obrigatório na criação; `value > 0` e `currency` informada | `amount` (centavos) | `auto_recurring.transaction_amount` (decimal) + `currency_id` |
+| `interval` | obrigatório na criação; `type` informado e `frequency > 0` | `interval.length` + `interval.unit` | `auto_recurring.frequency` + `frequency_type` |
+| `billingCycles` | opcional; `> 0` | `billing_cycles` | `auto_recurring.repetitions` |
+| `trial` | opcional; `days > 0` | `trial.days` com `enabled = true` | `auto_recurring.free_trial` em `days` |
+| `paymentMethods` | opcional; só `CREDIT_CARD` | `payment_method` | `payment_methods_allowed.payment_types = [{id: credit_card}]` |
+| (configuração) | — | — | `back_url` vem de `ProviderConfig.backUrl`, só na criação |
 
-    Void activate(String planId) throws RecurrenceException;
-    Void activate(String planId, RequestOptions requestOptions) throws RecurrenceException;
+Na criação, `paymentMethods` nulo vira `[CREDIT_CARD]` nos dois provedores, para o
+plano não herdar o padrão do PagBank (que inclui boleto).
 
-    Void deactivate(String planId) throws RecurrenceException;
-    Void deactivate(String planId, RequestOptions requestOptions) throws RecurrenceException;
-}
-```
+Em `UpdatePlanRequest` todos os campos são opcionais (nulo significa "não alterar"),
+mas ao menos um precisa ser informado. Só os campos informados vão no corpo do `PUT`;
+no Mercado Pago o bloco `auto_recurring` é omitido quando fica vazio.
 
-Ativar e inativar são comandos de intenção. O PagBank usa endpoints próprios;
-o Mercado Pago (quando implementado) deve alterar o estado pelo endpoint
-geral de atualização. O retorno `Void` (tipo `java.lang.Void`, não `void`) em
-`activate`/`deactivate` hoje não carrega nenhuma informação — é um ponto de
-atenção listado na seção 12.
+### 5.2 `CreateSubscriptionRequest`
 
-`PlanFilter` (busca): `status` e `query`. Ver classe para o mapeamento
-proposto por provedor — o filtro de listagem no PagBank ainda precisa ser
-confirmado na prática.
+| Campo | Regra comum | PagBank | Mercado Pago |
+|---|---|---|---|
+| `planId` | obrigatório | `plan.id` | `preapproval_plan_id` |
+| `referenceId` | opcional | **obrigatório**; `reference_id` | `external_reference` |
+| `amount` | opcional; sobrescreve o valor do plano | `amount` | `auto_recurring.transaction_amount` + `currency_id` |
+| `customer` | obrigatório, com `email` | veja `CustomerRequest` | só `payer_email` |
+| `paymentMethod` | obrigatório; `type = CREDIT_CARD` e `card.token` | cartão em `customer.billing_info[]` (`encrypted` + `security_code`) e só o CVV em `payment_method[]`; `card.securityCode` **obrigatório** | `card_token_id` |
+| (fixo) | — | — | `status = authorized`, `back_url` da configuração |
 
-## 5. Cliente (assinante) embutido e meio de pagamento
+### 5.3 `CustomerRequest`
 
-`Customer` é modelado hoje como uma classe com identidade e timestamps
-próprios (`id`, `referenceId`, `createdAt`, `updatedAt`), e não só como um
-conjunto de dados de criação. Isso diverge da intenção original deste
-documento, que era não tratar o assinante como agregado independente — ver
-seção 12.
+| Campo | PagBank | Mercado Pago |
+|---|---|---|
+| `name` | **obrigatório**; `customer.name` | não enviado |
+| `email` | obrigatório; `customer.email` | obrigatório; `payer_email` |
+| `taxId` | **obrigatório**; `customer.tax_id` | não enviado |
+| `phone` | **obrigatório**; `customer.phones[0]` (`country`, `area`, `number`) | não enviado |
 
-```java
-final class Customer {
-    String id;
-    String referenceId;
-    String name;
-    String email;
-    String taxId;
-    OffsetDateTime createdAt;
-    OffsetDateTime updatedAt;
-    List<Phone> phone;
-    BillingInfo billingInfo;
-}
+No PagBank o assinante é criado junto com a assinatura. No Mercado Pago o sandbox exige
+que vendedor (dono do token) e assinante sejam ambos usuários de teste.
 
-final class CustomerRequest {
-    String name;
-    String email;
-    String taxId;
-    Phone phone;
-    BillingInfo billingInfo;
-}
-```
+### 5.4 `UpdateSubscriptionRequest`
 
-Somente cartão (tokenizado ou criptografado, via `Card`/`BillingInfo`)
-integra o meio de pagamento portátil hoje. Dados sensíveis de cartão em
-texto puro não pertencem ao modelo canônico nem podem ser persistidos pela
-biblioteca. `taxId` continua `String` livre — CPF/CNPJ e documentos
-equivalentes variam por provedor e essa tipagem ainda não foi revisitada
-(ver `PAGBANK_MAPPERS_MELHORIAS.md`, item 14).
+Campos opcionais (`planId`, `amount`, `paymentMethod`); ao menos um precisa ser informado.
+Ao final, os dois adaptadores consultam a assinatura de novo e devolvem o estado atualizado.
 
-## 6. Assinatura
+| Campo | PagBank | Mercado Pago |
+|---|---|---|
+| `planId` | `PUT /subscriptions/{id}` com `plan.id` | **recusado** com `RecurrenceValidationException` (`MERCADO_PAGO_PLAN_CHANGE_UNSUPPORTED`): o sandbox responde 2xx e mantém o plano antigo |
+| `amount` | `PUT /subscriptions/{id}` com `amount` | `PUT /preapproval/{id}` com `auto_recurring.transaction_amount` |
+| `paymentMethod` | consulta a assinatura para obter o `customer.id` e chama `PUT /customers/{customer_id}/billing_info`; exige `card.securityCode` | `PUT /preapproval/{id}` com `card_token_id` |
 
-```java
-final class CreateSubscriptionRequest {
-    String planId;
-    String referenceId;
-    Amount amount;
-    List<BillingInfo> paymentMethod;
-    CustomerRequest customer;
-}
+### 5.5 `TokenizeCardRequest`
 
-final class UpdateSubscriptionRequest {
-    String planId;
-    Amount amount;
-    List<BillingInfo> paymentMethod;
-    // opcionais; campo nulo significa "não alterar".
-}
+Campos: `number`, `securityCode`, `expMonth`, `expYear`, `holderName`, `holderTaxId`.
 
-class Subscription {
-    String id;
-    String referenceId;
-    SubscriptionStatus status;
-    Boolean proRata;
-    String nextInvoiceAt;      // String, não Instant/OffsetDateTime
-    Amount amount;
-    Plan plan;                 // objeto completo, não PlanId
-    List<BillingInfo> paymentMethod;
-    Customer customer;         // objeto completo, não CustomerId
-    String expAt;               // String, não Instant/OffsetDateTime
-    OffsetDateTime createdAt;
-    OffsetDateTime updatedAt;
-    BestInvoiceDate bestInvoiceDate;   // record { String day, String month }
-}
+| Regra | Valor |
+|---|---|
+| `number` | só dígitos, de 13 a 19 |
+| `securityCode` | só dígitos, 3 ou 4 |
+| `expMonth` | de 1 a 12 |
+| `expYear` | de 1900 a 2099 (4 dígitos) |
+| `holderName` | obrigatório, sem dígitos |
+| `holderTaxId` | opcional na regra comum (11 ou 14 dígitos quando informado); **obrigatório no Mercado Pago** |
 
-enum SubscriptionStatus {
-    ACTIVE, CANCELED, OVERDUE, PENDING, SUSPENDED, EXPIRED
-}
-```
+| | PagBank | Mercado Pago |
+|---|---|---|
+| Como tokeniza | criptografa localmente `numero;cvv;MM;AAAA;titular;timestamp` com RSA/ECB/PKCS1Padding e a chave pública da conta (igual ao `PagSeguro.encryptCard` do SDK JS) | `POST /v1/card_tokens` |
+| Chave pública | `ProviderConfig.publicKey`; sem ela, `GET /public-keys` na primeira chamada, guardada enquanto o provedor existir | — |
+| Titular | normalizado: até 30 caracteres, sem acentos, só letras e espaços | `cardholder.name` |
+| Documento | ignorado | `cardholder.identification`: `CPF` se tiver 11 dígitos, senão `CNPJ` |
+| `Card` devolvido | `token` = cartão criptografado, `securityCode` = CVV, `lastDigits` | `token` = `card_token` id, `lastDigits` |
 
-```java
-interface SubscriptionService {
-    Subscription create(CreateSubscriptionRequest subscription) throws RecurrenceException;
-    Subscription create(CreateSubscriptionRequest subscription, RequestOptions requestOptions) throws RecurrenceException;
+`TokenizeCardRequest.toString()` mascara número e CVV.
 
-    Subscription get(String subscriptionId) throws RecurrenceException;
+## 6. Enums e mapas de estado
 
-    PageResponse<Subscription> list(PageOptions pageOptions) throws RecurrenceException;
-    PageResponse<Subscription> list(PageOptions pageOptions, RequestOptions requestOptions) throws RecurrenceException;
-    PageResponse<Subscription> list(PageOptions pageOptions, SubscriptionFilter subscriptionFilter) throws RecurrenceException;
-    PageResponse<Subscription> list(PageOptions pageOptions, SubscriptionFilter subscriptionFilter, RequestOptions requestOptions) throws RecurrenceException;
+Todos os enums de status têm `UNKNOWN`: um valor do provedor sem equivalente canônico
+vira `UNKNOWN` em vez de quebrar a leitura. `UNKNOWN` não é aceito em filtros nem em
+pedidos.
 
-    Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription) throws RecurrenceException;
-    Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription, RequestOptions requestOptions) throws RecurrenceException;
+### 6.1 `PlanStatus` (`ACTIVE`, `INACTIVE`, `UNKNOWN`)
 
-    Void suspend(String subscriptionId) throws RecurrenceException;
-    Void suspend(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
+| Canônico | PagBank | Mercado Pago |
+|---|---|---|
+| `ACTIVE` | `ACTIVE` | `active` |
+| `INACTIVE` | `INACTIVE` | `inactive`, `cancelled` |
+| `UNKNOWN` | qualquer outro | qualquer outro |
 
-    Void cancel(String subscriptionId) throws RecurrenceException;
-    Void cancel(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
+O sandbox do Mercado Pago converte `inactive` em `cancelled`. Por isso `deactivate` e o
+filtro `INACTIVE` usam `cancelled`, e o plano pode ser reativado com `active`.
 
-    Void active(String subscriptionId) throws RecurrenceException;
-    Void active(String subscriptionId, RequestOptions requestOptions) throws RecurrenceException;
-}
-```
+### 6.2 `SubscriptionStatus` (`ACTIVE`, `CANCELED`, `OVERDUE`, `PENDING`, `SUSPENDED`, `EXPIRED`, `UNKNOWN`)
 
-Mapa mínimo de estados de assinatura:
-
-| Canônico | PagBank | Mercado Pago (planejado) |
-| :--- | :--- | :--- |
-| `PENDING` | `PENDING` | `pending` |
-| `ACTIVE` | `ACTIVE` | `authorized` |
+| Canônico | PagBank | Mercado Pago |
+|---|---|---|
+| `ACTIVE` | `ACTIVE`, `TRIAL` | `authorized` |
+| `PENDING` | `PENDING`, `PENDING_ACTION` | `pending` |
 | `SUSPENDED` | `SUSPENDED` | `paused` |
-| `CANCELED` | `CANCELED` | `canceled`/`cancelled` |
-| `EXPIRED` | `EXPIRED` | `expired` |
-| `OVERDUE` | valor observado no PagBank sem equivalente confirmado no Mercado Pago | — |
+| `CANCELED` | `CANCELED` | `cancelled` |
+| `EXPIRED` | `EXPIRED` | `finished` |
+| `OVERDUE` | `OVERDUE` | nunca ocorre |
+| `UNKNOWN` | qualquer outro | qualquer outro |
 
-`SubscriptionFilter`: `status`, `query`, `referenceId` — campos aceitos pelos
-dois provedores; `payment_method_type` (só PagBank) e intervalo de
-`created_at` (sem suporte na busca do Mercado Pago) ficaram de fora por não
-terem equivalência.
+`TRIAL` (assinatura em período de teste) conta como ativa.
 
-## 7. Fatura
+### 6.3 `InvoiceStatus` (`UNPAID`, `PAID`, `UNKNOWN`)
 
-```java
-final class Invoice {
-    String id;
-    String status;              // String, não InvoiceStatus — ver observação abaixo
-    Integer occurrence;
-    Amount amount;
-    Subscription subscription;  // objeto completo
-    List<Item> items;           // record Item(String type, Amount amount)
-    Customer customer;
-    Plan plan;
-    OffsetDateTime createdAt;
-    OffsetDateTime updatedAt;
-}
+| Canônico | PagBank | Mercado Pago (`status` da fatura + `payment.status`) |
+|---|---|---|
+| `PAID` | `PAID` | `processed` com pagamento `approved` |
+| `UNPAID` | `UNPAID`, `OVERDUE` | `processed` sem aprovação, `scheduled`, `recycling` |
+| `UNKNOWN` | qualquer outro | qualquer outro |
 
-enum InvoiceStatus { UNPAID, PAID }
+O contrato não distingue fatura vencida de fatura em aberto.
 
-final class InvoiceFilter {
-    InvoiceStatus status;
-}
+### 6.4 `PaymentStatus` (`PENDING`, `APPROVED`, `UNPAID`, `DECLINED`, `REFUNDED`, `UNKNOWN`)
 
-interface InvoiceService {
-    Invoice getInvoice(String invoiceId) throws RecurrenceException;
-    Payment getPayment(String paymentId) throws RecurrenceException;
+| Canônico | PagBank | Mercado Pago |
+|---|---|---|
+| `APPROVED` | `APPROVED` | `approved` |
+| `PENDING` | `PENDING` | `pending`, `in_process`, `authorized` |
+| `DECLINED` | `DENIED` | `rejected` |
+| `REFUNDED` | `REFUNDED` | `refunded`, `charged_back` |
+| `UNPAID` | `UNPAID` | nunca ocorre |
+| `UNKNOWN` | qualquer outro | qualquer outro |
 
-    PageResponse<Payment> listPayments(String invoiceId) throws RecurrenceException;
-    PageResponse<Payment> listPayments(String invoiceId, PaymentFilter paymentFilter) throws RecurrenceException;
-    PageResponse<Payment> listPayments(PageOptions pageOptions) throws RecurrenceException;
-    PageResponse<Payment> listPayments(PageOptions pageOptions, PaymentFilter paymentFilter) throws RecurrenceException;
+### 6.5 Demais enums
 
-    PageResponse<Invoice> listInvoiceBySubscription(String subscriptionId, PageOptions pageOptions) throws RecurrenceException;
-}
-```
+| Enum | Valores | PagBank | Mercado Pago |
+|---|---|---|---|
+| `PaymentMethodType` | `CREDIT_CARD`, `UNKNOWN` | `CREDIT_CARD`; qualquer outro (ex.: `BOLETO`) vira `UNKNOWN` | `credit_card`; qualquer outro vira `UNKNOWN` |
+| `PlanIntervalType` | `MONTH`, `DAY` | `MONTH`, `DAY`; `YEAR` vira `MONTH × 12`; outra unidade deixa `interval` nulo | `months`, `days`; outra unidade deixa `interval` nulo |
+| `Currency` | `BRL` | moeda desconhecida deixa `amount.currency` nulo | idem |
+| `Provider` | `PAGBANK`, `MERCADO_PAGO` | | |
+| `Environment` | `SANDBOX`, `PRODUCTION` | URLs diferentes | mesma URL; o ambiente depende da credencial |
 
-`InvoiceStatus` hoje só tem dois valores (`UNPAID`, `PAID`) — uma
-simplificação forte frente à variedade real de estados de fatura do PagBank
-(`WAITING`, `PENDING_ACTION`, `PAID`, `OVERDUE`, `UNPAID`, ...). O próprio
-campo `Invoice.status` no domínio é `String`, não o enum `InvoiceStatus`,
-então hoje não há garantia de que o valor do provedor caia em um dos dois
-valores canônicos — ver seção 12.
+`PlanIntervalType` e `Currency` não têm `UNKNOWN`: valores desconhecidos viram `null`
+no campo que os contém.
 
-Não existe `search` de fatura independente de assinatura: a única forma de
-listar é `listInvoiceBySubscription`.
+## 7. Conversões relevantes
 
-## 8. Pagamento (estorno fora do contrato em v1.0)
+| Conversão | PagBank | Mercado Pago |
+|---|---|---|
+| Valor | centavos dos dois lados, sem conversão | `BigDecimal.movePointLeft(2)` na ida; na volta `movePointRight(2)` com arredondamento `HALF_UP` |
+| Intervalo anual | `YEAR, n` vira `MONTH, n × 12`, sem perda | não há unidade anual |
+| Teste em meses | — | `free_trial` em `months` vira `meses × 30` dias (`DAYS_PER_MONTH = 30`), com perda; na ida o teste é sempre enviado em `days` |
+| Datas com fuso | `OffsetDateTime`, mantendo o offset devolvido (`ADJUST_DATES_TO_CONTEXT_TIME_ZONE` desligado) | idem |
+| Datas sem hora (`nextInvoiceAt`, `expAt`) | aceita `yyyy-MM-dd` ou data/hora ISO e guarda só a data | idem |
+| Datas em filtros | `yyyy-MM-dd` (só a data) | `yyyy-MM-dd'T'HH:mm:ss.SSSXXX` |
+| Nomes JSON | `snake_case` nos dois provedores (`core.Converter`), campos nulos não são enviados, campos desconhecidos são ignorados | idem |
+| Mudança de estado | endpoints de ação (`/activate`, `/inactivate`, `/suspend`, `/cancel`) | `PUT` do recurso com `{"status": ...}` |
 
-```java
-final class Payment {
-    String id;
-    PaymentStatus status;
-    OffsetDateTime createdAt;
-    OffsetDateTime updatedAt;
-    String invoiceId;
-    Amount amount;
-    BillingInfo paymentMethod;
-    Customer customer;
-}
+## 8. Responsabilidades dos adaptadores
 
-enum PaymentStatus { PENDING, APPROVED, UNPAID, DECLINED, REFUNDED }
+Cada adaptador (`pagbank`, `mercadopago`):
 
-final class PaymentFilter {
-    PaymentStatus status;
-    OffsetDateTime createdFrom;
-    OffsetDateTime createdUntil;
-}
-```
+1. valida o pedido antes da rede: regras comuns em `RequestValidator` e regras próprias no seu `validator/`;
+2. converte valores, intervalos, estados, datas, filtros e paginação nos `mapper/`;
+3. compõe chamadas quando o provedor não tem a operação direta (troca de cartão no PagBank, pagamentos de fatura no Mercado Pago);
+4. trata identificadores como valores opacos e os codifica no caminho da URL;
+5. converte respostas fora de 2xx em `RecurrenceApiException`, com o seu `ProviderErrorTranslator`;
+6. nunca expõe DTOs do provedor (`PagBankPlan`, `MercadoPagoSubscription`, ...) no contrato;
+7. recusa, com `RecurrenceValidationException`, o que o provedor não consegue cumprir, em vez de devolver um sucesso falso (troca de plano e filtros sem equivalente no Mercado Pago);
+8. recusa na configuração o que não se aplica a ele (`backUrl` no PagBank, ausência de `backUrl` no Mercado Pago, header `Authorization` manual nos dois).
 
-Não existe `PaymentService`: as duas únicas operações de pagamento
-(`getPayment`, `listPayments`) vivem em `InvoiceService` (seção 7).
+## 9. Limitações conhecidas
 
-```java
-final class Refund {
-    String id;
-    String status;      // String, não RefundStatus
-    String type;
-    OffsetDateTime createdAt;
-    Payment payment;     // objeto completo, não PaymentId
-    Amount amount;
-}
-```
-
-`Refund` existe como tipo de domínio, mas **nenhum método de nenhum service
-do contrato o expõe hoje** — não há `refund`, `getRefund` nem `listRefunds`
-em `InvoiceService` ou em qualquer outro lugar. Ele foi deliberadamente
-tirado do escopo de v1.0 nesta revisão (ver decisão na seção 12): antes de
-voltar a fazer parte do contrato público, falta pelo menos:
-
-- confirmar com os dois provedores se o estorno parcial precisa ser
-  suportado ou se o contrato mantém a regra de "só estorno total";
-- um DTO de request de estorno específico (ver
-  `PAGBANK_MAPPERS_MELHORIAS.md`, item 17);
-- decidir o método de exposição (`PaymentService` novo ou métodos em
-  `InvoiceService`).
-
-`PaymentStatus.UNPAID` cumpre hoje o papel que `DECLINED`/`CANCELED`
-cumpriam no desenho anterior deste documento; não há valor de fallback para
-estado desconhecido do provedor.
-
-## 9. Opções de requisição, configuração e erros
-
-```java
-final class RequestOptions {
-    String idempotencyKey;
-    Duration timeout;
-}
-```
-
-A chave de idempotência é anexada como header `x-idempotency-key` pelo
-adaptador quando presente (ver `resolveIdempotencyKey` nos services do
-PagBank). Sua presença não promete idempotência local nem é validada contra
-o conjunto de operações que o provedor realmente suporta.
-
-```java
-final class ProviderConfig {
-    Duration timeout;      // default 15s
-    String token;
-    Map<String, String> defaultHeaders;   // default: Content-Type e Accept = application/json
-    String backUrl;        // uso exclusivo do Mercado Pago — ver observação abaixo
-}
-
-enum Provider { PAGBANK, MERCADO_PAGO }
-enum Environment { SANDBOX, PRODUCTION }
-```
-
-`backUrl` é a URL de retorno usada pelo Mercado Pago ao final do checkout de
-uma assinatura (`back_url` em `POST /preapproval`). O PagBank não tem
-equivalente, pois não usa fluxo de redirecionamento nessa etapa. Hoje o campo
-vive no `ProviderConfig` compartilhado, e o `PagBankProvider` rejeita a
-configuração em tempo de inicialização se `backUrl` vier preenchido
-(`PAGBANK_NOT_SUPPORT_BACK_URL`). O efeito prático (falhar alto, em vez de
-ignorar silenciosamente) está de acordo com a regra 9 da seção 10, mas o
-campo continua sem equivalência de negócio nos dois provedores (critério 1
-de `criterios.md`) enquanto estiver num tipo compartilhado — ver seção 12.
-
-**Erros**: a exceção base hoje é `RecurrenceException(message, cause)`, sem
-categoria, operação, provedor, status HTTP, código externo ou indicação de
-retentativa. O que existe é uma hierarquia de subclasses específicas em
-`com.recurrence.exception`:
-
-- `RecurrenceHttpException`
-- `RecurrenceProviderException`
-- `RecurrenceSerializationException`
-- `RecurrenceValidationException`
-- `UnsupportedProviderTypeException`
-
-`ErrorCategory` existe como enum, mas está **vazio** — não é usado por
-nenhuma exceção hoje. O modelo de erro "rico" (categoria + operação +
-provedor + status HTTP + retryable) descrito em versões anteriores deste
-documento ainda não foi implementado; é tratado como pendência na seção 12,
-não como contrato atual.
-
-## 10. Responsabilidades dos adaptadores
-
-Cada adaptador deve:
-
-1. validar as invariantes canônicas antes de acessar a rede;
-2. converter `Amount` exatamente entre unidade mínima e decimal;
-3. traduzir unidades, estados, datas, filtros e paginação;
-4. compor chamadas quando necessário, como fatura–pagamento no Mercado Pago;
-5. preservar identificadores como valores opacos;
-6. converter falhas externas para uma exceção de `com.recurrence.exception`;
-7. nunca expor DTO externo (`PagBankPlan`, `PagBankSubscription`, ...) pelo
-   contrato público;
-8. nunca ignorar silenciosamente campo solicitado em criação ou atualização;
-9. registrar, sem dados sensíveis, provedor, operação e ID de correlação.
-
-## 11. Matriz de rastreabilidade
-
-| Serviço canônico | PagBank | Mercado Pago | Situação |
-| :--- | :--- | :--- | :--- |
-| criar/obter/listar/atualizar plano | `/plans` | `/preapproval_plan` | PagBank implementado; Mercado Pago planejado (`MercadoPagoProvider` hoje retorna `null` em todo método) |
-| ativar/inativar plano | endpoints de ação | atualização de `status` | idem |
-| criar/obter/listar/atualizar assinatura | `/subscriptions` | `/preapproval` | idem |
-| suspender/reativar/cancelar assinatura | endpoints de ação | atualização de `status` | idem |
-| obter fatura | `/invoices` | `/authorized_payments` | Mercado Pago planejado |
-| listar faturas da assinatura | endpoint dedicado | busca por `preapproval_id` | Mercado Pago planejado |
-| obter/listar pagamento | `/payments` | `/v1/payments` | Mercado Pago planejado |
-| estornar/obter/listar estorno | endpoints de recorrência do PagBank (implementados na camada de service, mas não expostos pelo `InvoiceService`) | API geral de pagamentos | fora do contrato público em v1.0 (seção 8) |
-
-## 12. Pendências e divergências conhecidas
-
-Registradas nesta revisão para decisão futura — nenhuma delas foi corrigida
-no código como parte desta tarefa (só documentação):
-
-1. **`Refund` fora do contrato público.** Tipo de domínio existe, nenhum
-   service o expõe. Ver seção 8.
-2. **`backUrl` no `ProviderConfig` compartilhado** sem equivalência de
-   negócio no PagBank (critério 1 de `criterios.md`). Hoje mitigado por
-   validação em tempo de configuração; candidato natural é mover para uma
-   configuração específica do Mercado Pago (já existe um `MercadoPagoConfig`
-   vazio em `com.recurrence.mercadopago`, aparentemente reservado para isso).
-3. **`Customer` modelado como agregado com identidade própria**
-   (`id`, `createdAt`, `updatedAt`) dentro de um objeto que deveria ser
-   apenas "dado embutido", contradizendo a intenção original deste
-   documento. Precisa de uma decisão explícita: `Customer` é agregado ou
-   projeção?
-4. **`Subscription.plan` e `Subscription.customer` embutem o objeto
-   completo**, não apenas o id — já sinalizado como dúvida em comentário no
-   próprio código-fonte (`Subscription.java`). Afeta payload de resposta e
-   custo de serialização.
-5. **`Subscription.Builder` aceita `splitEnabled`/`splits` mas a classe não
-   os persiste** — o dado informado no builder é descartado
-   silenciosamente ao chamar `build()`. Isso é uma inconsistência local com
-   a regra 8 da seção 10 ("nunca ignorar silenciosamente campo solicitado"),
-   já que o próprio domínio embutido tem esse comportamento.
-6. **`proRata`, `expAt` (String), `bestInvoiceDate` e split de pagamento**
-   são campos de `Subscription` de origem claramente PagBank, incorporados
-   ao modelo canônico sem confirmação de equivalência no Mercado Pago
-   (pergunta obrigatória de `criterios.md`: "existe regra dependente de
-   país, conta ou meio de pagamento?").
-7. **`Invoice.status` é `String`**, não o enum `InvoiceStatus` — não há
-   garantia estrutural de que o adaptador normalize para um dos dois valores
-   canônicos antes de devolver ao consumidor da lib.
-8. **Nenhum enum de status tem valor de fallback** (`UNKNOWN`/similar) para
-   estado desconhecido do provedor — pergunta obrigatória de
-   `criterios.md` ("Como um valor novo ou desconhecido será preservado?")
-   ainda sem resposta no tipo.
-9. **Modelo de erro rico (categoria/operação/provedor/status HTTP/retry)**
-   ainda não implementado; `ErrorCategory` está vazio. Ver seção 9.
-10. **Camada de implementação PagBank fora de sincronia com o `contract`
-    atual.** Fora do escopo desta revisão (que é `contract` +
-    documentação), mas relevante o suficiente para registrar: hoje
-    `PagBankPlanService`/`PagBankInvoiceService` têm trechos de código
-    incompletos (não compilam) e `PagBankSubscriptionService` implementa
-    assinaturas (`create(Subscription, ...)`, tipo `RequestResponse`) que
-    não existem mais no `SubscriptionService`/`contract.infra` atuais. A
-    lib não compila no estado atual do working tree.
+- **`ProviderConfig.backUrl`** é o único campo de um provedor só num tipo compartilhado.
+  É uma exceção justificada: o Mercado Pago exige `back_url` na criação de planos e
+  assinaturas, e o PagBank recusa a configuração se o campo vier preenchido
+  (`PAGBANK_NOT_SUPPORT_BACK_URL`).
+- **Troca de plano** não funciona no Mercado Pago e é recusada antes da chamada.
+- **Listagem geral de pagamentos** no Mercado Pago (`/v1/payments/search`) traz também
+  pagamentos que não vieram de assinaturas.
+- **Campos que um provedor não devolve** ficam `null`: no Mercado Pago, `Invoice.occurrence`,
+  `Invoice.plan`, nome do assinante e `Payment.invoiceId` fora de `listPayments(invoiceId)`.
+- **Filtros**: `SubscriptionStatus.OVERDUE`/`EXPIRED` e `PaymentStatus.UNPAID` não têm
+  equivalente no Mercado Pago e são recusados como filtro. No PagBank o filtro por data de
+  pagamentos aceita no máximo 90 dias.
+- **Teste em meses** no Mercado Pago é aproximado para 30 dias por mês.
+- **Granularidade de `InvoiceStatus`**: só `PAID` e `UNPAID`; fatura vencida e fatura em
+  retentativa aparecem como `UNPAID`.
+- **Tokenização no backend** coloca a integração no escopo completo do PCI-DSS.
