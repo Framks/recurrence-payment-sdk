@@ -1,6 +1,6 @@
-# Critérios do Modelo Canonico
+# Critérios do modelo canônico
 
-Uma operação ou conceito é candidato ao Modelo Canonico quando:
+Uma operação ou conceito é candidato ao modelo canônico quando:
 
 1. possui intenção de negócio equivalente nos provedores analisados;
 2. pode ser utilizado sem o consumidor conhecer o fornecedor ativo;
@@ -26,31 +26,16 @@ Uma exceção de operação não suportada é aceitável somente para uma inten�
 considerada comum cuja indisponibilidade seja descoberta em execução. Uma
 funcionalidade sabidamente exclusiva não deve ser adicionada ao contrato comum.
 
-## Aplicação atual dos critérios — pontos de atenção
+## Aplicação ao contrato
 
-Auditoria feita ao revisar `modelo-canonico.md` contra o `contract`
-implementado. Nenhum item foi corrigido no código; ficam aqui como achado
-para decisão futura (detalhe de cada um na seção 12 de `modelo-canonico.md`).
+A aplicação destes critérios ao contrato é avaliada na Q1 (repositório `avaliacao_tcc`).
 
-- **Critério 1 (equivalência entre provedores) — `ProviderConfig.backUrl`**:
-  campo específico do fluxo de redirecionamento do Mercado Pago, sem
-  contrapartida no PagBank, hoje dentro de um tipo compartilhado. Mitigado
-  por validação em tempo de configuração (o PagBank recusa a config se o
-  campo vier preenchido), mas o critério pede equivalência de negócio para
-  entrar num tipo comum — este campo não tem.
-- **Pergunta obrigatória "como um valor desconhecido é preservado?" — enums
-  de status**: `PlanStatus`, `SubscriptionStatus`, `PaymentStatus` e
-  `InvoiceStatus` não têm valor de fallback (`UNKNOWN` ou equivalente). Um
-  estado novo do provedor não tem para onde ir sem quebrar o enum.
-- **Critério 4 (conserva significado útil diante de um terceiro provedor) —
-  `InvoiceStatus`**: reduzido a `UNPAID`/`PAID`. Ainda não dá para saber se
-  essa granularidade é suficiente para o Mercado Pago, porque o adapter dele
-  não existe ainda — reavaliar quando `MercadoPagoInvoiceMapper` (ou
-  equivalente) for escrito.
-- **Pergunta obrigatória "o valor pode ser transformado sem perda?" —
-  `Subscription.plan` / `Subscription.customer`**: hoje embutem o objeto
-  completo (`Plan`/`Customer`), não um id. Ainda não foi validado se isso é
-  necessário nos dois provedores ou se é herança de como o PagBank responde.
-- **Regra de simplicidade — `Refund`**: existe no domínio mas não é
-  alcançável por nenhum service; tratado como fora do escopo de v1.0 nesta
-  revisão, não como funcionalidade exclusiva de um provedor.
+### Exceção registrada: `ProviderConfig.backUrl`
+
+`backUrl` é o único campo de um provedor só num tipo compartilhado e, por isso, não
+atende ao critério 1. Ele fica no `ProviderConfig` como exceção justificada: o Mercado
+Pago exige `back_url` na criação de planos e assinaturas. O risco é controlado na
+configuração: o Mercado Pago
+recusa a configuração sem o campo (`MERCADO_PAGO_BACK_URL_REQUIRED`) e o PagBank recusa
+a configuração com o campo preenchido (`PAGBANK_NOT_SUPPORT_BACK_URL`). Nenhum dos dois
+ignora o valor em silêncio.
