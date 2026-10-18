@@ -63,7 +63,6 @@ public class PagBankInvoiceService extends BaseService implements InvoiceService
         );
     }
 
-    // ToDo confirmar no sandbox se /invoices/{id}/payments aceita os mesmos filtros de /payments.
     @Override
     public PageResponse<Payment> listPayments(String invoiceId, PaymentFilter paymentFilter) {
         RequestValidator.requireId(invoiceId, INVOICE_ID);

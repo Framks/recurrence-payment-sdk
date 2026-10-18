@@ -27,7 +27,6 @@ public final class Subscription {
     private final LocalDate expAt;
     private final OffsetDateTime createdAt;
     private final OffsetDateTime updatedAt;
-    // ToDo avaliar um link de checkout para o fluxo sem cartão do Mercado Pago (init_point).
 
     private Subscription(Builder builder) {
         this.id = builder.id;

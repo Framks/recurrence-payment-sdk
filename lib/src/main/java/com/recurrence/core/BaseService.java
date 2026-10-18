@@ -90,7 +90,7 @@ public abstract class BaseService {
     }
 
     /** Codifica um valor (ex.: id) para uso seguro como segmento do caminho. */
-    protected static String segment(String value) { // ToDo Validar se isso é nescessário
+    protected static String segment(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 

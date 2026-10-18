@@ -99,7 +99,6 @@ public class MercadoPagoInvoiceService extends BaseService implements InvoiceSer
         return MercadoPagoInvoiceMapper.paymentPageOf(matches(payment, paymentFilter) ? List.of(payment) : List.of());
     }
 
-    // ToDo a busca de /v1/payments traz também pagamentos que não são de assinatura (ver ToDo no InvoiceService).
     @Override
     public PageResponse<Payment> listPayments(PageOptions pageOptions, PaymentFilter paymentFilter) {
         QueryParams query = QueryParams.create()

@@ -143,7 +143,6 @@ final class CommonsMapper {
     }
 
     // ---------- status ----------
-    // ToDo confirmar no sandbox a lista completa de status devolvida pelo PagBank para fatura e pagamento.
 
     static PlanStatus toPlanStatus(String status) {
         if (status == null) return null;

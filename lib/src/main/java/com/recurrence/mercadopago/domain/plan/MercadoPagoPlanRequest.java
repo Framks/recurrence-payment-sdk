@@ -9,7 +9,7 @@ import com.recurrence.mercadopago.domain.commons.MercadoPagoAutoRecurring;
 public record MercadoPagoPlanRequest(
         String reason,
         MercadoPagoAutoRecurring autoRecurring,
-        MercadoPagoPaymentMethodsAllowed paymentMethodsAllowed, // ToDo entender quais são os meios de pagamento abilitados e entender se faz sentido mudar o contrato.
+        MercadoPagoPaymentMethodsAllowed paymentMethodsAllowed,
         String backUrl
 ) {
 }

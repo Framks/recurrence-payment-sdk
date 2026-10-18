@@ -35,7 +35,5 @@ public final class PlanValidator {
         if (request.getAmount().value() <= 0){
             throw new RecurrenceValidationException(AMOUNT_VALUE_ZERO);
         }
-
-        // toDo validar o payment method,
     }
 }
