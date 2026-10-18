@@ -209,14 +209,16 @@ recurrence.subscription().update(s.getId(), UpdateSubscriptionRequest.builder()
                 .build())
         .build());
 
-// plano (só PagBank; Mercado Pago lança RecurrenceValidationException)
+// plano (no sandbox do Mercado Pago a troca não é aplicada; confira getPlan() no retorno)
 recurrence.subscription().update(s.getId(), UpdateSubscriptionRequest.builder()
         .planId("OUTRO_PLANO")
         .build());
 ```
 
-- **Troca de plano** só funciona no PagBank. No Mercado Pago é recusada antes da chamada,
-  porque o provedor responde 2xx e mantém o plano antigo.
+- **Troca de plano**: o SDK envia o pedido aos dois provedores e devolve a assinatura
+  consultada de novo. No sandbox do Mercado Pago o provedor responde 2xx e mantém o
+  plano antigo, então confira `getPlan().id()` na assinatura devolvida. Se o provedor
+  recusar a troca, o erro chega como `RecurrenceApiException`.
 - **Troca de cartão** no PagBank vai para o assinante (`PUT /customers/{id}/billing_info`)
   e exige `card.securityCode`.
 

@@ -17,6 +17,10 @@ Versão avaliada no TCC.
 - Linha de tokenização de cartão em `docs/operacoes.csv`.
 
 ### Alterado
+- Troca de plano no Mercado Pago deixa de ser recusada pelo SDK: o `preapproval_plan_id`
+  é enviado e a assinatura devolvida mostra o que o provedor gravou. No sandbox o
+  provedor responde 200 e mantém o plano antigo; uma recusa futura chega como
+  `RecurrenceApiException`.
 - Wrapper do Gradle atualizado de 8.14 para 9.7.1, para a build rodar com o JDK 25.
 - `jackson-databind` e `jackson-datatype-jsr310` alinhados na versão 2.17.0.
 
@@ -35,7 +39,7 @@ Versão avaliada no TCC.
 - Configuração por variáveis de ambiente (`RECURRENCE_PROVIDER`,
   `RECURRENCE_<PROVEDOR>_*`) e mista, com o valor do código ganhando (`83a7fcb`).
 - Recusa da troca de plano em assinatura no Mercado Pago, porque o sandbox responde 2xx
-  e ignora a troca (`865e661`).
+  e ignora a troca (`865e661`). Revertida em `0.0.1-pre-avaliacao`.
 
 ## Iteração 5: contrato para integrador e provedores - 2026-09-08 a 2026-10-06
 

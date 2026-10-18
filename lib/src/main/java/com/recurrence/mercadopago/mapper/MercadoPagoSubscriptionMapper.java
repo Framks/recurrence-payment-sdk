@@ -43,7 +43,7 @@ public final class MercadoPagoSubscriptionMapper {
     public static MercadoPagoSubscriptionUpdateRequest toRequest(UpdateSubscriptionRequest subscription) {
         BillingInfo paymentMethod = subscription.getPaymentMethod();
         return new MercadoPagoSubscriptionUpdateRequest(
-                null, // troca de plano não é suportada (recusada no service)
+                subscription.getPlanId(),
                 paymentMethod == null ? null : paymentMethod.getCard().getToken(),
                 toAmountOverride(subscription.getAmount())
         );

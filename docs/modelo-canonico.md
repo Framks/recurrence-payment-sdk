@@ -228,7 +228,7 @@ Ao final, os dois adaptadores consultam a assinatura de novo e devolvem o estado
 
 | Campo | PagBank | Mercado Pago |
 |---|---|---|
-| `planId` | `PUT /subscriptions/{id}` com `plan.id` | **recusado** com `RecurrenceValidationException` (`MERCADO_PAGO_PLAN_CHANGE_UNSUPPORTED`): o sandbox responde 2xx e mantém o plano antigo |
+| `planId` | `PUT /subscriptions/{id}` com `plan.id` | `PUT /preapproval/{id}` com `preapproval_plan_id`; no sandbox o provedor responde 2xx e mantém o plano antigo (a assinatura devolvida mostra o plano antigo) |
 | `amount` | `PUT /subscriptions/{id}` com `amount` | `PUT /preapproval/{id}` com `auto_recurring.transaction_amount` |
 | `paymentMethod` | consulta a assinatura para obter o `customer.id` e chama `PUT /customers/{customer_id}/billing_info`; exige `card.securityCode` | `PUT /preapproval/{id}` com `card_token_id` |
 
@@ -343,7 +343,7 @@ Cada adaptador (`pagbank`, `mercadopago`):
 4. trata identificadores como valores opacos e os codifica no caminho da URL;
 5. converte respostas fora de 2xx em `RecurrenceApiException`, com o seu `ProviderErrorTranslator`;
 6. nunca expõe DTOs do provedor (`PagBankPlan`, `MercadoPagoSubscription`, ...) no contrato;
-7. recusa, com `RecurrenceValidationException`, o que o provedor não consegue cumprir, em vez de devolver um sucesso falso (troca de plano e filtros sem equivalente no Mercado Pago);
+7. recusa, com `RecurrenceValidationException`, o que o provedor não consegue cumprir, em vez de devolver um sucesso falso (filtros sem equivalente no Mercado Pago);
 8. recusa na configuração o que não se aplica a ele (`backUrl` no PagBank, ausência de `backUrl` no Mercado Pago, header `Authorization` manual nos dois).
 
 ## 9. Limitações conhecidas
@@ -352,7 +352,9 @@ Cada adaptador (`pagbank`, `mercadopago`):
   É uma exceção justificada: o Mercado Pago exige `back_url` na criação de planos e
   assinaturas, e o PagBank recusa a configuração se o campo vier preenchido
   (`PAGBANK_NOT_SUPPORT_BACK_URL`).
-- **Troca de plano** não funciona no Mercado Pago e é recusada antes da chamada.
+- **Troca de plano** no Mercado Pago: o SDK envia o pedido, mas no sandbox o provedor
+  responde 2xx e mantém o plano antigo (testado em 2026-10-18). A assinatura devolvida
+  mostra o plano que ficou gravado.
 - **Listagem geral de pagamentos** no Mercado Pago (`/v1/payments/search`) traz também
   pagamentos que não vieram de assinaturas.
 - **Campos que um provedor não devolve** ficam `null`: no Mercado Pago, `Invoice.occurrence`,

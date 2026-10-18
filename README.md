@@ -107,8 +107,8 @@ RECURRENCE_MERCADO_PAGO_BACK_URL=https://minha-loja.com/assinatura/retorno
 
 O Mercado Pago exige uma URL de retorno (`BACK_URL`); o PagBank recusa a configuração
 se ela vier preenchida. O que cada provedor aceita ou recusa está em
-[`docs/compatibilidade.md`](docs/compatibilidade.md). A principal diferença: a troca de
-plano de uma assinatura só funciona no PagBank.
+[`docs/compatibilidade.md`](docs/compatibilidade.md). A principal diferença: no sandbox do
+Mercado Pago a troca de plano de uma assinatura responde com sucesso mas não é aplicada.
 
 ## Tokenização de cartão e PCI-DSS
 

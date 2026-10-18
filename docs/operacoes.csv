@@ -20,7 +20,7 @@ assinaturas,atualizar assinatura,PUT,/subscriptions/{id},PUT,/preapproval/{id},d
 assinaturas,pausar assinatura,PUT,/subscriptions/{id}/suspend,PUT,/preapproval/{id},indireta,Mercado Pago usa status paused
 assinaturas,reativar assinatura,PUT,/subscriptions/{id}/activate,PUT,/preapproval/{id},indireta,Mercado Pago usa status authorized
 assinaturas,cancelar assinatura,PUT,/subscriptions/{id}/cancel,PUT,/preapproval/{id},indireta,Mercado Pago usa status cancelled
-assinaturas,alterar plano,PUT,/subscriptions/{id},PUT,/preapproval/{id},direta,Validar restrições de alteração em cada contrato; o SDK recusa no Mercado Pago porque o sandbox responde 2xx e mantém o plano antigo
+assinaturas,alterar plano,PUT,/subscriptions/{id},PUT,/preapproval/{id},direta,Validar restrições de alteração em cada contrato; no Mercado Pago o sandbox responde 2xx e mantém o plano antigo; o SDK devolve a assinatura como o provedor gravou
 assinaturas,exportar assinaturas,—,—,GET,/preapproval/export,específica,Recurso próprio do Mercado Pago que retorna exportação conforme filtros
 assinaturas,remover cupom,DELETE,/subscriptions/{id}/coupons,—,—,específica,Recurso próprio do fluxo PagBank
 cupons,criar cupom,POST,/coupons,—,—,específica,Recurso próprio do fluxo PagBank

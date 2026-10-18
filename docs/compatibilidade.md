@@ -15,7 +15,7 @@ As colunas de endpoint e as observações já refletem o código atual.
 | 7 | `subscription().create` | `POST /subscriptions` | `POST /preapproval` | | PagBank exige `referenceId`, nome, CPF/CNPJ, telefone e CVV; Mercado Pago usa só e-mail e `card_token_id`. |
 | 8 | `subscription().get` | `GET /subscriptions/{id}` | `GET /preapproval/{id}` | | Mercado Pago não devolve o nome do assinante e devolve o e-mail vazio. |
 | 9 | `subscription().list` | `GET /subscriptions` | `GET /preapproval/search` | | Filtro `OVERDUE`/`EXPIRED` recusado no Mercado Pago. |
-| 10 | `subscription().update` | `PUT /subscriptions/{id}` e `PUT /customers/{id}/billing_info` | `PUT /preapproval/{id}` | | **Troca de plano recusada no Mercado Pago** (`RecurrenceValidationException`): o sandbox responde 2xx e mantém o plano antigo. |
+| 10 | `subscription().update` | `PUT /subscriptions/{id}` e `PUT /customers/{id}/billing_info` | `PUT /preapproval/{id}` | | **Troca de plano no Mercado Pago**: enviada ao provedor; o sandbox responde 2xx e mantém o plano antigo, e a assinatura devolvida reflete isso. |
 | 11 | `subscription().suspend` | `PUT /subscriptions/{id}/suspend` | `PUT /preapproval/{id}` (`status = paused`) | | |
 | 12 | `subscription().cancel` | `PUT /subscriptions/{id}/cancel` | `PUT /preapproval/{id}` (`status = cancelled`) | | |
 | 13 | `subscription().activate` | `PUT /subscriptions/{id}/activate` | `PUT /preapproval/{id}` (`status = authorized`) | | |

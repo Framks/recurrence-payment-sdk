@@ -104,9 +104,9 @@ public interface SubscriptionService {
      * Atualiza plano, valor ou cartão de uma assinatura e devolve a assinatura
      * consultada de novo após a alteração.
      *
-     * <p>Troca de plano só é aceita pelo PagBank. No Mercado Pago o pedido com
-     * {@code planId} é recusado com {@code RecurrenceValidationException}, porque o
-     * provedor responde 2xx e mantém o plano antigo. No PagBank a troca de cartão
+     * <p>A assinatura devolvida mostra o que o provedor de fato gravou: no sandbox do
+     * Mercado Pago a troca de plano responde 2xx mas mantém o plano antigo, então
+     * confira {@code getPlan()} no retorno. No PagBank a troca de cartão
      * vai para {@code PUT /customers/{id}/billing_info} e exige
      * {@code card.securityCode}.</p>
      *
@@ -114,8 +114,8 @@ public interface SubscriptionService {
      * @param subscription   campos a alterar; campo nulo não é alterado, e ao menos um deve ser informado
      * @param requestOptions chave de idempotência e timeout desta chamada
      * @return a assinatura atualizada
-     * @throws com.recurrence.exception.RecurrenceValidationException se nenhum campo for informado, algum for
-     *         inválido ou o provedor ativo não suportar a alteração pedida
+     * @throws com.recurrence.exception.RecurrenceValidationException se nenhum campo for informado ou algum
+     *         for inválido
      * @throws com.recurrence.exception.RecurrenceApiException se o provedor responder fora de 2xx
      */
     Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription, RequestOptions requestOptions) throws RecurrenceException;

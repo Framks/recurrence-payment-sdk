@@ -12,14 +12,12 @@ import com.recurrence.core.BaseService;
 import com.recurrence.core.ProviderContext;
 import com.recurrence.core.QueryParams;
 import com.recurrence.core.RequestValidator;
-import com.recurrence.exception.RecurrenceValidationException;
 import com.recurrence.mercadopago.domain.commons.MercadoPagoStatusRequest;
 import com.recurrence.mercadopago.domain.subscription.MercadoPagoSubscription;
 import com.recurrence.mercadopago.domain.subscription.MercadoPagoSubscriptionList;
 import com.recurrence.mercadopago.mapper.MercadoPagoFilterMapper;
 import com.recurrence.mercadopago.mapper.MercadoPagoSubscriptionMapper;
 
-import static com.recurrence.constants.ValidationsMessage.MERCADO_PAGO_PLAN_CHANGE_UNSUPPORTED;
 import static com.recurrence.infrastructure.MethodRequest.GET;
 import static com.recurrence.infrastructure.MethodRequest.POST;
 import static com.recurrence.infrastructure.MethodRequest.PUT;
@@ -88,20 +86,18 @@ public class MercadoPagoSubscriptionService extends BaseService implements Subsc
     }
 
     /**
-     * Valor e cartão ({@code card_token_id}) são alterados no mesmo
-     * {@code PUT /preapproval/{id}}. Ao final devolve a assinatura atualizada.
+     * Plano ({@code preapproval_plan_id}), valor e cartão ({@code card_token_id}) são
+     * alterados no mesmo {@code PUT /preapproval/{id}}. Ao final devolve a assinatura
+     * consultada de novo, com o que o provedor de fato gravou.
      *
-     * <p>Troca de plano é recusada: no sandbox o Mercado Pago responde 2xx ao
-     * {@code preapproval_plan_id} mas mantém o plano antigo, o que seria um
-     * sucesso falso para o integrador.</p>
+     * <p>No sandbox o Mercado Pago responde 200 à troca de plano mas mantém o plano
+     * antigo; a assinatura devolvida reflete isso. Se o provedor recusar a troca, o
+     * erro chega como {@code RecurrenceApiException}.</p>
      */
     @Override
     public Subscription update(String subscriptionId, UpdateSubscriptionRequest subscription, RequestOptions requestOptions) {
         RequestValidator.requireId(subscriptionId, SUBSCRIPTION_ID);
         RequestValidator.validate(subscription);
-        if (subscription.getPlanId() != null) {
-            throw new RecurrenceValidationException(MERCADO_PAGO_PLAN_CHANGE_UNSUPPORTED);
-        }
         execute(
                 Operation.SUBSCRIPTION_UPDATE,
                 request(PUT, subscriptionPath(subscriptionId), requestOptions)

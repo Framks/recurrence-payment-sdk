@@ -179,7 +179,7 @@ Regras que só valem para o Xpay (campo obrigatório a mais, limite de datas) fi
 
 Se o Xpay **não consegue cumprir** uma operação do contrato, lance
 `RecurrenceValidationException` antes da chamada, com uma mensagem clara. É o que o
-Mercado Pago faz na troca de plano (`MERCADO_PAGO_PLAN_CHANGE_UNSUPPORTED`). Não devolva
+Mercado Pago faz com filtros de estado sem equivalente (`FILTER_STATUS_UNSUPPORTED`). Não devolva
 um sucesso falso nem ignore o campo (critério 5 e regra de simplicidade de
 [`criterios.md`](criterios.md)).
 
