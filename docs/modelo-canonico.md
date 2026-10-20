@@ -94,7 +94,7 @@ valor pequenos são `record`.
 | `PlanTrial` | record | `Integer days` | Período de teste em dias, maior que zero. |
 | `BillingInfo` | classe com builder | `PaymentMethodType type`, `Card card` | Meio de pagamento. É classe, e não record, para aceitar outros meios no futuro sem quebrar o contrato. |
 | `Card` | classe com builder | `token`, `securityCode`, `brand`, `lastDigits` | Nos pedidos: `token` (obrigatório) e `securityCode` (CVV). Nas respostas: só `brand` e `lastDigits`, quando o provedor devolve. |
-| `Phone` | classe com builder | `Integer id`, `area`, `country`, `number` | Telefone do assinante. O `id` não é enviado nem preenchido por nenhum adaptador. |
+| `Phone` | classe com builder | `area`, `country`, `number` | Telefone do assinante. |
 | `PlanReference` | record | `id`, `name` | Plano resumido dentro de assinaturas e faturas. |
 | `CustomerReference` | record | `id`, `name`, `email` | Assinante resumido. Qualquer campo pode vir `null`, conforme o provedor (veja as tabelas abaixo). |
 

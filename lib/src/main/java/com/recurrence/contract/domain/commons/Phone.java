@@ -13,13 +13,11 @@ package com.recurrence.contract.domain.commons;
  */
 public final class Phone {
 
-    private final Integer id;
     private final String area;
     private final String country;
     private final String number;
 
     private Phone(Builder builder) {
-        this.id = builder.id;
         this.area = builder.area;
         this.country = builder.country;
         this.number = builder.number;
@@ -27,10 +25,6 @@ public final class Phone {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public Integer getId() {
-        return id;
     }
 
     public String getArea() {
@@ -46,17 +40,11 @@ public final class Phone {
     }
 
     public static final class Builder {
-        private Integer id;
         private String area;
         private String country;
         private String number;
 
         private Builder() { }
-
-        public Builder id(Integer id) {
-            this.id = id;
-            return this;
-        }
 
         public Builder area(String area) {
             this.area = area;

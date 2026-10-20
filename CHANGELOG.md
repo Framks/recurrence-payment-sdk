@@ -27,6 +27,7 @@ Versão avaliada no TCC.
 ### Removido
 - `Customer` e `Refund` do contrato: nenhum serviço os usava. O assinante aparece só como
   `CustomerReference`; estorno fica fora do escopo.
+- Campo `id` de `Phone`: nenhum adaptador o enviava ou preenchia.
 - Classe de configuração própria do Mercado Pago, que não era mais usada.
 - Dependências sem uso: `commons-math3` (exposta como `api`) e `guava`.
 
