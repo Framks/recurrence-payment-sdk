@@ -28,7 +28,7 @@ Meio de pagamento aceito: **só cartão de crédito** (`PaymentMethodType.CREDIT
 | Fora do contrato | Motivo |
 |---|---|
 | Assinante como recurso próprio (`Customer`, `CustomerService`) | No Mercado Pago o pagador existe só dentro da assinatura. O assinante aparece no contrato apenas como `CustomerReference(id, name, email)` nas respostas e como `CustomerRequest` na criação da assinatura. |
-| Estorno (`Refund`) | Não faz parte do produto de assinaturas do Mercado Pago. Fica como trabalho futuro. |
+| Estorno (`Refund`) | Não faz parte do produto de assinaturas do Mercado Pago. |
 | Cupons, preferências de retentativa e de notificação, retentativa manual | Recursos exclusivos do PagBank. |
 | Exportação de assinaturas | Recurso exclusivo do Mercado Pago. |
 | Busca geral de faturas | O PagBank só lista faturas por assinatura. |

@@ -26,16 +26,11 @@ Uma exceção de operação não suportada é aceitável somente para uma inten�
 considerada comum cuja indisponibilidade seja descoberta em execução. Uma
 funcionalidade sabidamente exclusiva não deve ser adicionada ao contrato comum.
 
-## Aplicação ao contrato
-
-A aplicação destes critérios ao contrato é avaliada na Q1 (repositório `avaliacao_tcc`).
-
-### Exceção registrada: `ProviderConfig.backUrl`
+## Exceção registrada: `ProviderConfig.backUrl`
 
 `backUrl` é o único campo de um provedor só num tipo compartilhado e, por isso, não
-atende ao critério 1. Ele fica no `ProviderConfig` como exceção justificada: o Mercado
-Pago exige `back_url` na criação de planos e assinaturas. O risco é controlado na
-configuração: o Mercado Pago
-recusa a configuração sem o campo (`MERCADO_PAGO_BACK_URL_REQUIRED`) e o PagBank recusa
+atende ao critério 1. Ele fica no `ProviderConfig` como exceção: o Mercado Pago exige
+`back_url` na criação de planos e assinaturas. O risco é controlado na configuração: o
+Mercado Pago recusa a configuração sem o campo (`MERCADO_PAGO_BACK_URL_REQUIRED`) e o PagBank recusa
 a configuração com o campo preenchido (`PAGBANK_NOT_SUPPORT_BACK_URL`). Nenhum dos dois
 ignora o valor em silêncio.

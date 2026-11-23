@@ -8,12 +8,12 @@ e tokenização de cartão. O seu código usa só os tipos da biblioteca; trocar
 
 ## Status
 
-- Versão `v0.0.1-pre-avaliacao`, artefato de um TCC (Sistemas de Informação, UFC Quixadá).
+- Versão `v0.0.1-pre-avaliacao`.
 - **Os dois provedores estão implementados**: PagBank e Mercado Pago implementam as 19
   operações do contrato, com as diferenças descritas em
   [`docs/compatibilidade.md`](docs/compatibilidade.md).
-- Ainda não há testes automatizados. A avaliação de portabilidade nos *sandboxes* está
-  em andamento.
+- Ainda não há testes automatizados. O resultado dos testes de portabilidade nos
+  *sandboxes* está em [`docs/compatibilidade.md`](docs/compatibilidade.md).
 - Meio de pagamento: só cartão de crédito.
 
 ## Requisitos
@@ -130,7 +130,6 @@ Mercado Pago a troca de plano de uma assinatura responde com sucesso mas não é
   decisões de projeto.
 - [`docs/novo-provedor.md`](docs/novo-provedor.md): como adicionar um terceiro provedor.
 - [`docs/criterios.md`](docs/criterios.md): critérios para um campo entrar no contrato.
-- [`CHANGELOG.md`](CHANGELOG.md): histórico das versões do contrato.
 - Javadoc: `./gradlew javadoc` (saída em `lib/build/docs/javadoc/`).
 
 ## Build

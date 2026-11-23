@@ -5,16 +5,14 @@ import com.recurrence.contract.domain.enums.PlanStatus;
 /**
  * Filtros de busca de planos. Paginação fica em {@code PageOptions}.
  *
- * <p>Interseção fraca entre os provedores &mdash; confirmar na PoC:</p>
+ * <p>Campos aceitos pelos dois provedores:</p>
  * <ul>
- *   <li>{@code status} &mdash; Mercado Pago {@code status} (busca de {@code preapproval_plan});
- *       PagBank possui {@code status} no objeto plano, mas o filtro na listagem ainda
- *       precisa ser confirmado;</li>
- *   <li>{@code query} &mdash; Mercado Pago {@code q}; PagBank {@code reference_id}
- *       (o adaptador mapeia para o parâmetro suportado).</li>
+ *   <li>{@code status} &mdash; PagBank {@code status} ({@code ACTIVE} ou {@code INACTIVE}) /
+ *       Mercado Pago {@code status} ({@code INACTIVE} é enviado como {@code cancelled});</li>
+ *   <li>{@code query} &mdash; PagBank {@code reference_id} / Mercado Pago {@code q}.</li>
  * </ul>
  *
- * <p>O adaptador ignora, sem erro, o campo que o provedor ativo não suportar.</p>
+ * <p>O status {@code UNKNOWN} é recusado com {@code RecurrenceValidationException}.</p>
  */
 public final class PlanFilter {
 
