@@ -353,7 +353,7 @@ Cada adaptador (`pagbank`, `mercadopago`):
   assinaturas, e o PagBank recusa a configuração se o campo vier preenchido
   (`PAGBANK_NOT_SUPPORT_BACK_URL`).
 - **Troca de plano** no Mercado Pago: o SDK envia o pedido, mas no sandbox o provedor
-  responde 2xx e mantém o plano antigo (testado em 2026-10-18). A assinatura devolvida
+  responde 2xx e mantém o plano antigo. A assinatura devolvida
   mostra o plano que ficou gravado.
 - **Listagem geral de pagamentos** no Mercado Pago (`/v1/payments/search`) traz também
   pagamentos que não vieram de assinaturas.

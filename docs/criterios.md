@@ -2,29 +2,11 @@
 
 Uma operação ou conceito é candidato ao modelo canônico quando:
 
-1. possui intenção de negócio equivalente nos provedores analisados;
-2. pode ser utilizado sem o consumidor conhecer o fornecedor ativo;
-3. permite implementação honesta por todos os adaptadores do núcleo;
-4. conserva significado útil diante da inclusão de um terceiro provedor;
-5. não exige retornar sucesso fictício quando o recurso está ausente.
-
-## Perguntas obrigatórias
-
-Para cada campo e operação:
-
-- O nome é diferente ou o significado também é diferente?
-- O campo participa da criação, atualização, resposta ou de mais de uma delas?
-- `null` significa ausência, ilimitado, padrão do provedor ou remoção?
-- O valor pode ser transformado sem perda?
-- Existe regra dependente de país, conta ou meio de pagamento?
-- Como um valor novo ou desconhecido será preservado?
-- A biblioteca consegue validar a regra antes da chamada?
-
-## Regra de simplicidade
-
-Uma exceção de operação não suportada é aceitável somente para uma intenção
-considerada comum cuja indisponibilidade seja descoberta em execução. Uma
-funcionalidade sabidamente exclusiva não deve ser adicionada ao contrato comum.
+1. possui intenção de negócio equivalente nos provedores;
+2. pode ser usado sem que a aplicação conheça o provedor ativo;
+3. pode ser implementado de forma honesta por todos os adaptadores;
+4. mantém significado útil diante de um terceiro provedor
+5. exige não retornar sucesso fictício quando o recurso não existe.
 
 ## Exceção registrada: `ProviderConfig.backUrl`
 
