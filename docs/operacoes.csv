@@ -1,0 +1,45 @@
+dominio,operacao,pagbank_metodo,pagbank_caminho,mercado_pago_metodo,mercado_pago_caminho,equivalencia,observacao
+seguranca,gerar chave pública,PUT,/public-keys,—,—,específica,Recurso próprio do fluxo PagBank
+seguranca,consultar chave pública,GET,/public-keys,—,—,específica,Recurso próprio do fluxo PagBank; referência não expõe id no caminho
+cartao,tokenizar cartão,GET,/public-keys (+ criptografia local),POST,/v1/card_tokens,indireta,PagBank criptografa o cartão localmente com a chave pública da conta; Mercado Pago cria o card_token pela API
+planos,criar plano,POST,/plans,POST,/preapproval_plan,direta,Contratos e campos distintos
+planos,consultar plano,GET,/plans/{id},GET,/preapproval_plan/{id},direta,
+planos,listar ou pesquisar planos,GET,/plans,GET,/preapproval_plan/search,direta,Parâmetros e paginação distintos
+planos,atualizar plano,PUT,/plans/{id},PUT,/preapproval_plan/{id},direta,
+planos,ativar plano,PUT,/plans/{id}/activate,PUT,/preapproval_plan/{id},indireta,Mercado Pago altera o estado pelo endpoint geral de atualização
+planos,inativar plano,PUT,/plans/{id}/inactivate,PUT,/preapproval_plan/{id},indireta,Mercado Pago altera o estado pelo endpoint geral de atualização
+assinantes,criar assinante,POST,/customers,—,—,específica,Mercado Pago representa o pagador na assinatura e possui API de customers fora deste núcleo
+assinantes,consultar assinante,GET,/customers/{id},—,—,específica,Recurso próprio do fluxo PagBank
+assinantes,listar assinantes,GET,/customers,—,—,específica,Recurso próprio do fluxo PagBank
+assinantes,atualizar assinante,PUT,/customers/{id},—,—,específica,Recurso próprio do fluxo PagBank
+assinantes,atualizar meio de pagamento,PUT,/customers/{id}/billing_info,PUT,/preapproval/{id},indireta,No Mercado Pago a alteração ocorre na assinatura
+assinaturas,criar assinatura,POST,/subscriptions,POST,/preapproval,direta,PagBank vincula a plano; Mercado Pago também admite criação independente
+assinaturas,consultar assinatura,GET,/subscriptions/{id},GET,/preapproval/{id},direta,
+assinaturas,listar ou pesquisar assinaturas,GET,/subscriptions,GET,/preapproval/search,direta,
+assinaturas,atualizar assinatura,PUT,/subscriptions/{id},PUT,/preapproval/{id},direta,
+assinaturas,pausar assinatura,PUT,/subscriptions/{id}/suspend,PUT,/preapproval/{id},indireta,Mercado Pago usa status paused
+assinaturas,reativar assinatura,PUT,/subscriptions/{id}/activate,PUT,/preapproval/{id},indireta,Mercado Pago usa status authorized
+assinaturas,cancelar assinatura,PUT,/subscriptions/{id}/cancel,PUT,/preapproval/{id},indireta,Mercado Pago usa status cancelled
+assinaturas,alterar plano,PUT,/subscriptions/{id},PUT,/preapproval/{id},direta,Validar restrições de alteração em cada contrato; no Mercado Pago o sandbox responde 2xx e mantém o plano antigo; o SDK devolve a assinatura como o provedor gravou
+assinaturas,exportar assinaturas,—,—,GET,/preapproval/export,específica,Recurso próprio do Mercado Pago que retorna exportação conforme filtros
+assinaturas,remover cupom,DELETE,/subscriptions/{id}/coupons,—,—,específica,Recurso próprio do fluxo PagBank
+cupons,criar cupom,POST,/coupons,—,—,específica,Recurso próprio do fluxo PagBank
+cupons,consultar cupom,GET,/coupons/{id},—,—,específica,Recurso próprio do fluxo PagBank
+cupons,listar cupons,GET,/coupons,—,—,específica,Recurso próprio do fluxo PagBank
+cupons,ativar cupom,PUT,/coupons/{id}/activate,—,—,específica,Recurso próprio do fluxo PagBank
+cupons,inativar cupom,PUT,/coupons/{id}/inactivate,—,—,específica,Recurso próprio do fluxo PagBank
+faturas,consultar fatura,GET,/invoices/{id},GET,/authorized_payments/{id},direta,Invoice corresponde ao authorized payment no nível funcional
+faturas,listar faturas,—,—,GET,/authorized_payments/search,específica,PagBank não expõe listagem geral de faturas; somente por assinatura ou por id
+faturas,listar faturas de assinatura,GET,/subscriptions/{id}/invoices,GET,/authorized_payments/search,indireta,Mercado Pago filtra por preapproval_id
+faturas,listar pagamentos de fatura,GET,/invoices/{id}/payments,GET,/authorized_payments/{id} → /v1/payments/{id},indireta,Mercado Pago atendido por composição: GET /authorized_payments/{id} → GET /v1/payments/{payment.id}; a fatura referencia no máximo um pagamento
+faturas,retentar cobrança manualmente,PUT,/subscriptions/{id}/retry,—,—,específica,Mercado Pago documenta novas tentativas automáticas
+pagamentos,consultar pagamento,GET,/payments/{id},GET,/v1/payments/{id},indireta,O SDK mapeia Payment para /v1/payments e Invoice para /authorized_payments
+pagamentos,listar pagamentos,GET,/payments,GET,/v1/payments/search,indireta,No Mercado Pago a busca de /v1/payments traz também pagamentos que não são de assinatura
+estornos,criar estorno,POST,/payments/{id}/refunds,—,—,específica,Estorno não faz parte do produto de Assinaturas do Mercado Pago
+estornos,consultar estorno,GET,/refunds/{id},—,—,específica,Estorno não faz parte do produto de Assinaturas do Mercado Pago
+estornos,listar estornos de pagamento,GET,/payments/{id}/refunds,—,—,específica,Estorno não faz parte do produto de Assinaturas do Mercado Pago
+preferencias,consultar retentativas,GET,/preferences/retries,—,—,específica,Mercado Pago não expõe configuração equivalente no núcleo consultado
+preferencias,alterar retentativas,PUT,/preferences/retries,—,—,específica,Mercado Pago realiza novas tentativas automaticamente
+preferencias,consultar notificações,GET,/preferences/notifications,—,—,específica,
+preferencias,alterar notificações,PUT,/preferences/notifications,—,—,específica,Inclui URL de recebimento no PagBank
+notificacoes,receber eventos,POST,URL cadastrada pelo integrador,POST,URL cadastrada pelo integrador,direta,Eventos payloads e validação são específicos
