@@ -8,7 +8,7 @@ e tokenização de cartão. O seu código usa só os tipos da biblioteca; trocar
 
 ## Status
 
-- Versão `v0.0.1-pre-avaliacao`.
+- Versão `0.1.0`. Até a 1.0 a API ainda pode mudar entre versões menores.
 - **Os dois provedores estão implementados**: PagBank e Mercado Pago implementam as 19
   operações do contrato, com as diferenças descritas em
   [`docs/compatibilidade.md`](docs/compatibilidade.md).
@@ -26,42 +26,30 @@ e tokenização de cartão. O seu código usa só os tipos da biblioteca; trocar
 
 ## Instalação
 
-A biblioteca ainda não está publicada num repositório Maven. As duas formas abaixo foram
-testadas.
+Publicada no Maven Central como `io.github.framks:recurrence-payment-sdk`. O Jackson
+vem junto como dependência transitiva.
 
-### Opção 1: build composto (`includeBuild`)
-
-Clone este repositório ao lado do seu projeto e, no seu `settings.gradle.kts`:
-
-```kotlin
-includeBuild("../recurrence-payment-sdk")
-```
-
-No seu `build.gradle.kts`:
+Gradle (Kotlin DSL):
 
 ```kotlin
 dependencies {
-    implementation("recurrence-payment-sdk:lib")
+    implementation("io.github.framks:recurrence-payment-sdk:0.1.0")
 }
 ```
 
-O Gradle compila a biblioteca junto com o seu projeto e traz o Jackson automaticamente.
+Maven:
 
-### Opção 2: jar local
-
-```bash
-./gradlew jar    # gera lib/build/libs/lib.jar
+```xml
+<dependency>
+    <groupId>io.github.framks</groupId>
+    <artifactId>recurrence-payment-sdk</artifactId>
+    <version>0.1.0</version>
+</dependency>
 ```
 
-Copie o jar para o seu projeto e declare também o Jackson, que não vai dentro do jar:
-
-```kotlin
-dependencies {
-    implementation(files("libs/lib.jar"))
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
-}
-```
+Para usar uma versão não publicada, clone o repositório e rode
+`./gradlew publishToMavenLocal`. Depois adicione `mavenLocal()` aos `repositories` do seu
+projeto.
 
 ## Quick start
 
@@ -137,3 +125,12 @@ Mercado Pago a troca de plano de uma assinatura responde com sucesso mas não é
 ```bash
 ./gradlew build
 ```
+
+## Contribuindo
+
+Veja [`CONTRIBUTING.md`](CONTRIBUTING.md). Para reportar vulnerabilidades, siga o
+[`SECURITY.md`](SECURITY.md).
+
+## Licença
+
+[Apache License 2.0](LICENSE).

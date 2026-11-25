@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    id("com.vanniktech.maven.publish") version "0.37.0"
 }
 
 repositories {
@@ -34,10 +35,5 @@ tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
-// Executa Library.main, que percorre todas as operações do contrato no sandbox do PagBank.
-tasks.register<JavaExec>("runLibrary") {
-    group = "verification"
-    description = "Executa as chamadas do contrato contra o sandbox do PagBank."
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.recurrence.Library"
-}
+// Publicação no Maven Central: coordenadas, POM e assinatura são lidos do
+// gradle.properties da raiz. O plugin gera também os jars de sources e javadoc.

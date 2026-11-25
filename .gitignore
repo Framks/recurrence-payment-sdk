@@ -12,3 +12,9 @@ build
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+
+### Segredos ###
+.env
+*.gpg
+*.asc
+local.properties
