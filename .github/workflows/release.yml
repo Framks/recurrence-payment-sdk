@@ -1,0 +1,39 @@
+name: Release
+
+# Publica no Maven Central quando uma tag de versão (ex.: v0.1.0) é enviada.
+# A versão da tag precisa ser igual a VERSION_NAME em gradle.properties.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Confere tag x VERSION_NAME
+        run: |
+          versao=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          if [ "v$versao" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME diferente de VERSION_NAME=$versao"; exit 1
+          fi
+
+      - name: Publica no Maven Central
+        run: ./gradlew publishToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
